@@ -1,0 +1,56 @@
+[package]
+name = "rimeflow-onnx-base"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Cross-target infrastructure for rimeflow-family ONNX operator crates: shared wgpu preprocess pipeline, letterbox math, pykeio/ort session + EP fan-out, and a wasm-bindgen inline_js bridge to onnxruntime-web (WebGPU). Operator crates (rimeflow-yolov8n, rimeflow-siglip, …) depend on this and only own model-specific files."
+repository = "https://github.com/caozisheng/rimeflow-onnx-base"
+homepage = "https://github.com/caozisheng/rimeflow-onnx-base"
+keywords = ["onnx", "wgpu", "wasm", "computer-vision", "operator"]
+categories = ["computer-vision", "wasm", "multimedia::images"]
+publish = false
+
+[features]
+default = []
+
+# Native ONNX Runtime — pass-through to `ort` v2 with per-EP feature layering.
+# Operator crates re-export these feature names verbatim so their downstream
+# `Cargo.toml`s can list `native-directml` etc. without knowing the mechanism.
+native            = ["dep:ort", "dep:thiserror", "ort/download-binaries", "ort/tls-rustls"]
+native-coreml     = ["native", "ort/coreml"]
+native-directml   = ["native", "ort/directml"]
+native-cuda       = ["native", "ort/cuda"]
+native-tensorrt   = ["native", "ort/tensorrt"]
+native-nnapi      = ["native", "ort/nnapi"]
+native-qnn        = ["native", "ort/qnn"]
+native-openvino   = ["native", "ort/openvino"]
+
+# Turn on when operator crate build.rs uses `build_helper::generate_extern_block`.
+# It pulls in std::{env, fs, path} which are already there; this gate exists
+# only for symmetry with future helpers that may need heavier deps.
+build-helper      = []
+
+[dependencies]
+wgpu     = { version = "29", default-features = false, features = ["wgsl"] }
+bytemuck = { version = "1", features = ["derive"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen         = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys               = "0.3"
+# GPU* — for extract_web_gpu_buffer and the generated extern block's
+# GPUBuffer signature.
+# HtmlCanvasElement / OffscreenCanvas — for the transition ort_detect API.
+web-sys = { version = "0.3", features = [
+  "Gpu",
+  "GpuAdapter",
+  "GpuBuffer",
+  "GpuDevice",
+  "GpuQueue",
+  "HtmlCanvasElement",
+  "OffscreenCanvas",
+] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+ort       = { version = "=2.0.0-rc.12", default-features = false, optional = true }
+thiserror = { version = "1", optional = true }

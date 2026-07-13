@@ -1,0 +1,7 @@
+# web-sys puts all WebGPU bindings (GpuDevice, GpuBuffer, GpuAdapter, …) behind
+# the `web_sys_unstable_apis` cfg. wgpu's WebGPU backend requires the same cfg.
+# Both this crate and any workspace that consumes it as a wasm dep must build
+# with this flag; downstream consumers should mirror this file at their
+# workspace root.
+[target.wasm32-unknown-unknown]
+rustflags = ["--cfg=web_sys_unstable_apis"]
