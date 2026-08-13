@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "measurementIdentity": {
+    "baseHistoricalSourceCommit": "30791ea331532b5b3f7d627cea37e3736765840c",
+    "oldEvidenceSourceRange": "30791ea331532b5b3f7d627cea37e3736765840c..852e4330eda982957df0e2bb3b32d6d4934ca01e",
+    "oldEvidenceHead": "852e4330eda982957df0e2bb3b32d6d4934ca01e",
+    "canonicalOperatorModelSourceCommit": "eacbcf00dfc2fba941b494e2955e87fffd707382",
+    "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+    "singleTargetSha256": "607e88462bd0d80db53b313c12269dff69c608637a582c7a5d2158404b8d4a18",
+    "canonicalInputSha256Float32Le": "7cde7a22823666ede34cae26a348a563dbd7e64df800406b433733baabee24fe",
+    "webRawOutputSha256": "37cc9955c15f1c4283fd2ed0d8aa360905357fd03a386db3a526d94dd0cca212",
+    "nativeRawOutputSha256": "c84b2985786685fe134fe4dbb7c091ecb72d5be7bdbd442aac832b0995013f27"
+  },
+  "historicalReplay": {
+    "head": "2413b775aaba45f81cec4e5a5cb9c24daa1e7ce0",
+    "classification": "historical-capture-replay",
+    "isCurrentPublication": false
+  },
+  "operatorInputPublication": {
+    "repository": "https://github.com/laphael-dong/rimeflow-nn-validation.git",
+    "ref": "refs/heads/feature/rimeflow-backend-contract-task1-aggregate",
+    "commit": "c90d3957fbbd04b3f0b29eff7bc873b70eed4400",
+    "tree": "341d8b00fb5d4d9afeac856418950c1faa408b2e",
+    "objects": [
+      {
+        "id": "model",
+        "path": "models/yolov8n.onnx",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "22f19afe710dfa942b3e644c4e5a7ac5c42ac403",
+        "bytes": 12851098,
+        "sha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad"
+      },
+      {
+        "id": "fixture-manifest",
+        "path": "evidence/fixtures/manifest.json",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "c1c1e02d97453c082c4fdba49faf3fda901c5efb",
+        "bytes": 9945,
+        "sha256": "430c391b9cab0c36b2bde93964e8f6afcd66b0dcb05b055d2728c47679a38acc"
+      },
+      {
+        "id": "single-target",
+        "path": "evidence/fixtures/images/single-target.ppm",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "87b410037b98793c76b49eac002d16008634156c",
+        "bytes": 2073615,
+        "sha256": "607e88462bd0d80db53b313c12269dff69c608637a582c7a5d2158404b8d4a18"
+      },
+      {
+        "id": "web-reference",
+        "path": "evidence/golden/web-reference.json",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "333f5fcf70eafa97abc5967d2c0fb65e9c4eadeb",
+        "bytes": 29752,
+        "sha256": "114d7ab29afa5bf9b6246dfd6f1cff37ee3d4fc8212b355d2fb3ac9122f9ce68"
+      },
+      {
+        "id": "conversion-summary",
+        "path": "evidence/conversions/conversion-spikes.json",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "bytes": 44390,
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      }
+    ],
+    "productionSources": [
+      {
+        "id": "cargo-config",
+        "path": ".cargo/config.toml",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "49420ecc39ed1699b6109032bde39856facf0010",
+        "bytes": 406,
+        "sha256": "2b2254a04f96694f9cd1e19836f5857b6b86697a1642d842f81490ee45c58384"
+      },
+      {
+        "id": "operator-cargo-manifest",
+        "path": "Cargo.toml",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "cf832b9e74ff316297e5b8e8b2a4445a66c8859c",
+        "bytes": 2306,
+        "sha256": "e433b568ffc864989515735e1126c1f807e5ec8b21fbfa1b31764e18ff55bb4a"
+      },
+      {
+        "id": "raw-golden-lockfile",
+        "path": "evidence/tooling/raw-golden/Cargo.lock",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "06c9be3b4e6173736804cde982a3985bc971d8e5",
+        "bytes": 2855,
+        "sha256": "560c0ef10865895cd739c0971566564e727b83014ff4f1da3adbe561fa5581e6"
+      },
+      {
+        "id": "raw-golden-manifest",
+        "path": "evidence/tooling/raw-golden/Cargo.toml",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "0d2e1bc9e3fc4d5ac5f5cf6a01cbf87868799fe4",
+        "bytes": 165,
+        "sha256": "8027af80bec76f757253743a1ef1414e31ce449ab1c8fa5391223b33a2378b0f"
+      },
+      {
+        "id": "raw-golden-library",
+        "path": "evidence/tooling/raw-golden/src/lib.rs",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "f02c07e8a36171ec298fac615457b242cc832653",
+        "bytes": 4428,
+        "sha256": "90b7a373ee51547ef5543bd61f37a39c36471d70a0afc7e91917566711933e31"
+      },
+      {
+        "id": "raw-golden-runner",
+        "path": "evidence/tooling/raw-golden/src/main.rs",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "4eefa78a1bcbf333d5deb31b9e7de05f4980a0d4",
+        "bytes": 1770,
+        "sha256": "37b695ddc00a9573e41179eb27da08fed90f9c88cb784abd51c9bc69b5a4aa73"
+      },
+      {
+        "id": "production-postprocess",
+        "path": "src/postprocess.rs",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "98d51d5cebef6057e4f471a8713d69394f62ba86",
+        "bytes": 2910,
+        "sha256": "2a07f30ef59aa5d730cc0593adf7e69bc7351f285bdc10a2f7199f4e05d8ff4b"
+      }
+    ]
+  },
+  "basePublicationState": {
+    "repository": "https://github.com/laphael-dong/rimeflow-nn-base.git",
+    "branch": "feature/rimeflow-backend-contract-task1-base-repair-migrate01",
+    "state": "awaiting-push",
+    "commitResolution": "derive-from-runtime-HEAD-after-local-commit",
+    "remoteVerified": false
+  },
+  "requiredCiState": "not-established-until-task-3"
+}

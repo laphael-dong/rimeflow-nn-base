@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://rimeflow.dev/schemas/platform-matrix-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "frozenBeforeAdapterResults", "sourceCommits", "governance", "platforms"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "frozenBeforeAdapterResults": { "const": true },
+    "sourceCommits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base", "operator", "rimecut"],
+      "properties": {
+        "base": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "operator": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "rimecut": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requiredCheckAdministration", "runnerAdministration", "signingAndNotarization", "supportedRule"],
+      "properties": {
+        "requiredCheckAdministration": { "$ref": "#/definitions/governanceBlocker" },
+        "runnerAdministration": { "$ref": "#/definitions/governanceBlocker" },
+        "signingAndNotarization": { "$ref": "#/definitions/governanceBlocker" },
+        "supportedRule": { "type": "string", "minLength": 1 }
+      }
+    },
+    "platforms": {
+      "type": "array",
+      "minItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "os", "arch", "minimumOsVersion", "deviceRunner", "officialSdkRuntime", "converter", "artifactFormat", "adapter", "timeoutsMs", "rollbackBaseline", "requiredCiJob", "requiredCiState", "state", "evidence", "officialVersionEvidence", "operatorConversionEvidence"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "os": { "type": "string", "minLength": 1 },
+          "arch": { "type": "string", "minLength": 1 },
+          "minimumOsVersion": { "type": "string", "minLength": 1 },
+          "deviceRunner": { "type": "string", "minLength": 1 },
+          "officialSdkRuntime": { "type": "string", "minLength": 1 },
+          "converter": { "type": "string", "minLength": 1 },
+          "artifactFormat": { "type": "string", "minLength": 1 },
+          "adapter": { "type": "string", "minLength": 1 },
+          "rollbackBaseline": { "type": "string", "minLength": 1 },
+          "requiredCiJob": { "type": "string", "minLength": 1 },
+          "requiredCiState": { "const": "not-established-until-task-3" },
+          "state": { "enum": ["supported", "build-verified", "blocked"] },
+          "evidence": { "type": "string", "minLength": 1 },
+          "timeoutsMs": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["nativeInitialization", "webInitialization"],
+            "properties": {
+              "nativeInitialization": { "type": "number", "minimum": 0 },
+              "webInitialization": { "type": "number", "minimum": 0 }
+            }
+          },
+          "officialVersionEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["checkedOn", "minimumOs", "sdkRuntime", "converter"],
+            "properties": {
+              "checkedOn": { "type": "string", "format": "date" },
+              "minimumOs": { "$ref": "#/definitions/versionEvidence" },
+              "sdkRuntime": { "$ref": "#/definitions/versionEvidence" },
+              "converter": { "$ref": "#/definitions/versionEvidence" }
+            }
+          },
+          "operatorConversionEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "blob", "sha256"],
+            "properties": {
+              "path": { "const": "evidence/conversions/conversion-spikes.json" },
+              "blob": { "const": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a" },
+              "sha256": { "const": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "governanceBlocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "effect", "reason"],
+      "properties": {
+        "state": { "const": "unverified" },
+        "effect": { "const": "blocked" },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "versionEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "officialSource", "selectionBasis"],
+      "properties": {
+        "value": { "type": "string", "minLength": 1 },
+        "officialSource": { "type": "string", "pattern": "^https://" },
+        "selectionBasis": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

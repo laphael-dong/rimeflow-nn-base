@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "checkedOn": "2026-08-10",
+  "classification": "historical-measurement-environment",
+  "host": {
+    "os": "linux",
+    "arch": "x64",
+    "kernel": "7.0.0-28-generic",
+    "cpu": "AMD Ryzen 7 8840HS w/ Radeon 780M Graphics",
+    "logicalCpuCount": 16,
+    "memoryBytes": 32883466240
+  },
+  "toolchains": {
+    "rust": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "bun": "1.3.14",
+    "node": "v24.15.0",
+    "androidSdk": {
+      "state": "not-observed",
+      "value": null
+    },
+    "androidNdk": {
+      "state": "not-observed",
+      "value": null,
+      "contractRequirement": "Android platform contract requires NDK r27c on its future target runner; this Linux historical measurement did not observe it."
+    },
+    "adb": {
+      "state": "observed",
+      "value": "List of devices attached"
+    },
+    "androidDevice": "none",
+    "apple": "unavailable: ENOENT",
+    "windows": "unavailable: ENOENT",
+    "harmonyos": "unavailable: ENOENT",
+    "cuda": "unavailable: ENOENT",
+    "openvino": "unavailable: ENOENT"
+  },
+  "evidenceLimit": "本机只能提供 Linux x86_64/Node-WASM 证据；其他平台不能标记 supported。"
+}

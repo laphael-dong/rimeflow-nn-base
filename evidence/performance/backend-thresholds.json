@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 3,
+  "frozenBeforeCandidateAdapterMeasurements": true,
+  "frozenAgainst": {
+    "baseCommit": "30791ea331532b5b3f7d627cea37e3736765840c",
+    "operatorCommit": "eacbcf00dfc2fba941b494e2955e87fffd707382",
+    "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad"
+  },
+  "hardGates": {
+    "correctnessBeforePerformance": true,
+    "thresholdCombination": "all",
+    "requiredBackendMetrics": [
+      "initializationMs",
+      "coldInferenceMs",
+      "warmInferenceMs",
+      "peakProcessRssBytes"
+    ],
+    "memoryMetric": {
+      "name": "peakProcessRssBytes",
+      "metricKind": "process-rss-peak",
+      "unit": "bytes"
+    },
+    "missingMetricPolicy": "fail",
+    "nonFiniteMetricPolicy": "fail",
+    "mixedDeviceComparisonPolicy": "fail",
+    "mixedExecutionProviderPolicy": "fail",
+    "mixedDigestPolicy": "fail"
+  },
+  "latencyAndMemoryThresholds": {
+    "nativeInitialization": { "combination": "all", "relativeToWebMax": 2, "absoluteMaxMs": 30000 },
+    "coldInferenceP95": { "combination": "all", "relativeToLegacyOrtMax": 1.25, "absoluteMaxMs": 2000 },
+    "warmInferenceP95": { "combination": "all", "relativeToLegacyOrtMax": 1.15, "absoluteMaxMs": 1000 },
+    "peakProcessRss": {
+      "combination": "all",
+      "metricKind": "process-rss-peak",
+      "unit": "bytes",
+      "relativeToLegacyOrtMax": 1.25,
+      "absoluteMaxBytes": 1073741824
+    }
+  },
+  "externalProductMetrics": {
+    "owner": "RimeCut",
+    "evaluationState": "not-evaluated-by-base",
+    "metrics": [
+      "backendRuntimeArtifactBytes",
+      "finalPackageBytes",
+      "finalPackageGrowthBytes",
+      "finalPackageGrowthRatio",
+      "rollbackPackage"
+    ],
+    "policy": "Base 不得用 npm 目录、ORT archive、benchmark binary 或 raw tensor 代替产品指标，也不得宣称这些指标通过。"
+  },
+  "approvalRule": {
+    "combination": "all",
+    "allowedOnlyWhenBaselineCannotRunOrThresholdExceededWithAcceptedTradeoff": true,
+    "requiredFields": [
+      "approver",
+      "submitter",
+      "platform",
+      "metric",
+      "candidateCommit",
+      "modelSha256",
+      "artifactDigest",
+      "runtimeName",
+      "runtimeVersion",
+      "observed",
+      "threshold",
+      "reason",
+      "createdAt",
+      "expiresAt"
+    ],
+    "maximumLifetimeDays": 90,
+    "selfApprovalPolicy": "fail",
+    "missingApprovalPolicy": "fail",
+    "expiredApprovalPolicy": "fail",
+    "crossScopeReusePolicy": "fail",
+    "currentApprovals": []
+  },
+  "candidateAdapters": {
+    "state": "not-measured",
+    "comparisonPublished": false,
+    "superiorityClaimPublished": false,
+    "reason": "candidate adapter 尚未实现；这里只冻结比较规则。"
+  }
+}

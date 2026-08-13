@@ -54,3 +54,13 @@ web-sys = { version = "0.3", features = [
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 ort       = { version = "=2.0.0-rc.12", default-features = false, optional = true }
 thiserror = { version = "1", optional = true }
+
+[dev-dependencies]
+pollster = "0.4"
+serde_json = "1"
+sha2 = "0.10"
+wgpu = { version = "29", default-features = false, features = ["vulkan", "wgsl"] }
+
+[[example]]
+name = "task1_native_benchmark"
+required-features = ["native"]

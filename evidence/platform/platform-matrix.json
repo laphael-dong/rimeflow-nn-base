@@ -1,0 +1,545 @@
+{
+  "schemaVersion": 1,
+  "frozenBeforeAdapterResults": true,
+  "sourceCommits": {
+    "base": "30791ea331532b5b3f7d627cea37e3736765840c",
+    "operator": "eacbcf00dfc2fba941b494e2955e87fffd707382",
+    "rimecut": "e021e6083c1e80ad55de744df07e695d60d28bfb"
+  },
+  "governance": {
+    "requiredCheckAdministration": {
+      "state": "unverified",
+      "effect": "blocked",
+      "reason": "GitHub/GitLab 分支保护管理权限尚未验证"
+    },
+    "runnerAdministration": {
+      "state": "unverified",
+      "effect": "blocked",
+      "reason": "除本机 Linux x86_64 外没有 runner 身份证据"
+    },
+    "signingAndNotarization": {
+      "state": "unverified",
+      "effect": "blocked",
+      "reason": "Apple/Windows/Android/HarmonyOS 签名与公证权限未验证"
+    },
+    "supportedRule": "真实目标 runner 上 adapter conformance、smoke、golden、fallback、性能和 package-load 全部通过后才可 supported"
+  },
+  "platforms": [
+    {
+      "id": "macos-arm64-coreml",
+      "os": "macos",
+      "arch": "arm64",
+      "minimumOsVersion": "14.0",
+      "deviceRunner": "缺失真实 Apple Silicon runner",
+      "officialSdkRuntime": "Xcode 16.4 / Core ML (系统框架)",
+      "converter": "coremltools 9.0；需要 PyTorch/TensorFlow 源模型，不接受 ONNX 直接转换",
+      "artifactFormat": "mlpackage/compiledmodel",
+      "adapter": "Core ML adapter（后续任务，当前不存在）",
+      "timeoutsMs": {
+        "nativeInitialization": 15000,
+        "webInitialization": 20000
+      },
+      "rollbackBaseline": "base 30791ea + operator eacbcf0 + RimeCut e021e60",
+      "requiredCiJob": "coreml-macos-arm64-conformance",
+      "state": "blocked",
+      "evidence": "锁定 coremltools 9.0 可导入，但 ONNX 没有官方直接转换入口，且缺失同源 .pt、Apple 加载 runner 与授权证明",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "14.0",
+          "officialSource": "https://apple.github.io/coremltools/docs-guides/source/deployment-compatibility.html",
+          "selectionBasis": "最低 OS 是项目验收下限；Core ML artifact 的实际 deployment target 还必须由 Apple runner 产物证明。"
+        },
+        "sdkRuntime": {
+          "value": "Xcode 16.4 / Core ML (系统框架)",
+          "officialSource": "https://developer.apple.com/support/xcode/",
+          "selectionBasis": "Xcode/系统 Core ML 版本必须由目标 runner 的 xcodebuild 与系统版本采集。"
+        },
+        "converter": {
+          "value": "coremltools 9.0；需要 PyTorch/TensorFlow 源模型，不接受 ONNX 直接转换",
+          "officialSource": "https://pypi.org/project/coremltools/9.0/",
+          "selectionBasis": "任务 1 Python 工具环境固定 coremltools 9.0；它不提供当前 ONNX 的直接转换链。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    },
+    {
+      "id": "macos-x86_64-coreml",
+      "os": "macos",
+      "arch": "x86_64",
+      "minimumOsVersion": "14.0",
+      "deviceRunner": "缺失 Intel Mac runner",
+      "officialSdkRuntime": "Xcode 16.4 / Core ML (系统框架)",
+      "converter": "coremltools 9.0；需要 PyTorch/TensorFlow 源模型，不接受 ONNX 直接转换",
+      "artifactFormat": "mlpackage/compiledmodel",
+      "adapter": "Core ML adapter（后续任务，当前不存在）",
+      "timeoutsMs": {
+        "nativeInitialization": 15000,
+        "webInitialization": 20000
+      },
+      "rollbackBaseline": "base 30791ea + operator eacbcf0 + RimeCut e021e60",
+      "requiredCiJob": "coreml-macos-x64-conformance",
+      "state": "blocked",
+      "evidence": "没有同源 .pt、macOS x86_64 runner 或转换/加载报告",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "14.0",
+          "officialSource": "https://apple.github.io/coremltools/docs-guides/source/deployment-compatibility.html",
+          "selectionBasis": "最低 OS 是项目验收下限；Core ML artifact 的实际 deployment target 还必须由 Apple runner 产物证明。"
+        },
+        "sdkRuntime": {
+          "value": "Xcode 16.4 / Core ML (系统框架)",
+          "officialSource": "https://developer.apple.com/support/xcode/",
+          "selectionBasis": "Xcode/系统 Core ML 版本必须由目标 runner 的 xcodebuild 与系统版本采集。"
+        },
+        "converter": {
+          "value": "coremltools 9.0；需要 PyTorch/TensorFlow 源模型，不接受 ONNX 直接转换",
+          "officialSource": "https://pypi.org/project/coremltools/9.0/",
+          "selectionBasis": "任务 1 Python 工具环境固定 coremltools 9.0；它不提供当前 ONNX 的直接转换链。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    },
+    {
+      "id": "ios-arm64-coreml",
+      "os": "ios",
+      "arch": "arm64",
+      "minimumOsVersion": "17.0",
+      "deviceRunner": "缺失真实 iPhone/iPad runner；模拟器不可替代",
+      "officialSdkRuntime": "Xcode 16.4 / Core ML (系统框架)",
+      "converter": "coremltools 9.0；需要 PyTorch/TensorFlow 源模型，不接受 ONNX 直接转换",
+      "artifactFormat": "compiledmodel",
+      "adapter": "Core ML adapter（后续任务，当前不存在）",
+      "timeoutsMs": {
+        "nativeInitialization": 30000,
+        "webInitialization": 30000
+      },
+      "rollbackBaseline": "base 30791ea + operator eacbcf0 + RimeCut e021e60",
+      "requiredCiJob": "coreml-ios-device-conformance",
+      "state": "blocked",
+      "evidence": "缺少同源 .pt、Apple 工具链、签名和真实设备",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "17.0",
+          "officialSource": "https://apple.github.io/coremltools/docs-guides/source/deployment-compatibility.html",
+          "selectionBasis": "最低 OS 是项目验收下限；Core ML artifact 的实际 deployment target 还必须由 Apple runner 产物证明。"
+        },
+        "sdkRuntime": {
+          "value": "Xcode 16.4 / Core ML (系统框架)",
+          "officialSource": "https://developer.apple.com/support/xcode/",
+          "selectionBasis": "Xcode/系统 Core ML 版本必须由目标 runner 的 xcodebuild 与系统版本采集。"
+        },
+        "converter": {
+          "value": "coremltools 9.0；需要 PyTorch/TensorFlow 源模型，不接受 ONNX 直接转换",
+          "officialSource": "https://pypi.org/project/coremltools/9.0/",
+          "selectionBasis": "任务 1 Python 工具环境固定 coremltools 9.0；它不提供当前 ONNX 的直接转换链。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    },
+    {
+      "id": "android-arm64-litert-v2",
+      "os": "android",
+      "arch": "arm64-v8a",
+      "minimumOsVersion": "API 26",
+      "deviceRunner": "Android SDK/NDK 已安装，但 adb devices 无真实设备",
+      "officialSdkRuntime": "LiteRT v2 2.1.6 / Android NDK r27c",
+      "converter": "ai-edge-litert 2.1.6 仅提供 TFLite runtime；ONNX 到 TFLite 导出链尚未获准且缺少同源源模型",
+      "artifactFormat": "tflite/CompiledModel",
+      "adapter": "LiteRT v2 CompiledModel adapter（后续任务，当前不存在）",
+      "timeoutsMs": {
+        "nativeInitialization": 30000,
+        "webInitialization": 30000
+      },
+      "rollbackBaseline": "base 30791ea + operator eacbcf0 + RimeCut e021e60",
+      "requiredCiJob": "litert-android-arm64-device-conformance",
+      "state": "blocked",
+      "evidence": "锁定 runtime 不包含 ONNX converter；缺少获准的 TFLite/SavedModel 中间产物与真实 Android 设备",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "API 26",
+          "officialSource": "https://developer.android.com/tools/releases/platforms",
+          "selectionBasis": "API 26 是项目接受下限；真实 CompiledModel accelerator 能力仍按设备探测。"
+        },
+        "sdkRuntime": {
+          "value": "LiteRT v2 2.1.6 / Android NDK r27c",
+          "officialSource": "https://ai.google.dev/edge/litert/next/get_started",
+          "selectionBasis": "LiteRT v2 runtime 固定为 PyPI/Android artifact 的 2.1.6 线，设备侧版本必须同报告。"
+        },
+        "converter": {
+          "value": "ai-edge-litert 2.1.6 仅提供 TFLite runtime；ONNX 到 TFLite 导出链尚未获准且缺少同源源模型",
+          "officialSource": "https://ai.google.dev/edge/litert/models/convert",
+          "selectionBasis": "LiteRT 接受 TFLite；ONNX 不是 ai-edge-litert runtime 包提供的转换入口。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    },
+    {
+      "id": "windows-x86_64-windowsml",
+      "os": "windows",
+      "arch": "x86_64",
+      "minimumOsVersion": "Windows 11 23H2",
+      "deviceRunner": "缺失 Windows x64 runner",
+      "officialSdkRuntime": "Windows App SDK 1.8 / Windows ML",
+      "converter": "无格式转换：直接加载 ONNX",
+      "artifactFormat": "onnx",
+      "adapter": "Windows ML adapter（后续任务，当前不存在）",
+      "timeoutsMs": {
+        "nativeInitialization": 20000,
+        "webInitialization": 25000
+      },
+      "rollbackBaseline": "base 30791ea + operator eacbcf0 + RimeCut e021e60",
+      "requiredCiJob": "windowsml-x64-conformance",
+      "state": "blocked",
+      "evidence": "Linux 上 pwsh/Windows ML 不可用，实际 LoadFromFilePath 未执行成功",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "Windows 11 23H2",
+          "officialSource": "https://learn.microsoft.com/windows/apps/windows-app-sdk/system-requirements",
+          "selectionBasis": "Windows 11 是项目验收下限，x64 与 ARM64 必须各自真实加载。"
+        },
+        "sdkRuntime": {
+          "value": "Windows App SDK 1.8 / Windows ML",
+          "officialSource": "https://learn.microsoft.com/windows/ai/new-windows-ml/overview",
+          "selectionBasis": "Windows ML 随 Windows App SDK；版本必须由 Windows runner 的项目锁和加载日志证明。"
+        },
+        "converter": {
+          "value": "无格式转换：直接加载 ONNX",
+          "officialSource": "https://learn.microsoft.com/windows/ai/new-windows-ml/get-started",
+          "selectionBasis": "Windows ML 直接加载 ONNX，无格式转换；必须实际 Load/Run，不能生成虚构 artifact。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    },
+    {
+      "id": "windows-arm64-windowsml",
+      "os": "windows",
+      "arch": "arm64",
+      "minimumOsVersion": "Windows 11 24H2",
+      "deviceRunner": "缺失 Windows ARM64 runner；x64 不可替代",
+      "officialSdkRuntime": "Windows App SDK 1.8 / Windows ML",
+      "converter": "无格式转换：直接加载 ONNX",
+      "artifactFormat": "onnx",
+      "adapter": "Windows ML adapter（后续任务，当前不存在）",
+      "timeoutsMs": {
+        "nativeInitialization": 20000,
+        "webInitialization": 25000
+      },
+      "rollbackBaseline": "base 30791ea + operator eacbcf0 + RimeCut e021e60",
+      "requiredCiJob": "windowsml-arm64-conformance",
+      "state": "blocked",
+      "evidence": "没有 ARM64 runner、SDK 或实际加载证据",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "Windows 11 24H2",
+          "officialSource": "https://learn.microsoft.com/windows/apps/windows-app-sdk/system-requirements",
+          "selectionBasis": "Windows 11 是项目验收下限，x64 与 ARM64 必须各自真实加载。"
+        },
+        "sdkRuntime": {
+          "value": "Windows App SDK 1.8 / Windows ML",
+          "officialSource": "https://learn.microsoft.com/windows/ai/new-windows-ml/overview",
+          "selectionBasis": "Windows ML 随 Windows App SDK；版本必须由 Windows runner 的项目锁和加载日志证明。"
+        },
+        "converter": {
+          "value": "无格式转换：直接加载 ONNX",
+          "officialSource": "https://learn.microsoft.com/windows/ai/new-windows-ml/get-started",
+          "selectionBasis": "Windows ML 直接加载 ONNX，无格式转换；必须实际 Load/Run，不能生成虚构 artifact。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    },
+    {
+      "id": "linux-x86_64-ort-cpu",
+      "os": "linux",
+      "arch": "x86_64",
+      "minimumOsVersion": "glibc 2.35",
+      "deviceRunner": "本机 HP EliteBook / Ryzen 7 8840HS / Ubuntu 24.04-compatible",
+      "officialSdkRuntime": "ONNX Runtime 1.24.3 CPU EP",
+      "converter": "无格式转换",
+      "artifactFormat": "onnx",
+      "adapter": "Legacy ORT compatibility path；新 adapter 属后续任务",
+      "timeoutsMs": {
+        "nativeInitialization": 15000,
+        "webInitialization": 20000
+      },
+      "rollbackBaseline": "base 30791ea + operator eacbcf0 + RimeCut e021e60",
+      "requiredCiJob": "linux-x64-ort-cpu-conformance",
+      "state": "build-verified",
+      "evidence": "operator conversion report 55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b 使用固定 canonical 输入完成 onnxruntime-node CPU inference；base 性能报告另以 exact NativeOrtBackend 与 Web WASM 做同机比较，尚无 adapter/package conformance",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "glibc 2.35",
+          "officialSource": "https://onnxruntime.ai/docs/install/",
+          "selectionBasis": "glibc 2.35/Ubuntu 22.04 是项目接受下限，不宣称为 ORT 的全局最低要求。"
+        },
+        "sdkRuntime": {
+          "value": "ONNX Runtime 1.24.3 CPU EP",
+          "officialSource": "https://onnxruntime.ai/docs/execution-providers/",
+          "selectionBasis": "每个 EP 单独请求并记录实际 inference，CPU 成功不能推断 OpenVINO/CUDA/TensorRT。"
+        },
+        "converter": {
+          "value": "无格式转换",
+          "officialSource": "https://onnxruntime.ai/docs/",
+          "selectionBasis": "原 ONNX 无格式转换。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    },
+    {
+      "id": "linux-x86_64-ort-accelerated",
+      "os": "linux",
+      "arch": "x86_64",
+      "minimumOsVersion": "glibc 2.35",
+      "deviceRunner": "本机无 CUDA/TensorRT/OpenVINO runtime",
+      "officialSdkRuntime": "ONNX Runtime 1.24.3 + CUDA 12/TensorRT 10 或 OpenVINO 2026",
+      "converter": "无格式转换",
+      "artifactFormat": "onnx",
+      "adapter": "Linux ORT provider policy（后续任务，当前不存在）",
+      "timeoutsMs": {
+        "nativeInitialization": 20000,
+        "webInitialization": 20000
+      },
+      "rollbackBaseline": "base 30791ea + operator eacbcf0 + RimeCut e021e60",
+      "requiredCiJob": "linux-x64-ort-accelerated-conformance",
+      "state": "blocked",
+      "evidence": "加速 provider 工具链/设备缺失，不能由 CPU load 推断",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "glibc 2.35",
+          "officialSource": "https://onnxruntime.ai/docs/install/",
+          "selectionBasis": "glibc 2.35/Ubuntu 22.04 是项目接受下限，不宣称为 ORT 的全局最低要求。"
+        },
+        "sdkRuntime": {
+          "value": "ONNX Runtime 1.24.3 + CUDA 12/TensorRT 10 或 OpenVINO 2026",
+          "officialSource": "https://onnxruntime.ai/docs/execution-providers/",
+          "selectionBasis": "每个 EP 单独请求并记录实际 inference，CPU 成功不能推断 OpenVINO/CUDA/TensorRT。"
+        },
+        "converter": {
+          "value": "无格式转换",
+          "officialSource": "https://onnxruntime.ai/docs/",
+          "selectionBasis": "原 ONNX 无格式转换。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    },
+    {
+      "id": "linux-arm64-ort",
+      "os": "linux",
+      "arch": "aarch64",
+      "minimumOsVersion": "glibc 2.35",
+      "deviceRunner": "缺失 Linux ARM64 真实 runner",
+      "officialSdkRuntime": "ONNX Runtime 1.24.3",
+      "converter": "无格式转换",
+      "artifactFormat": "onnx",
+      "adapter": "Linux ORT provider policy（后续任务，当前不存在）",
+      "timeoutsMs": {
+        "nativeInitialization": 20000,
+        "webInitialization": 25000
+      },
+      "rollbackBaseline": "base 30791ea + operator eacbcf0 + RimeCut e021e60",
+      "requiredCiJob": "linux-arm64-ort-conformance",
+      "state": "blocked",
+      "evidence": "没有 aarch64 runner；交叉编译不能标记 supported",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "glibc 2.35",
+          "officialSource": "https://onnxruntime.ai/docs/install/",
+          "selectionBasis": "glibc 2.35/Ubuntu 22.04 是项目接受下限，不宣称为 ORT 的全局最低要求。"
+        },
+        "sdkRuntime": {
+          "value": "ONNX Runtime 1.24.3",
+          "officialSource": "https://onnxruntime.ai/docs/execution-providers/",
+          "selectionBasis": "每个 EP 单独请求并记录实际 inference，CPU 成功不能推断 OpenVINO/CUDA/TensorRT。"
+        },
+        "converter": {
+          "value": "无格式转换",
+          "officialSource": "https://onnxruntime.ai/docs/",
+          "selectionBasis": "原 ONNX 无格式转换。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    },
+    {
+      "id": "harmonyos-arm64-mindspore",
+      "os": "harmonyos",
+      "arch": "arm64-v8a",
+      "minimumOsVersion": "HarmonyOS NEXT 5.0",
+      "deviceRunner": "缺失真实 HarmonyOS 设备",
+      "officialSdkRuntime": "MindSpore Lite 2.7.0 / HarmonyOS NDK",
+      "converter": "converter_lite 2.7.0",
+      "artifactFormat": "ms/mindir",
+      "adapter": "MindSpore Lite NDK/ArkTS adapter（后续任务，当前不存在）",
+      "timeoutsMs": {
+        "nativeInitialization": 30000,
+        "webInitialization": 30000
+      },
+      "rollbackBaseline": "base 30791ea + operator eacbcf0 + RimeCut e021e60",
+      "requiredCiJob": "mindspore-harmonyos-device-conformance",
+      "state": "blocked",
+      "evidence": "官方 converter_lite 2.7.0 已实际进入 ONNX parse/graph optimization，并在 /model.22/dfl/conv/Conv 的 Conv2DFusion infer-shape 失败；无转换 artifact、HarmonyOS SDK/runner/真实设备",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "HarmonyOS NEXT 5.0",
+          "officialSource": "https://developer.huawei.com/consumer/en/doc/harmonyos-releases-V5/",
+          "selectionBasis": "HarmonyOS NEXT 5.0 是项目验收线，需真实 arm64 设备。"
+        },
+        "sdkRuntime": {
+          "value": "MindSpore Lite 2.7.0 / HarmonyOS NDK",
+          "officialSource": "https://www.mindspore.cn/lite/docs/en/r2.7.0/index.html",
+          "selectionBasis": "MindSpore Lite 2.7.0 与 converter_lite 必须同版本。"
+        },
+        "converter": {
+          "value": "converter_lite 2.7.0",
+          "officialSource": "https://www.mindspore.cn/lite/docs/en/r2.7.0/use/converter_tool.html",
+          "selectionBasis": "使用官方 converter_lite ONNX 入口并记录实际算子/I/O。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    },
+    {
+      "id": "web-wasm-reference",
+      "os": "web",
+      "arch": "wasm32",
+      "minimumOsVersion": "Chromium 121 / Firefox 122 / Safari 17.4",
+      "deviceRunner": "本机 Node 24.15.0 WASM harness；非浏览器 runner",
+      "officialSdkRuntime": "onnxruntime-web 1.27.0 WASM EP",
+      "converter": "无格式转换",
+      "artifactFormat": "onnx",
+      "adapter": "Web ONNX fallback reference",
+      "timeoutsMs": {
+        "nativeInitialization": 0,
+        "webInitialization": 20000
+      },
+      "rollbackBaseline": "operator eacbcf0 model digest 9e7e3921",
+      "requiredCiJob": "web-wasm-golden",
+      "state": "build-verified",
+      "evidence": "六 fixture 每个三次 Node/WASM 推理确定；真实浏览器 fallback E2E 尚未执行",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "Chromium 121 / Firefox 122 / Safari 17.4",
+          "officialSource": "https://onnxruntime.ai/docs/tutorials/web/env-flags-and-session-options.html",
+          "selectionBasis": "浏览器版本是项目测试下限，不等同于 ORT 官方长期支持承诺。"
+        },
+        "sdkRuntime": {
+          "value": "onnxruntime-web 1.27.0 WASM EP",
+          "officialSource": "https://www.npmjs.com/package/onnxruntime-web/v/1.27.0",
+          "selectionBasis": "WASM/WebGPU 均固定 onnxruntime-web 1.27.0，EP 数值与性能分开。"
+        },
+        "converter": {
+          "value": "无格式转换",
+          "officialSource": "https://onnxruntime.ai/docs/tutorials/web/",
+          "selectionBasis": "Web 直接加载 ONNX，无格式转换。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    },
+    {
+      "id": "web-webgpu-observation",
+      "os": "web",
+      "arch": "wasm32",
+      "minimumOsVersion": "Chromium 121 with WebGPU",
+      "deviceRunner": "缺失受控浏览器 WebGPU runner",
+      "officialSdkRuntime": "onnxruntime-web 1.27.0 WebGPU EP",
+      "converter": "无格式转换",
+      "artifactFormat": "onnx",
+      "adapter": "Web ONNX WebGPU observation only",
+      "timeoutsMs": {
+        "nativeInitialization": 0,
+        "webInitialization": 25000
+      },
+      "rollbackBaseline": "operator eacbcf0 model digest 9e7e3921",
+      "requiredCiJob": "web-webgpu-observation",
+      "state": "blocked",
+      "evidence": "不得与 WASM 的数值/性能结果混合；当前无浏览器 GPU runner",
+      "officialVersionEvidence": {
+        "checkedOn": "2026-08-10",
+        "minimumOs": {
+          "value": "Chromium 121 with WebGPU",
+          "officialSource": "https://onnxruntime.ai/docs/tutorials/web/env-flags-and-session-options.html",
+          "selectionBasis": "浏览器版本是项目测试下限，不等同于 ORT 官方长期支持承诺。"
+        },
+        "sdkRuntime": {
+          "value": "onnxruntime-web 1.27.0 WebGPU EP",
+          "officialSource": "https://www.npmjs.com/package/onnxruntime-web/v/1.27.0",
+          "selectionBasis": "WASM/WebGPU 均固定 onnxruntime-web 1.27.0，EP 数值与性能分开。"
+        },
+        "converter": {
+          "value": "无格式转换",
+          "officialSource": "https://onnxruntime.ai/docs/tutorials/web/",
+          "selectionBasis": "Web 直接加载 ONNX，无格式转换。"
+        }
+      },
+      "operatorConversionEvidence": {
+        "path": "evidence/conversions/conversion-spikes.json",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      },
+      "requiredCiState": "not-established-until-task-3"
+    }
+  ]
+}

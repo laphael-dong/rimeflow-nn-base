@@ -1,0 +1,575 @@
+{
+  "schemaVersion": 3,
+  "repository": "rimeflow-nn-base",
+  "historicalReplay": {
+    "head": "2413b775aaba45f81cec4e5a5cb9c24daa1e7ce0",
+    "classification": "historical-capture-replay",
+    "isCurrentPublication": false
+  },
+  "measurementIdentity": {
+    "baseHistoricalSourceCommit": "30791ea331532b5b3f7d627cea37e3736765840c",
+    "oldEvidenceSourceRange": "30791ea331532b5b3f7d627cea37e3736765840c..852e4330eda982957df0e2bb3b32d6d4934ca01e",
+    "oldEvidenceHead": "852e4330eda982957df0e2bb3b32d6d4934ca01e",
+    "canonicalOperatorModelSourceCommit": "eacbcf00dfc2fba941b494e2955e87fffd707382",
+    "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+    "singleTargetSha256": "607e88462bd0d80db53b313c12269dff69c608637a582c7a5d2158404b8d4a18",
+    "canonicalInputSha256Float32Le": "7cde7a22823666ede34cae26a348a563dbd7e64df800406b433733baabee24fe",
+    "webRawOutputSha256": "37cc9955c15f1c4283fd2ed0d8aa360905357fd03a386db3a526d94dd0cca212",
+    "nativeRawOutputSha256": "c84b2985786685fe134fe4dbb7c091ecb72d5be7bdbd442aac832b0995013f27"
+  },
+  "operatorInputPublication": {
+    "repository": "https://github.com/laphael-dong/rimeflow-nn-validation.git",
+    "ref": "refs/heads/feature/rimeflow-backend-contract-task1-aggregate",
+    "commit": "c90d3957fbbd04b3f0b29eff7bc873b70eed4400",
+    "tree": "341d8b00fb5d4d9afeac856418950c1faa408b2e",
+    "objects": [
+      {
+        "id": "model",
+        "path": "models/yolov8n.onnx",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "22f19afe710dfa942b3e644c4e5a7ac5c42ac403",
+        "bytes": 12851098,
+        "sha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad"
+      },
+      {
+        "id": "fixture-manifest",
+        "path": "evidence/fixtures/manifest.json",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "c1c1e02d97453c082c4fdba49faf3fda901c5efb",
+        "bytes": 9945,
+        "sha256": "430c391b9cab0c36b2bde93964e8f6afcd66b0dcb05b055d2728c47679a38acc"
+      },
+      {
+        "id": "single-target",
+        "path": "evidence/fixtures/images/single-target.ppm",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "87b410037b98793c76b49eac002d16008634156c",
+        "bytes": 2073615,
+        "sha256": "607e88462bd0d80db53b313c12269dff69c608637a582c7a5d2158404b8d4a18"
+      },
+      {
+        "id": "web-reference",
+        "path": "evidence/golden/web-reference.json",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "333f5fcf70eafa97abc5967d2c0fb65e9c4eadeb",
+        "bytes": 29752,
+        "sha256": "114d7ab29afa5bf9b6246dfd6f1cff37ee3d4fc8212b355d2fb3ac9122f9ce68"
+      },
+      {
+        "id": "conversion-summary",
+        "path": "evidence/conversions/conversion-spikes.json",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "bytes": 44390,
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      }
+    ],
+    "productionSources": [
+      {
+        "id": "cargo-config",
+        "path": ".cargo/config.toml",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "49420ecc39ed1699b6109032bde39856facf0010",
+        "bytes": 406,
+        "sha256": "2b2254a04f96694f9cd1e19836f5857b6b86697a1642d842f81490ee45c58384"
+      },
+      {
+        "id": "operator-cargo-manifest",
+        "path": "Cargo.toml",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "cf832b9e74ff316297e5b8e8b2a4445a66c8859c",
+        "bytes": 2306,
+        "sha256": "e433b568ffc864989515735e1126c1f807e5ec8b21fbfa1b31764e18ff55bb4a"
+      },
+      {
+        "id": "raw-golden-lockfile",
+        "path": "evidence/tooling/raw-golden/Cargo.lock",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "06c9be3b4e6173736804cde982a3985bc971d8e5",
+        "bytes": 2855,
+        "sha256": "560c0ef10865895cd739c0971566564e727b83014ff4f1da3adbe561fa5581e6"
+      },
+      {
+        "id": "raw-golden-manifest",
+        "path": "evidence/tooling/raw-golden/Cargo.toml",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "0d2e1bc9e3fc4d5ac5f5cf6a01cbf87868799fe4",
+        "bytes": 165,
+        "sha256": "8027af80bec76f757253743a1ef1414e31ce449ab1c8fa5391223b33a2378b0f"
+      },
+      {
+        "id": "raw-golden-library",
+        "path": "evidence/tooling/raw-golden/src/lib.rs",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "f02c07e8a36171ec298fac615457b242cc832653",
+        "bytes": 4428,
+        "sha256": "90b7a373ee51547ef5543bd61f37a39c36471d70a0afc7e91917566711933e31"
+      },
+      {
+        "id": "raw-golden-runner",
+        "path": "evidence/tooling/raw-golden/src/main.rs",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "4eefa78a1bcbf333d5deb31b9e7de05f4980a0d4",
+        "bytes": 1770,
+        "sha256": "37b695ddc00a9573e41179eb27da08fed90f9c88cb784abd51c9bc69b5a4aa73"
+      },
+      {
+        "id": "production-postprocess",
+        "path": "src/postprocess.rs",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "98d51d5cebef6057e4f471a8713d69394f62ba86",
+        "bytes": 2910,
+        "sha256": "2a07f30ef59aa5d730cc0593adf7e69bc7351f285bdc10a2f7199f4e05d8ff4b"
+      }
+    ]
+  },
+  "basePublicationState": {
+    "repository": "https://github.com/laphael-dong/rimeflow-nn-base.git",
+    "branch": "feature/rimeflow-backend-contract-task1-base-repair-migrate01",
+    "state": "awaiting-push",
+    "commitResolution": "derive-from-runtime-HEAD-after-local-commit",
+    "remoteVerified": false
+  },
+  "runner": {
+    "id": "raffael-HP-EliteBook-845-14-inch-G11-Notebook-PC",
+    "owner": "raffael",
+    "os": "linux",
+    "architecture": "x64"
+  },
+  "tools": {
+    "node": {
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exitCode": 0,
+      "value": "v24.15.0",
+      "stderr": ""
+    },
+    "cargo": {
+      "command": [
+        "cargo",
+        "--version"
+      ],
+      "exitCode": 0,
+      "value": "cargo 1.97.1 (c980f4866 2026-06-30)",
+      "stderr": ""
+    },
+    "onnxruntimeWeb": "onnxruntime-web@1.27.0",
+    "nativeOrt": "2.0.0-rc.12"
+  },
+  "immutableLogEvidence": {
+    "kind": "embedded-historical-manifest",
+    "path": "evidence/replay/task1-replay.json",
+    "formalCiState": "not-established-until-task-3"
+  },
+  "steps": [
+    {
+      "id": "platform-matrix",
+      "command": "RIMEFLOW_OPERATOR_ROOT=../rimeflow-yolov8n node evidence/scripts/generate_platform_evidence.mjs",
+      "executed": true,
+      "blockedReason": null,
+      "rounds": [
+        {
+          "run": 1,
+          "actualCommand": "RIMEFLOW_OPERATOR_ROOT=../rimeflow-yolov8n node evidence/scripts/generate_platform_evidence.mjs",
+          "startedAt": "2026-08-10T13:33:05.409Z",
+          "endedAt": "2026-08-10T13:33:05.495Z",
+          "exitCode": 0,
+          "signal": null,
+          "repositoryHead": "2413b775aaba45f81cec4e5a5cb9c24daa1e7ce0",
+          "runnerId": "raffael-HP-EliteBook-845-14-inch-G11-Notebook-PC",
+          "worktreeBefore": {
+            "tracked": "",
+            "full": ""
+          },
+          "worktreeAfter": {
+            "tracked": "",
+            "full": ""
+          },
+          "inputs": [
+            {
+              "path": "evidence/schemas/platform-matrix.schema.json",
+              "exists": true,
+              "bytes": 2766,
+              "sha256": "68e55d39f904431680250c5b168a419f4c38143f62b5be88b87bbac114994e7e"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "evidence/platform/platform-matrix.json",
+              "exists": true,
+              "bytes": 24654,
+              "sha256": "c2e95b0f45b56da2fcd3e998c078a9ca478444c4a79a14e7224e8f67c883cbba"
+            },
+            {
+              "path": "evidence/platform/runner-inventory.json",
+              "exists": true,
+              "bytes": 7886,
+              "sha256": "74efa7db7ebcf5806984c4b2ff731e43d5e664860eb84deef41955f7f47e5524"
+            },
+            {
+              "path": "evidence/reports/local-environment.json",
+              "exists": true,
+              "bytes": 861,
+              "sha256": "70956654ed38e9e81cb55e414161b6008d0bec24bfde313a912b88b3557bfa8c"
+            }
+          ],
+          "log": {
+            "storage": "embedded-in-replay-manifest",
+            "stdout": "{\"matrix\":\"evidence/platform/platform-matrix.json\",\"environment\":\"evidence/reports/local-environment.json\",\"platformCount\":12}\n",
+            "stderr": "",
+            "bytes": 127,
+            "sha256": "0e83255915cdbf4764aaec7926c07e5069a13c2f9d14105bcc567e703ec336c8"
+          }
+        },
+        {
+          "run": 2,
+          "actualCommand": "RIMEFLOW_OPERATOR_ROOT=../rimeflow-yolov8n node evidence/scripts/generate_platform_evidence.mjs",
+          "startedAt": "2026-08-10T13:33:05.495Z",
+          "endedAt": "2026-08-10T13:33:05.578Z",
+          "exitCode": 0,
+          "signal": null,
+          "repositoryHead": "2413b775aaba45f81cec4e5a5cb9c24daa1e7ce0",
+          "runnerId": "raffael-HP-EliteBook-845-14-inch-G11-Notebook-PC",
+          "worktreeBefore": {
+            "tracked": "",
+            "full": ""
+          },
+          "worktreeAfter": {
+            "tracked": "",
+            "full": ""
+          },
+          "inputs": [
+            {
+              "path": "evidence/schemas/platform-matrix.schema.json",
+              "exists": true,
+              "bytes": 2766,
+              "sha256": "68e55d39f904431680250c5b168a419f4c38143f62b5be88b87bbac114994e7e"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "evidence/platform/platform-matrix.json",
+              "exists": true,
+              "bytes": 24654,
+              "sha256": "c2e95b0f45b56da2fcd3e998c078a9ca478444c4a79a14e7224e8f67c883cbba"
+            },
+            {
+              "path": "evidence/platform/runner-inventory.json",
+              "exists": true,
+              "bytes": 7886,
+              "sha256": "74efa7db7ebcf5806984c4b2ff731e43d5e664860eb84deef41955f7f47e5524"
+            },
+            {
+              "path": "evidence/reports/local-environment.json",
+              "exists": true,
+              "bytes": 861,
+              "sha256": "70956654ed38e9e81cb55e414161b6008d0bec24bfde313a912b88b3557bfa8c"
+            }
+          ],
+          "log": {
+            "storage": "embedded-in-replay-manifest",
+            "stdout": "{\"matrix\":\"evidence/platform/platform-matrix.json\",\"environment\":\"evidence/reports/local-environment.json\",\"platformCount\":12}\n",
+            "stderr": "",
+            "bytes": 127,
+            "sha256": "0e83255915cdbf4764aaec7926c07e5069a13c2f9d14105bcc567e703ec336c8"
+          }
+        }
+      ],
+      "repeatComparison": {
+        "runs": 2,
+        "allExitCodesZero": true,
+        "deterministicOutputDigestsEqual": true
+      }
+    },
+    {
+      "id": "linux-performance-capture-round-1",
+      "command": "RIMEFLOW_OPERATOR_ROOT=../rimeflow-yolov8n node evidence/scripts/collect_linux_baseline.mjs .evidence/task1-linux-baseline/replay-capture-round-1.json",
+      "executed": true,
+      "blockedReason": null,
+      "rounds": [
+        {
+          "run": 1,
+          "actualCommand": "RIMEFLOW_OPERATOR_ROOT=../rimeflow-yolov8n node evidence/scripts/collect_linux_baseline.mjs .evidence/task1-linux-baseline/replay-capture-round-1.json",
+          "startedAt": "2026-08-10T13:33:05.579Z",
+          "endedAt": "2026-08-10T13:34:56.356Z",
+          "exitCode": 0,
+          "signal": null,
+          "repositoryHead": "2413b775aaba45f81cec4e5a5cb9c24daa1e7ce0",
+          "runnerId": "raffael-HP-EliteBook-845-14-inch-G11-Notebook-PC",
+          "worktreeBefore": {
+            "tracked": "",
+            "full": ""
+          },
+          "worktreeAfter": {
+            "tracked": "",
+            "full": ""
+          },
+          "inputs": [
+            {
+              "path": "evidence/performance/backend-thresholds.json",
+              "exists": true,
+              "bytes": 4611,
+              "sha256": "3333947e01b91cfa6f579f7d38b7301072d73ada5e841a21beef732950d605e0"
+            }
+          ],
+          "outputs": [
+            {
+              "path": ".evidence/task1-linux-baseline/replay-capture-round-1.json",
+              "exists": true,
+              "bytes": 11220,
+              "sha256": "32e810ae3f9de7358f8d308a9627f92f3cec877c1afd8f6950a1ffba9772e668"
+            }
+          ],
+          "log": {
+            "storage": "embedded-in-replay-manifest",
+            "stdout": "{\"output\":\".evidence/task1-linux-baseline/replay-capture-round-1.json\",\"numericalComparison\":{\"reference\":\"webWasm\",\"candidate\":\"legacyNativeOrt\",\"rule\":\"abs(native-web) <= 1e-5 + 1e-4 * abs(web)\",\"absoluteTolerance\":0.00001,\"relativeTolerance\":0.0001,\"maxAbsoluteDifference\":{\"difference\":0.001373291015625,\"index\":33321,\"webValue\":360.6818542480469,\"nativeValue\":360.6832275390625,\"tolerance\":0.03607818542480469,\"attribute\":3,\"anchor\":8121},\"relativeDifference\":{\"nearZeroThreshold\":0.000001,\"maximumExcludingNearZero\":{\"difference\":0.17142857142857143,\"absoluteDifference\":1.7881393432617188e-7,\"index\":37768,\"webValue\":0.000001043081283569336,\"nativeValue\":0.0000012218952178955078,\"attribute\":4,\"anchor\":4168},\"nearZero\":{\"count\":552009,\"maximumAbsoluteDifference\":{\"difference\":2.384185791015625e-7,\"index\":83802,\"webValue\":8.940696716308594e-7,\"nativeValue\":0.0000011324882507324219,\"tolerance\":0.000010000089406967163,\"attribute\":9,\"anchor\":8202}}},\"toleranceMismatchCount\":0,\"passed\":true},\"postprocessComparison\":{\"detectionCountEqual\":true,\"webCount\":1,\"nativeCount\":1,\"pairs\":[{\"index\":0,\"classIdEqual\":true,\"webClassId\":16,\"nativeClassId\":16,\"confidenceDifference\":2.384185791015625e-7,\"bboxIou\":0.9999999549807037,\"passed\":true}],\"passed\":true}}\n",
+            "stderr": "",
+            "bytes": 1261,
+            "sha256": "ab28ce11c947ab2086df1f5ee7055106783524b03944d71ab02a1d674a962ea9"
+          }
+        }
+      ],
+      "repeatComparison": {
+        "runs": 1,
+        "allExitCodesZero": true,
+        "deterministicOutputDigestsEqual": true
+      }
+    },
+    {
+      "id": "linux-performance-capture-round-2",
+      "command": "RIMEFLOW_OPERATOR_ROOT=../rimeflow-yolov8n node evidence/scripts/collect_linux_baseline.mjs .evidence/task1-linux-baseline/replay-capture-round-2.json",
+      "executed": true,
+      "blockedReason": null,
+      "rounds": [
+        {
+          "run": 1,
+          "actualCommand": "RIMEFLOW_OPERATOR_ROOT=../rimeflow-yolov8n node evidence/scripts/collect_linux_baseline.mjs .evidence/task1-linux-baseline/replay-capture-round-2.json",
+          "startedAt": "2026-08-10T13:34:56.356Z",
+          "endedAt": "2026-08-10T13:35:08.788Z",
+          "exitCode": 0,
+          "signal": null,
+          "repositoryHead": "2413b775aaba45f81cec4e5a5cb9c24daa1e7ce0",
+          "runnerId": "raffael-HP-EliteBook-845-14-inch-G11-Notebook-PC",
+          "worktreeBefore": {
+            "tracked": "",
+            "full": ""
+          },
+          "worktreeAfter": {
+            "tracked": "",
+            "full": ""
+          },
+          "inputs": [
+            {
+              "path": "evidence/performance/backend-thresholds.json",
+              "exists": true,
+              "bytes": 4611,
+              "sha256": "3333947e01b91cfa6f579f7d38b7301072d73ada5e841a21beef732950d605e0"
+            }
+          ],
+          "outputs": [
+            {
+              "path": ".evidence/task1-linux-baseline/replay-capture-round-2.json",
+              "exists": true,
+              "bytes": 11254,
+              "sha256": "c25550297590bcabd3506333577ede4c412476cd8b471d4108c44b3b36e2b3eb"
+            }
+          ],
+          "log": {
+            "storage": "embedded-in-replay-manifest",
+            "stdout": "{\"output\":\".evidence/task1-linux-baseline/replay-capture-round-2.json\",\"numericalComparison\":{\"reference\":\"webWasm\",\"candidate\":\"legacyNativeOrt\",\"rule\":\"abs(native-web) <= 1e-5 + 1e-4 * abs(web)\",\"absoluteTolerance\":0.00001,\"relativeTolerance\":0.0001,\"maxAbsoluteDifference\":{\"difference\":0.001373291015625,\"index\":33321,\"webValue\":360.6818542480469,\"nativeValue\":360.6832275390625,\"tolerance\":0.03607818542480469,\"attribute\":3,\"anchor\":8121},\"relativeDifference\":{\"nearZeroThreshold\":0.000001,\"maximumExcludingNearZero\":{\"difference\":0.17142857142857143,\"absoluteDifference\":1.7881393432617188e-7,\"index\":37768,\"webValue\":0.000001043081283569336,\"nativeValue\":0.0000012218952178955078,\"attribute\":4,\"anchor\":4168},\"nearZero\":{\"count\":552009,\"maximumAbsoluteDifference\":{\"difference\":2.384185791015625e-7,\"index\":83802,\"webValue\":8.940696716308594e-7,\"nativeValue\":0.0000011324882507324219,\"tolerance\":0.000010000089406967163,\"attribute\":9,\"anchor\":8202}}},\"toleranceMismatchCount\":0,\"passed\":true},\"postprocessComparison\":{\"detectionCountEqual\":true,\"webCount\":1,\"nativeCount\":1,\"pairs\":[{\"index\":0,\"classIdEqual\":true,\"webClassId\":16,\"nativeClassId\":16,\"confidenceDifference\":2.384185791015625e-7,\"bboxIou\":0.9999999549807037,\"passed\":true}],\"passed\":true}}\n",
+            "stderr": "",
+            "bytes": 1261,
+            "sha256": "444f9edf4709808b74d5fa84232285fb3feb204a620b7b935890c69ee05dc948"
+          }
+        }
+      ],
+      "repeatComparison": {
+        "runs": 1,
+        "allExitCodesZero": true,
+        "deterministicOutputDigestsEqual": true
+      }
+    },
+    {
+      "id": "performance-baseline",
+      "command": "node evidence/scripts/generate_performance_baseline.mjs",
+      "executed": true,
+      "blockedReason": null,
+      "rounds": [
+        {
+          "run": 1,
+          "actualCommand": "node evidence/scripts/generate_performance_baseline.mjs",
+          "startedAt": "2026-08-10T13:35:08.788Z",
+          "endedAt": "2026-08-10T13:35:08.830Z",
+          "exitCode": 0,
+          "signal": null,
+          "repositoryHead": "2413b775aaba45f81cec4e5a5cb9c24daa1e7ce0",
+          "runnerId": "raffael-HP-EliteBook-845-14-inch-G11-Notebook-PC",
+          "worktreeBefore": {
+            "tracked": "",
+            "full": ""
+          },
+          "worktreeAfter": {
+            "tracked": "",
+            "full": ""
+          },
+          "inputs": [
+            {
+              "path": "evidence/performance/linux-x86_64-capture.json",
+              "exists": true,
+              "bytes": 11235,
+              "sha256": "1a56a88ffc135aee4022ddb64712fe6b1b75ed6b2e2d88d5f8bcee935b4d1144"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "evidence/performance/linux-x86_64-baseline.json",
+              "exists": true,
+              "bytes": 11516,
+              "sha256": "a2a1d4667bc6b2b8e97a072bf84eb7b81c7832d69543a871e9df3462f80659f9"
+            }
+          ],
+          "log": {
+            "storage": "embedded-in-replay-manifest",
+            "stdout": "{\"output\":\"evidence/performance/linux-x86_64-baseline.json\",\"measurementCapture\":{\"path\":\"evidence/performance/linux-x86_64-capture.json\",\"sha256\":\"1a56a88ffc135aee4022ddb64712fe6b1b75ed6b2e2d88d5f8bcee935b4d1144\"}}\n",
+            "stderr": "",
+            "bytes": 216,
+            "sha256": "3537b3d42db325d0e6bdfa5efcdc54d7bf31652862232a9e4254dbe249dd6a8f"
+          }
+        },
+        {
+          "run": 2,
+          "actualCommand": "node evidence/scripts/generate_performance_baseline.mjs",
+          "startedAt": "2026-08-10T13:35:08.830Z",
+          "endedAt": "2026-08-10T13:35:08.872Z",
+          "exitCode": 0,
+          "signal": null,
+          "repositoryHead": "2413b775aaba45f81cec4e5a5cb9c24daa1e7ce0",
+          "runnerId": "raffael-HP-EliteBook-845-14-inch-G11-Notebook-PC",
+          "worktreeBefore": {
+            "tracked": "",
+            "full": ""
+          },
+          "worktreeAfter": {
+            "tracked": "",
+            "full": ""
+          },
+          "inputs": [
+            {
+              "path": "evidence/performance/linux-x86_64-capture.json",
+              "exists": true,
+              "bytes": 11235,
+              "sha256": "1a56a88ffc135aee4022ddb64712fe6b1b75ed6b2e2d88d5f8bcee935b4d1144"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "evidence/performance/linux-x86_64-baseline.json",
+              "exists": true,
+              "bytes": 11516,
+              "sha256": "a2a1d4667bc6b2b8e97a072bf84eb7b81c7832d69543a871e9df3462f80659f9"
+            }
+          ],
+          "log": {
+            "storage": "embedded-in-replay-manifest",
+            "stdout": "{\"output\":\"evidence/performance/linux-x86_64-baseline.json\",\"measurementCapture\":{\"path\":\"evidence/performance/linux-x86_64-capture.json\",\"sha256\":\"1a56a88ffc135aee4022ddb64712fe6b1b75ed6b2e2d88d5f8bcee935b4d1144\"}}\n",
+            "stderr": "",
+            "bytes": 216,
+            "sha256": "3537b3d42db325d0e6bdfa5efcdc54d7bf31652862232a9e4254dbe249dd6a8f"
+          }
+        }
+      ],
+      "repeatComparison": {
+        "runs": 2,
+        "allExitCodesZero": true,
+        "deterministicOutputDigestsEqual": true
+      }
+    },
+    {
+      "id": "product-package-comparison",
+      "command": "owned by RimeCut build-once product job",
+      "executed": false,
+      "blockedReason": "Legacy 与 candidate 最终安装包均不存在；相对包体积指标按 missingMetricPolicy=fail blocked。",
+      "rounds": [],
+      "repeatComparison": null
+    }
+  ],
+  "twoRoundPerformanceOutputDigestsEqual": true,
+  "outputs": [
+    {
+      "path": "evidence/schemas/platform-matrix.schema.json",
+      "bytes": 4798,
+      "sha256": "3fd8927707a794618f710c50469c83ab2dac8ad82793829ccf0d4552653f92ad"
+    },
+    {
+      "path": "evidence/platform/platform-matrix.json",
+      "bytes": 26058,
+      "sha256": "f187d7b0a6828002ad37d476bce98d85c92a445fccb070980ba390e9c1c9be99"
+    },
+    {
+      "path": "evidence/platform/runner-inventory.json",
+      "bytes": 7886,
+      "sha256": "74efa7db7ebcf5806984c4b2ff731e43d5e664860eb84deef41955f7f47e5524"
+    },
+    {
+      "path": "evidence/reports/local-environment.json",
+      "bytes": 1218,
+      "sha256": "cbbe13827e2f3ff06764c138144d3b286e6dc4ceca7f44b2f0e47348551aacce"
+    },
+    {
+      "path": "evidence/performance/backend-thresholds.json",
+      "bytes": 2716,
+      "sha256": "ff0399fb9d04e58cc22cf715782eb02b0f56353ec6fd711a890bede84f1c0c3d"
+    },
+    {
+      "path": "evidence/performance/linux-x86_64-capture.json",
+      "bytes": 13864,
+      "sha256": "fe68fed790455fb180dd03305f28f1c882c4a38edfb17fe6810584ac8c972058"
+    },
+    {
+      "path": "evidence/performance/linux-x86_64-baseline.json",
+      "bytes": 19618,
+      "sha256": "00d901ec79785dd8a42f974d228ea90f26c314c7ae79018ebe2ac66db383d4f1"
+    },
+    {
+      "path": "evidence/performance/artifacts/linux-x86_64-single-target-web.f32le.bin",
+      "bytes": 2822400,
+      "sha256": "37cc9955c15f1c4283fd2ed0d8aa360905357fd03a386db3a526d94dd0cca212"
+    },
+    {
+      "path": "evidence/performance/artifacts/linux-x86_64-single-target-native.f32le.bin",
+      "bytes": 2822400,
+      "sha256": "c84b2985786685fe134fe4dbb7c091ecb72d5be7bdbd442aac832b0995013f27"
+    },
+    {
+      "path": "evidence/publication/task1-publication.json",
+      "bytes": 5625,
+      "sha256": "14cba0a95925ee55d3ded208dbada220ce1a62aa9e6937a74a729777b857ca9d"
+    }
+  ],
+  "ordinaryReplayMutatesTrackedEvidence": false,
+  "ordinaryReplayValidationChain": [
+    "main-validator",
+    "performance-negative",
+    "publication-schema-negative",
+    "replay-negative",
+    "main-security-negative",
+    "official-trust-negative"
+  ],
+  "task1_6ExecutableClosure": false,
+  "task1_6BlockedReason": "Candidate adapter、RimeCut 产品指标、正式 CI 与远端 publication 尚未完成；本地历史基线迁移不代表任务 1.6 完成。",
+  "task1_7OwnershipReplayComplete": false
+}

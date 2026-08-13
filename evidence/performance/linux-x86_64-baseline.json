@@ -1,0 +1,551 @@
+{
+  "schemaVersion": 2,
+  "source": {
+    "baseEvidenceParentCommit": "ec3c43a28bc01dba11454d738234ed8fcdd8ba51",
+    "operatorEvidenceParentCommit": "7f62f8a8e5c69a4f4c880c8bab979f033e7260b9",
+    "evidenceHarness": {
+      "collectorSha256": "1a111400fdd3c299957edec053abdba7147618d4ee999c967922ca8679143e6d",
+      "numericalValidatorSha256": "91964d80e11d3000096262931d1f2e2294b8ff85128040d940ffd05963db0842",
+      "nativeBenchmarkSha256": "f90804696642594cff9538faf52353eb06c22651c15eae3b6a4764787317e716",
+      "operatorPostprocessSha256": "2a07f30ef59aa5d730cc0593adf7e69bc7351f285bdc10a2f7199f4e05d8ff4b",
+      "operatorPreprocessSha256": "6ab42f34588643884762fad2497716ea324a6a207461ca6cdd125de830a2c530",
+      "reportGeneratorSha256": "a5df24a7a4cc7c766cf23353841ae0393c94103192f368ccbeb578da49771134"
+    },
+    "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+    "fixtureId": "single-target",
+    "fixtureSha256": "607e88462bd0d80db53b313c12269dff69c608637a582c7a5d2158404b8d4a18",
+    "fixtureGeometry": {
+      "width": 768,
+      "height": 900
+    },
+    "canonicalInputSha256Float32Le": "7cde7a22823666ede34cae26a348a563dbd7e64df800406b433733baabee24fe",
+    "measurementCapture": {
+      "path": "evidence/performance/linux-x86_64-capture.json",
+      "sha256": "fe68fed790455fb180dd03305f28f1c882c4a38edfb17fe6810584ac8c972058"
+    }
+  },
+  "host": {
+    "os": "linux",
+    "arch": "x64",
+    "node": "v24.15.0",
+    "cpu": "AMD Ryzen 7 8840HS w/ Radeon 780M Graphics",
+    "kernel": "7.0.0-28-generic"
+  },
+  "method": {
+    "warmupRuns": 5,
+    "sampleRuns": 30,
+    "inputShape": [
+      1,
+      3,
+      640,
+      640
+    ],
+    "inputDtype": "float32",
+    "byteOrder": "little-endian",
+    "comparisonRule": "abs(native-web) <= 1e-5 + 1e-4 * abs(web)",
+    "relativeDifferenceNearZeroThreshold": 0.000001
+  },
+  "webWasm": {
+    "runtime": "onnxruntime-web@1.27.0",
+    "executionProvider": "wasm",
+    "threads": 1,
+    "metrics": {
+      "initializationMs": 175.504922,
+      "coldInferenceMs": 744.738419,
+      "warmInferenceMs": {
+        "p50": 285.203656,
+        "p95": 290.477042,
+        "samples": [
+          296.304979,
+          290.477042,
+          285.790771,
+          284.502304,
+          284.576341,
+          285.513407,
+          285.711614,
+          285.371895,
+          284.679934,
+          283.826702,
+          287.324303,
+          284.924096,
+          287.912082,
+          284.474584,
+          284.707677,
+          282.338867,
+          284.634381,
+          286.197827,
+          285.383739,
+          285.203656,
+          285.656274,
+          283.07413,
+          290.05848,
+          286.041899,
+          287.241892,
+          285.00029,
+          285.198267,
+          282.687214,
+          283.73719,
+          283.805477
+        ]
+      },
+      "peakProcessRssBytes": 281174016
+    },
+    "output": {
+      "classification": "raw-tensor-test-evidence",
+      "productPackaging": false,
+      "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+      "fixtureSha256": "607e88462bd0d80db53b313c12269dff69c608637a582c7a5d2158404b8d4a18",
+      "inputSha256": "7cde7a22823666ede34cae26a348a563dbd7e64df800406b433733baabee24fe",
+      "generationMethod": "onnxruntime-web@1.27.0 WASM single-thread inference; historical capture preserved byte-for-byte",
+      "licenseSource": "single-target fixture: ultralytics/assets@42ef8a125df038dcca49f6216f446fe9112946c1, AGPL-3.0-only; test-and-evidence-only; RimeCut product packaging prohibited",
+      "logicalRole": "detections",
+      "runtimeName": "output0",
+      "shape": [
+        1,
+        84,
+        8400
+      ],
+      "dtype": "float32",
+      "endianness": "little-endian",
+      "elements": 705600,
+      "finiteCount": 705600,
+      "artifact": {
+        "path": "evidence/performance/artifacts/linux-x86_64-single-target-web.f32le.bin",
+        "bytes": 2822400,
+        "sha256": "37cc9955c15f1c4283fd2ed0d8aa360905357fd03a386db3a526d94dd0cca212"
+      }
+    }
+  },
+  "legacyNativeOrt": {
+    "adapter": {
+      "classification": "wgpu-preprocess-adapter-not-ort-execution-provider",
+      "backend": "Vulkan",
+      "driver": "radv",
+      "driverInfo": "Mesa 25.2.8-0ubuntu0.24.04.2",
+      "name": "AMD Radeon 780M Graphics (RADV PHOENIX)"
+    },
+    "artifacts": {
+      "canonicalInputBytes": 4915200,
+      "modelBytes": 12851098,
+      "outputElements": 705600,
+      "outputFiniteCount": 705600,
+      "outputSha256Float32Le": "c84b2985786685fe134fe4dbb7c091ecb72d5be7bdbd442aac832b0995013f27"
+    },
+    "method": {
+      "input": "infer_from_host_slice",
+      "sampleRuns": 30,
+      "warmupRuns": 5
+    },
+    "metrics": {
+      "coldInferenceMs": 35.488948,
+      "initializationMs": 40.587633,
+      "initializationExcludes": "wgpuInitializationMs",
+      "peakProcessRssBytes": 176902144,
+      "warmInferenceMs": {
+        "p50": 31.298874999999995,
+        "p95": 33.123656000000004,
+        "samples": [
+          31.05855,
+          32.420854,
+          31.291221,
+          31.298874999999995,
+          32.226864,
+          31.186247,
+          31.244826,
+          30.693224,
+          32.679683000000004,
+          31.295188000000003,
+          30.829736,
+          32.571793,
+          31.190935,
+          30.995754,
+          32.562076000000005,
+          31.840539,
+          30.963604,
+          32.943803,
+          31.662959999999998,
+          31.165468,
+          32.854245999999996,
+          31.507441999999998,
+          31.048191,
+          33.123656000000004,
+          31.826662999999996,
+          31.133659,
+          31.04806,
+          32.804204,
+          31.214218,
+          33.549004000000004
+        ]
+      },
+      "wgpuInitializationMs": 43.866829
+    },
+    "runtime": {
+      "name": "rimeflow-onnx-base::NativeOrtBackend",
+      "ortCrate": "2.0.0-rc.12",
+      "resolvedExecutionProvider": "Cpu"
+    },
+    "schemaVersion": 1,
+    "output": {
+      "classification": "raw-tensor-test-evidence",
+      "productPackaging": false,
+      "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+      "fixtureSha256": "607e88462bd0d80db53b313c12269dff69c608637a582c7a5d2158404b8d4a18",
+      "inputSha256": "7cde7a22823666ede34cae26a348a563dbd7e64df800406b433733baabee24fe",
+      "generationMethod": "rimeflow-onnx-base::NativeOrtBackend CPU EP inference; historical capture preserved byte-for-byte",
+      "licenseSource": "single-target fixture: ultralytics/assets@42ef8a125df038dcca49f6216f446fe9112946c1, AGPL-3.0-only; test-and-evidence-only; RimeCut product packaging prohibited",
+      "logicalRole": "detections",
+      "runtimeName": "output0",
+      "shape": [
+        1,
+        84,
+        8400
+      ],
+      "dtype": "float32",
+      "endianness": "little-endian",
+      "elements": 705600,
+      "finiteCount": 705600,
+      "artifact": {
+        "path": "evidence/performance/artifacts/linux-x86_64-single-target-native.f32le.bin",
+        "bytes": 2822400,
+        "sha256": "c84b2985786685fe134fe4dbb7c091ecb72d5be7bdbd442aac832b0995013f27"
+      }
+    }
+  },
+  "numericalComparison": {
+    "reference": "webWasm",
+    "candidate": "legacyNativeOrt",
+    "rule": "abs(native-web) <= 1e-5 + 1e-4 * abs(web)",
+    "absoluteTolerance": 0.00001,
+    "relativeTolerance": 0.0001,
+    "maxAbsoluteDifference": {
+      "difference": 0.001373291015625,
+      "index": 33321,
+      "webValue": 360.6818542480469,
+      "nativeValue": 360.6832275390625,
+      "tolerance": 0.03607818542480469,
+      "attribute": 3,
+      "anchor": 8121
+    },
+    "relativeDifference": {
+      "nearZeroThreshold": 0.000001,
+      "maximumExcludingNearZero": {
+        "difference": 0.17142857142857143,
+        "absoluteDifference": 1.7881393432617188e-7,
+        "index": 37768,
+        "webValue": 0.000001043081283569336,
+        "nativeValue": 0.0000012218952178955078,
+        "attribute": 4,
+        "anchor": 4168
+      },
+      "nearZero": {
+        "count": 552009,
+        "maximumAbsoluteDifference": {
+          "difference": 2.384185791015625e-7,
+          "index": 83802,
+          "webValue": 8.940696716308594e-7,
+          "nativeValue": 0.0000011324882507324219,
+          "tolerance": 0.000010000089406967163,
+          "attribute": 9,
+          "anchor": 8202
+        }
+      }
+    },
+    "toleranceMismatchCount": 0,
+    "passed": true
+  },
+  "postprocessComparison": {
+    "implementation": "rimeflow-yolov8n/src/postprocess.rs::decode_yolo_output+nms",
+    "tolerances": {
+      "classIdExact": true,
+      "confidenceAbsolute": 0.0001,
+      "boxIouMinimum": 0.999
+    },
+    "webDetections": [
+      {
+        "bbox": [
+          0.09723951667547226,
+          0.12138328701257706,
+          0.7592294812202454,
+          0.9256502389907837
+        ],
+        "classId": 16,
+        "score": 0.7327919006347656
+      }
+    ],
+    "nativeDetections": [
+      {
+        "bbox": [
+          0.09723954647779465,
+          0.12138328701257706,
+          0.7592294812202454,
+          0.9256502389907837
+        ],
+        "classId": 16,
+        "score": 0.7327916622161865
+      }
+    ],
+    "comparison": {
+      "detectionCountEqual": true,
+      "webCount": 1,
+      "nativeCount": 1,
+      "pairs": [
+        {
+          "index": 0,
+          "classIdEqual": true,
+          "webClassId": 16,
+          "nativeClassId": 16,
+          "confidenceDifference": 2.384185791015625e-7,
+          "bboxIou": 0.9999999549807037,
+          "passed": true
+        }
+      ],
+      "passed": true
+    }
+  },
+  "packageSizeMetrics": {
+    "backendRuntimeArtifact": {
+      "state": "blocked",
+      "owner": "RimeCut product build",
+      "bytes": null,
+      "path": null,
+      "sha256": null,
+      "includeScope": "实际进入同平台同配置产品安装包的 runtime/model/plugin 相关制品字节",
+      "excludeScope": "node_modules 目录、构建缓存、静态 archive、benchmark binary、源目录快照和未进入安装包的文件",
+      "measurementCommand": "在同一 build-once 产品 job 中枚举并哈希实际打包的 runtime/model/plugin 文件",
+      "reason": "当前任务阶段尚无可证明进入最终产品的锁定 backend runtime/model/plugin 制品集合。"
+    },
+    "finalPackage": {
+      "state": "blocked",
+      "owner": "RimeCut",
+      "bytes": null,
+      "path": null,
+      "sha256": null,
+      "includeScope": "同平台、同架构、同构建配置和同签名阶段的完整 candidate 最终可安装制品",
+      "excludeScope": "中间构建目录、未打包文件、缓存、调试符号和其他非最终安装制品",
+      "measurementCommand": "stat --format=%s <final-package> && sha256sum <final-package>",
+      "reason": "没有本轮同平台同配置的最终安装包。"
+    },
+    "legacyFinalPackage": {
+      "state": "blocked",
+      "owner": "RimeCut",
+      "bytes": null,
+      "path": null,
+      "sha256": null,
+      "includeScope": "与 candidate 同平台、同架构、同构建配置和同签名阶段的完整锁定 Legacy 最终可安装制品",
+      "excludeScope": "中间构建目录、未打包文件、缓存、调试符号和其他非最终安装制品",
+      "measurementCommand": "stat --format=%s <legacy-final-package> && sha256sum <legacy-final-package>",
+      "reason": "没有锁定 Legacy 最终安装包及其 SHA-256。"
+    },
+    "finalPackageGrowth": {
+      "state": "blocked",
+      "bytes": null,
+      "ratio": null,
+      "formula": {
+        "bytes": "candidateFinalPackageBytes - legacyFinalPackageBytes",
+        "ratio": "candidateFinalPackageBytes / legacyFinalPackageBytes"
+      },
+      "reason": "candidate 与 Legacy 最终安装包均缺失；missingMetricPolicy=fail。"
+    }
+  },
+  "componentObservations": {
+    "comparableToProductPackage": false,
+    "webNpmPackageDirectory": {
+      "path": "../rimeflow-yolov8n/evidence/tooling/web/node_modules/onnxruntime-web",
+      "bytes": 138083940,
+      "measurementCommand": "du -sb ../rimeflow-yolov8n/evidence/tooling/web/node_modules/onnxruntime-web",
+      "reason": "完整 npm package 目录包含未必进入产品的文件，不能作为 backendRuntimeArtifactBytes 或 finalPackageBytes。"
+    },
+    "nativeOrtStaticArchives": [
+      {
+        "cachePath": ".cache/ort.pyke.io/dfbin/x86_64-unknown-linux-gnu/acc1cba79c337594ead1d88ca72516147aa60054c84217b53399a31caa5ba671/libonnxruntime.a",
+        "bytes": 90647244,
+        "sha256": "b55ac1708bcab0db9fc99b78adbd1ea87bd91132dbe23bc2f763803b0a1a16ac"
+      }
+    ],
+    "benchmarkBinary": {
+      "path": "target/release/examples/task1_native_benchmark",
+      "bytes": 29610128,
+      "sha256": "4e4a71257e0b051c1a79ae871a96c86c7acf3b6b9982c5a961746297619fe023",
+      "reason": "采集 harness，不是最终安装包。"
+    }
+  },
+  "comparability": {
+    "scope": "same Linux x86_64 host backend microbenchmark",
+    "sameDevice": true,
+    "crossBackendProviderEqual": false,
+    "providerIdentity": {
+      "web": {
+        "provider": "wasm",
+        "roundProviders": [
+          "wasm",
+          "wasm"
+        ],
+        "stableAcrossRounds": true
+      },
+      "native": {
+        "provider": "Cpu",
+        "roundProviders": [
+          "Cpu",
+          "Cpu"
+        ],
+        "stableAcrossRounds": true
+      }
+    },
+    "sameModelDigest": true,
+    "sameFixtureDigest": true,
+    "sameInputDigest": true,
+    "webExecution": "WASM single-thread",
+    "nativeResolvedProvider": "CPU",
+    "lifecycleEquivalent": false,
+    "lifecycleNote": "Native initializationMs excludes separately recorded wgpuInitializationMs; the Web and Native initialization lifecycles are not claimed to be identical."
+  },
+  "productMetrics": {
+    "owner": "RimeCut",
+    "evaluationState": "not-evaluated-by-base",
+    "metrics": [
+      "backendRuntimeArtifactBytes",
+      "finalPackageBytes",
+      "finalPackageGrowthBytes",
+      "finalPackageGrowthRatio",
+      "rollbackPackage"
+    ],
+    "baseClaim": "none"
+  },
+  "limitation": "这是同一 Linux x86_64 主机上的固定输入 backend microbenchmark；不代表产品端到端延迟或最终包体积，也不替代其他平台同设备比较。",
+  "measurementIdentity": {
+    "baseHistoricalSourceCommit": "30791ea331532b5b3f7d627cea37e3736765840c",
+    "oldEvidenceSourceRange": "30791ea331532b5b3f7d627cea37e3736765840c..852e4330eda982957df0e2bb3b32d6d4934ca01e",
+    "oldEvidenceHead": "852e4330eda982957df0e2bb3b32d6d4934ca01e",
+    "canonicalOperatorModelSourceCommit": "eacbcf00dfc2fba941b494e2955e87fffd707382",
+    "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+    "singleTargetSha256": "607e88462bd0d80db53b313c12269dff69c608637a582c7a5d2158404b8d4a18",
+    "canonicalInputSha256Float32Le": "7cde7a22823666ede34cae26a348a563dbd7e64df800406b433733baabee24fe",
+    "webRawOutputSha256": "37cc9955c15f1c4283fd2ed0d8aa360905357fd03a386db3a526d94dd0cca212",
+    "nativeRawOutputSha256": "c84b2985786685fe134fe4dbb7c091ecb72d5be7bdbd442aac832b0995013f27"
+  },
+  "operatorInputPublication": {
+    "repository": "https://github.com/laphael-dong/rimeflow-nn-validation.git",
+    "ref": "refs/heads/feature/rimeflow-backend-contract-task1-aggregate",
+    "commit": "c90d3957fbbd04b3f0b29eff7bc873b70eed4400",
+    "tree": "341d8b00fb5d4d9afeac856418950c1faa408b2e",
+    "objects": [
+      {
+        "id": "model",
+        "path": "models/yolov8n.onnx",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "22f19afe710dfa942b3e644c4e5a7ac5c42ac403",
+        "bytes": 12851098,
+        "sha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad"
+      },
+      {
+        "id": "fixture-manifest",
+        "path": "evidence/fixtures/manifest.json",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "c1c1e02d97453c082c4fdba49faf3fda901c5efb",
+        "bytes": 9945,
+        "sha256": "430c391b9cab0c36b2bde93964e8f6afcd66b0dcb05b055d2728c47679a38acc"
+      },
+      {
+        "id": "single-target",
+        "path": "evidence/fixtures/images/single-target.ppm",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "87b410037b98793c76b49eac002d16008634156c",
+        "bytes": 2073615,
+        "sha256": "607e88462bd0d80db53b313c12269dff69c608637a582c7a5d2158404b8d4a18"
+      },
+      {
+        "id": "web-reference",
+        "path": "evidence/golden/web-reference.json",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "333f5fcf70eafa97abc5967d2c0fb65e9c4eadeb",
+        "bytes": 29752,
+        "sha256": "114d7ab29afa5bf9b6246dfd6f1cff37ee3d4fc8212b355d2fb3ac9122f9ce68"
+      },
+      {
+        "id": "conversion-summary",
+        "path": "evidence/conversions/conversion-spikes.json",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "b8ec6d28f6cd834ee7aeea0be1c94c49cf4ada6a",
+        "bytes": 44390,
+        "sha256": "55259e0d3fab6e602d7d919fea83b39e0caee864d05b26eb62e68648be03c31b"
+      }
+    ],
+    "productionSources": [
+      {
+        "id": "cargo-config",
+        "path": ".cargo/config.toml",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "49420ecc39ed1699b6109032bde39856facf0010",
+        "bytes": 406,
+        "sha256": "2b2254a04f96694f9cd1e19836f5857b6b86697a1642d842f81490ee45c58384"
+      },
+      {
+        "id": "operator-cargo-manifest",
+        "path": "Cargo.toml",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "cf832b9e74ff316297e5b8e8b2a4445a66c8859c",
+        "bytes": 2306,
+        "sha256": "e433b568ffc864989515735e1126c1f807e5ec8b21fbfa1b31764e18ff55bb4a"
+      },
+      {
+        "id": "raw-golden-lockfile",
+        "path": "evidence/tooling/raw-golden/Cargo.lock",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "06c9be3b4e6173736804cde982a3985bc971d8e5",
+        "bytes": 2855,
+        "sha256": "560c0ef10865895cd739c0971566564e727b83014ff4f1da3adbe561fa5581e6"
+      },
+      {
+        "id": "raw-golden-manifest",
+        "path": "evidence/tooling/raw-golden/Cargo.toml",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "0d2e1bc9e3fc4d5ac5f5cf6a01cbf87868799fe4",
+        "bytes": 165,
+        "sha256": "8027af80bec76f757253743a1ef1414e31ce449ab1c8fa5391223b33a2378b0f"
+      },
+      {
+        "id": "raw-golden-library",
+        "path": "evidence/tooling/raw-golden/src/lib.rs",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "f02c07e8a36171ec298fac615457b242cc832653",
+        "bytes": 4428,
+        "sha256": "90b7a373ee51547ef5543bd61f37a39c36471d70a0afc7e91917566711933e31"
+      },
+      {
+        "id": "raw-golden-runner",
+        "path": "evidence/tooling/raw-golden/src/main.rs",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "4eefa78a1bcbf333d5deb31b9e7de05f4980a0d4",
+        "bytes": 1770,
+        "sha256": "37b695ddc00a9573e41179eb27da08fed90f9c88cb784abd51c9bc69b5a4aa73"
+      },
+      {
+        "id": "production-postprocess",
+        "path": "src/postprocess.rs",
+        "mode": "100644",
+        "type": "blob",
+        "blob": "98d51d5cebef6057e4f471a8713d69394f62ba86",
+        "bytes": 2910,
+        "sha256": "2a07f30ef59aa5d730cc0593adf7e69bc7351f285bdc10a2f7199f4e05d8ff4b"
+      }
+    ]
+  },
+  "basePublicationState": {
+    "repository": "https://github.com/laphael-dong/rimeflow-nn-base.git",
+    "branch": "feature/rimeflow-backend-contract-task1-base-repair-migrate01",
+    "state": "awaiting-push",
+    "commitResolution": "derive-from-runtime-HEAD-after-local-commit",
+    "remoteVerified": false
+  }
+}
