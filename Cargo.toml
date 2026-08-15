@@ -41,6 +41,11 @@ native-coreml-adapter = [
 # so ordinary host builds do not download or link the Android runtime SDK.
 litert-v2         = ["dep:google-ai-edge-litert"]
 
+# Windows ML is delivered by the pinned Microsoft.WindowsAppSDK.ML runner in
+# tools/windows-ml-runner. The Rust adapter is intentionally std-only so it
+# does not accidentally link a separate ORT or DirectML distribution.
+windowsml         = []
+
 # Turn on when operator crate build.rs uses `build_helper::generate_extern_block`.
 # It pulls in std::{env, fs, path} which are already there; this gate exists
 # only for symmetry with future helpers that may need heavier deps.

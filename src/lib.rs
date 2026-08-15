@@ -80,9 +80,11 @@ pub use backend::{
     ConformanceReportError, ConformanceRunner, CoreMlBackend, CoreMlIoMapping,
     CoreMlPackageIdentity, DType, ExecutionPlan, ModelInput, NativeAdapterCapability,
     OneShotNativeAdapterFactory, Platform, PlatformAdapterFactory, RawModelOutput, RawTensor,
-    ResolvedBackend, RuntimeBackend, SelectedNativeAdapter, TensorData,
-    ADAPTER_CONFORMANCE_SCHEMA_V1, ADAPTER_CONFORMANCE_SCHEMA_VERSION,
-    DEFAULT_COREML_INITIALIZATION_TIMEOUT,
+    ResolvedBackend, RuntimeBackend, SelectedNativeAdapter, TensorData, WindowsMlAdapterConfig,
+    WindowsMlAdapterFactory, WindowsMlBackend, WindowsMlMachineReport, WindowsMlRoleBinding,
+    WindowsMlRoleMap, WindowsMlRunnerCommand, ADAPTER_CONFORMANCE_SCHEMA_V1,
+    ADAPTER_CONFORMANCE_SCHEMA_VERSION, DEFAULT_COREML_INITIALIZATION_TIMEOUT,
+    WINDOWS_ML_PACKAGE_VERSION, WINDOWS_ML_RUNNER_SCHEMA_VERSION,
 };
 pub use error::{InferenceError, InitFailure, InitializationStage, TimeoutBoundary};
 pub use lifecycle::{
