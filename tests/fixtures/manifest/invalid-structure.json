@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "model": { "id": "yolov8n", "version": "8.0.0" },
+  "tensors": {
+    "inputs": [
+      { "role": "image", "shape": [1, 3, 640, 640], "layout": "NCHW", "dtype": "f32" }
+    ],
+    "outputs": []
+  },
+  "artifacts": []
+}

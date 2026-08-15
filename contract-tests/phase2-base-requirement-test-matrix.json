@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "owner": "rimeflow-nn-base",
+  "phase": 2,
+  "status": "test-first-red",
+  "entries": [
+    {
+      "id": "RFB-BASE-MANIFEST-001",
+      "spec": "rimeflow-model-artifacts",
+      "requirement": "Every platform artifact has a manifest entry",
+      "scenario": "Artifact matches manifest",
+      "test": { "file": "tests/phase2_manifest_red.rs", "name": "valid_manifest_is_accepted_by_schema_and_semantics", "command": "cargo test --test phase2_manifest_red valid_manifest_is_accepted_by_schema_and_semantics" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:manifest.schema_validate"
+    },
+    {
+      "id": "RFB-BASE-MANIFEST-002",
+      "spec": "rimeflow-model-artifacts",
+      "requirement": "Every platform artifact has a manifest entry",
+      "scenario": "Artifact integrity fails",
+      "test": { "file": "tests/phase2_manifest_red.rs", "name": "structural_manifest_error_is_rejected_consistently", "command": "cargo test --test phase2_manifest_red structural_manifest_error_is_rejected_consistently" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:manifest.schema_validate"
+    },
+    {
+      "id": "RFB-BASE-MANIFEST-003",
+      "spec": "rimeflow-model-artifacts",
+      "requirement": "Every platform artifact has a manifest entry",
+      "scenario": "Unknown schema version is rejected",
+      "test": { "file": "tests/phase2_manifest_red.rs", "name": "unknown_schema_version_is_rejected_before_initialization", "command": "cargo test --test phase2_manifest_red unknown_schema_version_is_rejected_before_initialization" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:manifest.semantic_validate"
+    },
+    {
+      "id": "RFB-BASE-MANIFEST-004",
+      "spec": "rimeflow-model-artifacts",
+      "requirement": "Every platform artifact has a manifest entry",
+      "scenario": "Artifact integrity fails",
+      "test": { "file": "tests/phase2_manifest_red.rs", "name": "artifact_integrity_or_target_mismatch_is_rejected", "command": "cargo test --test phase2_manifest_red artifact_integrity_or_target_mismatch_is_rejected" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:manifest.semantic_validate"
+    },
+    {
+      "id": "RFB-BASE-MANIFEST-005",
+      "spec": "rimeflow-model-artifacts",
+      "requirement": "Input semantics are explicit",
+      "scenario": "Input contract is unsupported",
+      "test": { "file": "tests/phase2_manifest_red.rs", "name": "quantized_tensor_requires_cross_field_parameters", "command": "cargo test --test phase2_manifest_red quantized_tensor_requires_cross_field_parameters" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:manifest.semantic_validate"
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-001",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Backend selection is fixed after initialization",
+      "scenario": "Backend selection is requested after initialization",
+      "test": { "file": "tests/phase2_lifecycle_red.rs", "name": "native_selection_is_fixed_across_repeated_initialize_requests", "command": "cargo test --test phase2_lifecycle_red native_selection_is_fixed_across_repeated_initialize_requests" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:runtime.native_initialize"
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-002",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Initialization boundaries are verified by fault injection",
+      "scenario": "Every initialization stage can fail deterministically",
+      "test": { "file": "tests/phase2_lifecycle_red.rs", "name": "every_native_initialization_stage_fails_atomically_with_one_fallback", "command": "cargo test --test phase2_lifecycle_red every_native_initialization_stage_fails_atomically_with_one_fallback" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:runtime.native_initialize"
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-003",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Initialization is an atomic readiness check",
+      "scenario": "Native initialization times out",
+      "test": { "file": "tests/phase2_lifecycle_red.rs", "name": "native_initialization_timeout_returns_structured_fallback", "command": "cargo test --test phase2_lifecycle_red native_initialization_timeout_returns_structured_fallback" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:runtime.native_initialize"
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-004",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Native initialization failure has one Web fallback boundary",
+      "scenario": "Web fallback initialization fails or times out",
+      "test": { "file": "tests/phase2_lifecycle_red.rs", "name": "web_initialization_failure_is_terminal_without_native_retry", "command": "cargo test --test phase2_lifecycle_red web_initialization_failure_is_terminal_without_native_retry" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:runtime.web_initialize"
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-005",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Initialization boundaries are verified by fault injection",
+      "scenario": "Concurrent initialization does not create a second backend",
+      "test": { "file": "tests/phase2_lifecycle_red.rs", "name": "concurrent_or_repeated_initialization_publishes_one_backend", "command": "cargo test --test phase2_lifecycle_red concurrent_or_repeated_initialization_publishes_one_backend" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:runtime.native_initialize"
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-006",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Initialization boundaries are verified by fault injection",
+      "scenario": "Released instance cannot be used or rebuilt implicitly",
+      "test": { "file": "tests/phase2_lifecycle_red.rs", "name": "released_runtime_rejects_later_use_without_reinitializing", "command": "cargo test --test phase2_lifecycle_red released_runtime_rejects_later_use_without_reinitializing" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:runtime.release"
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-007",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Runtime inference errors do not switch backends",
+      "scenario": "Inference fails after Native readiness",
+      "test": { "file": "tests/phase2_lifecycle_red.rs", "name": "inference_failure_does_not_switch_or_rebuild_the_backend", "command": "cargo test --test phase2_lifecycle_red inference_failure_does_not_switch_or_rebuild_the_backend" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:runtime.infer"
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-008",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Resolved backend diagnostics are observable",
+      "scenario": "Native backend is ready",
+      "test": { "file": "tests/phase2_lifecycle_red.rs", "name": "ready_and_fallback_diagnostics_remain_observable", "command": "cargo test --test phase2_lifecycle_red ready_and_fallback_diagnostics_remain_observable" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:runtime.native_initialize"
+    },
+    {
+      "id": "RFB-BASE-ADAPTER-001",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Platform-native adapters are selected from the supported matrix",
+      "scenario": "A supported platform adapter is available",
+      "test": { "file": "tests/phase2_adapter_conformance_red.rs", "name": "supported_platform_adapter_conforms_to_manifest_contract", "command": "cargo test --test phase2_adapter_conformance_red supported_platform_adapter_conforms_to_manifest_contract" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:adapter.conformance"
+    },
+    {
+      "id": "RFB-BASE-ADAPTER-002",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Platform-native adapters are selected from the supported matrix",
+      "scenario": "A platform adapter or artifact is unavailable",
+      "test": { "file": "tests/phase2_adapter_conformance_red.rs", "name": "unavailable_adapter_or_artifact_returns_native_fallback_diagnostic", "command": "cargo test --test phase2_adapter_conformance_red unavailable_adapter_or_artifact_returns_native_fallback_diagnostic" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "red: not_implemented:adapter.conformance"
+    },
+    {
+      "id": "RFB-BASE-TRACE-001",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Runtime requirements have traceable executable tests",
+      "scenario": "A test-first runtime requirement is introduced",
+      "test": { "file": "tools/verify_phase2_requirement_matrix.mjs", "name": "matrix-validates-traceability", "command": "node tools/verify_phase2_requirement_matrix.mjs" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "green: traceability matrix is structurally valid while behavior tests remain red"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "model": { "id": "yolov8n", "version": "8.0.0" },
+  "tensors": {
+    "inputs": [
+      { "role": "image", "name": "images", "shape": [1, 3, 640, 640], "layout": "NCHW", "dtype": "f32" }
+    ],
+    "outputs": [
+      { "role": "detections", "name": "output0", "shape": [1, 84, 8400], "layout": "NCHW", "dtype": "f32" }
+    ]
+  },
+  "artifacts": [
+    {
+      "id": "yolov8n-onnx-fp32",
+      "format": "onnx",
+      "targets": [{ "os": "linux", "arch": "x86_64" }],
+      "path": "models/yolov8n.onnx",
+      "sha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+      "inputs": ["image"],
+      "outputs": ["detections"]
+    }
+  ]
+}

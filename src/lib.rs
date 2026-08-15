@@ -40,6 +40,14 @@
 
 pub mod preprocess;
 
+/// Test-first public contract seam for the Phase 2 backend contract.
+///
+/// This module deliberately contains no manifest parsing, runtime factory, or
+/// lifecycle implementation. It gives contract tests a stable, compilable API
+/// and a deterministic `not_implemented` fake until Phase 4 owns the real
+/// implementation.
+pub mod contract_test_seam;
+
 #[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
 pub mod native_ort;
 
