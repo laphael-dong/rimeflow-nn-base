@@ -1,5 +1,5 @@
 // RFB-BASE-TRACE-001
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const root = process.cwd();
@@ -73,8 +73,21 @@ validateCompletionEvidence(
 
 assert(matrix.schemaVersion === 1, 'schemaVersion must be 1');
 assert(matrix.owner === 'rimeflow-nn-base', 'owner must be rimeflow-nn-base');
-assert(matrix.phase === 2 && matrix.status === 'test-first-red', 'phase/status must describe Phase 2 red tests');
+assert(matrix.phase === 2, 'phase must be 2');
+assert(matrix.status === 'test-first-red' || matrix.status === 'complete', 'matrix status must be test-first-red or complete');
 assert(Array.isArray(matrix.entries) && matrix.entries.length > 0, 'entries must be non-empty');
+
+let completionReport = null;
+if (matrix.status === 'complete') {
+  const reportPaths = new Set(matrix.entries.map((entry) => entry.reportPath));
+  assert(reportPaths.size === 1, 'complete matrix entries must share one reportPath');
+  const [reportPath] = reportPaths;
+  assert(existsSync(join(root, reportPath)), `complete report does not exist: ${reportPath}`);
+  completionReport = JSON.parse(readTrackedFile(reportPath));
+  assert(completionReport.status === 'passed', 'complete report status must be passed');
+  assert(commitPattern.test(completionReport.commitSha), 'complete report must bind a 40-character commit SHA');
+  assert(Array.isArray(completionReport.results), 'complete report results must be an array');
+}
 
 const matrixIds = new Set();
 const listedTestFiles = new Set();
@@ -92,6 +105,16 @@ for (const entry of matrix.entries) {
   assert(entry.test.command.startsWith('cargo test ') || entry.test.command.startsWith('node '), `${entry.id} has an unsupported command`);
   assert(entry.expected.includes('not_implemented') || entry.expected.startsWith('green:'), `${entry.id} must declare an expected red or green outcome`);
   validateCompletionEvidence(entry, matrix.status);
+  if (completionReport) {
+    const evidence = completionReport.results.find((result) => result.id === entry.id);
+    assert(evidence, `${entry.id} has no result in ${entry.reportPath}`);
+    assert(evidence.result === 'passed', `${entry.id} report result is not passed`);
+    assert(evidence.test.file === entry.test.file, `${entry.id} report test file drifted`);
+    assert(evidence.test.name === entry.test.name, `${entry.id} report test name drifted`);
+    assert(evidence.test.command === entry.test.command, `${entry.id} report test command drifted`);
+    assert(evidence.commitSha === entry.completionEvidence.commitSha, `${entry.id} report commit drifted`);
+    assert(evidence.commitSha === completionReport.commitSha, `${entry.id} does not bind the report commit`);
+  }
   const source = readTrackedFile(entry.test.file);
   assert(source.includes(entry.id), `${entry.id} is not declared in ${entry.test.file}`);
   listedTestFiles.add(entry.test.file);
@@ -112,4 +135,9 @@ for (const absolutePath of collectRustTestFiles(join(root, 'tests'))) {
 }
 
 for (const id of matrixIds) assert(declaredIds.has(id), `matrix ID ${id} has no source declaration`);
+if (completionReport) {
+  const reportIds = new Set(completionReport.results.map((result) => result.id));
+  assert(reportIds.size === matrixIds.size, 'complete report has duplicate or extra result IDs');
+  for (const id of reportIds) assert(matrixIds.has(id), `complete report has unknown ID ${id}`);
+}
 console.log(`Phase 2 Base matrix valid: ${matrix.entries.length} entries, ${matrixIds.size} unique IDs.`);

@@ -40,8 +40,11 @@ use thiserror::Error;
 
 use crate::preprocess::LetterboxParams;
 
-/// Resolved execution provider — recorded so consumers can display
-/// "Running on ANE" / "DirectML" etc. in their UI.
+/// First configured execution provider.
+///
+/// This is retained for API compatibility. It does not prove which provider
+/// executed any graph node; [`crate::backend::legacy_ort::LegacyOrtBackend`]
+/// therefore reports no actual accelerator and an unknown execution plan.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ResolvedEp {
     CoreML,
@@ -64,20 +67,32 @@ pub enum ResolvedEp {
 /// `dst_size` is the operator's input tile size — the base doesn't hard-code
 /// it. `[1, 3, dst_size, dst_size]` is the accepted host shape.
 pub struct NativeOrtBackend {
-    session:     Session,
-    input_name:  String,
+    session: Session,
+    input_name: String,
     output_name: String,
-    dst_size:    u32,
+    dst_size: u32,
     resolved_ep: ResolvedEp,
 }
 
 impl NativeOrtBackend {
     pub fn new(
-        model_bytes:  &[u8],
+        model_bytes: &[u8],
         _wgpu_device: &wgpu::Device,
-        _wgpu_queue:  &wgpu::Queue,
-        dst_size:     u32,
+        _wgpu_queue: &wgpu::Queue,
+        dst_size: u32,
     ) -> Result<Self, InferError> {
+        Self::from_model_bytes(model_bytes, dst_size)
+    }
+
+    /// Construct the legacy ORT session without requiring unused wgpu handles.
+    /// The original [`Self::new`] entry point remains source-compatible.
+    pub fn from_model_bytes(model_bytes: &[u8], dst_size: u32) -> Result<Self, InferError> {
+        if dst_size == 0 {
+            return Err(InferError::Shape {
+                expected: 1,
+                got: 0,
+            });
+        }
         let (providers, resolved_ep) = build_execution_providers();
 
         let session = Session::builder()
@@ -89,14 +104,34 @@ impl NativeOrtBackend {
             .commit_from_memory(model_bytes)
             .map_err(|e| InferError::OrtBuild(e.to_string()))?;
 
-        let input_name  = session.inputs()[0].name().to_string();
-        let output_name = session.outputs()[0].name().to_string();
+        let input_name = session
+            .inputs()
+            .first()
+            .ok_or(InferError::InputMissing)?
+            .name()
+            .to_string();
+        let output_name = session
+            .outputs()
+            .first()
+            .ok_or(InferError::OutputMissing)?
+            .name()
+            .to_string();
 
-        Ok(Self { session, input_name, output_name, dst_size, resolved_ep })
+        Ok(Self {
+            session,
+            input_name,
+            output_name,
+            dst_size,
+            resolved_ep,
+        })
     }
 
-    pub fn resolved_ep(&self) -> ResolvedEp { self.resolved_ep }
-    pub fn dst_size(&self)    -> u32        { self.dst_size }
+    pub fn resolved_ep(&self) -> ResolvedEp {
+        self.resolved_ep
+    }
+    pub fn dst_size(&self) -> u32 {
+        self.dst_size
+    }
 
     /// Zero/near-zero-copy inference from a wgpu::Buffer produced by
     /// [`crate::preprocess::PreprocessPipeline::dispatch`].
@@ -112,9 +147,9 @@ impl NativeOrtBackend {
     pub fn infer_from_wgpu_buffer(
         &mut self,
         preproc_buffer: &wgpu::Buffer,
-        device:         &wgpu::Device,
-        queue:          &wgpu::Queue,
-        _letterbox:     LetterboxParams,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        _letterbox: LetterboxParams,
     ) -> Result<Vec<f32>, InferError> {
         let size = preproc_buffer.size();
         let staging = device.create_buffer(&wgpu::BufferDescriptor {
@@ -135,8 +170,7 @@ impl NativeOrtBackend {
             let _ = tx.send(res);
         });
         device.poll(wgpu::PollType::wait_indefinitely())?;
-        rx.recv()
-            .map_err(|_| InferError::MapChannel)??;
+        rx.recv().map_err(|_| InferError::MapChannel)??;
 
         let raw = {
             let bytes = slice.get_mapped_range();
@@ -154,8 +188,11 @@ impl NativeOrtBackend {
     pub fn infer_from_host_slice(&mut self, nchw: &[f32]) -> Result<Vec<f32>, InferError> {
         let dst = self.dst_size as usize;
         let expected = 3 * dst * dst;
-        if nchw.len() < expected {
-            return Err(InferError::Shape { expected, got: nchw.len() });
+        if nchw.len() != expected {
+            return Err(InferError::Shape {
+                expected,
+                got: nchw.len(),
+            });
         }
         let shape: [i64; 4] = [1, 3, self.dst_size as i64, self.dst_size as i64];
         let tensor = TensorRef::from_array_view((shape, nchw))?;
@@ -177,48 +214,62 @@ fn build_execution_providers() -> (Vec<ExecutionProviderDispatch>, ResolvedEp) {
     {
         use ort::execution_providers::CoreMLExecutionProvider;
         v.push(CoreMLExecutionProvider::default().build().into());
-        if resolved == ResolvedEp::Cpu { resolved = ResolvedEp::CoreML; }
+        if resolved == ResolvedEp::Cpu {
+            resolved = ResolvedEp::CoreML;
+        }
     }
     #[cfg(feature = "native-directml")]
     {
         use ort::execution_providers::DirectMLExecutionProvider;
         v.push(DirectMLExecutionProvider::default().build().into());
-        if resolved == ResolvedEp::Cpu { resolved = ResolvedEp::DirectML; }
+        if resolved == ResolvedEp::Cpu {
+            resolved = ResolvedEp::DirectML;
+        }
     }
     #[cfg(feature = "native-tensorrt")]
     {
         use ort::execution_providers::TensorRTExecutionProvider;
         v.push(TensorRTExecutionProvider::default().build().into());
-        if resolved == ResolvedEp::Cpu { resolved = ResolvedEp::TensorRt; }
+        if resolved == ResolvedEp::Cpu {
+            resolved = ResolvedEp::TensorRt;
+        }
     }
     #[cfg(feature = "native-cuda")]
     {
         use ort::execution_providers::CUDAExecutionProvider;
         v.push(CUDAExecutionProvider::default().build().into());
-        if resolved == ResolvedEp::Cpu { resolved = ResolvedEp::Cuda; }
+        if resolved == ResolvedEp::Cpu {
+            resolved = ResolvedEp::Cuda;
+        }
     }
     #[cfg(feature = "native-nnapi")]
     {
         use ort::execution_providers::NNAPIExecutionProvider;
         v.push(NNAPIExecutionProvider::default().build().into());
-        if resolved == ResolvedEp::Cpu { resolved = ResolvedEp::Nnapi; }
+        if resolved == ResolvedEp::Cpu {
+            resolved = ResolvedEp::Nnapi;
+        }
     }
     #[cfg(feature = "native-qnn")]
     {
         use ort::execution_providers::QNNExecutionProvider;
         v.push(QNNExecutionProvider::default().build().into());
-        if resolved == ResolvedEp::Cpu { resolved = ResolvedEp::Qnn; }
+        if resolved == ResolvedEp::Cpu {
+            resolved = ResolvedEp::Qnn;
+        }
     }
     #[cfg(feature = "native-openvino")]
     {
         use ort::execution_providers::OpenVINOExecutionProvider;
         v.push(OpenVINOExecutionProvider::default().build().into());
-        if resolved == ResolvedEp::Cpu { resolved = ResolvedEp::OpenVino; }
+        if resolved == ResolvedEp::Cpu {
+            resolved = ResolvedEp::OpenVino;
+        }
     }
 
     // Always append CPU as final fallback.
     use ort::execution_providers::CPUExecutionProvider;
-    v.push(CPUExecutionProvider::default().build().into());
+    v.push(CPUExecutionProvider::default().build());
 
     (v, resolved)
 }
@@ -231,6 +282,8 @@ pub enum InferError {
     OrtBuild(String),
     #[error("output tensor missing")]
     OutputMissing,
+    #[error("input tensor missing")]
+    InputMissing,
     #[error("shape mismatch: expected {expected} f32 elements, got {got}")]
     Shape { expected: usize, got: usize },
     #[error("wgpu map_async: {0}")]

@@ -32,8 +32,12 @@
 //!   extern block declaring `capture_webgpu_device`, `ort_init`,
 //!   `ort_run_gpu_buffer`, `ort_run_cpu_slice`, `ort_detect`, `ort_release`.
 
+use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
+
+use crate::backend::Platform;
+use crate::manifest::{Artifact, ManifestError, ModelManifest};
 
 /// Configuration for `generate_extern_block`.
 pub struct BridgeConfig<'a> {
@@ -42,7 +46,69 @@ pub struct BridgeConfig<'a> {
     pub wgsl_path: &'a Path,
     /// Operator input tile size (square). Substituted into the JS
     /// `const DST_SIZE = …;`.
-    pub dst_size:  u32,
+    pub dst_size: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ValidatedBuildArtifact {
+    pub manifest_path: PathBuf,
+    pub artifact_path: PathBuf,
+    pub artifact: Artifact,
+}
+
+#[derive(Debug)]
+pub enum BuildManifestError {
+    Io(std::io::Error),
+    Manifest(ManifestError),
+}
+
+impl fmt::Display for BuildManifestError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Io(error) => write!(formatter, "manifest build I/O: {error}"),
+            Self::Manifest(error) => write!(formatter, "manifest build validation: {error}"),
+        }
+    }
+}
+
+impl std::error::Error for BuildManifestError {}
+
+impl From<std::io::Error> for BuildManifestError {
+    fn from(error: std::io::Error) -> Self {
+        Self::Io(error)
+    }
+}
+
+impl From<ManifestError> for BuildManifestError {
+    fn from(error: ManifestError) -> Self {
+        Self::Manifest(error)
+    }
+}
+
+/// Parse a manifest, select a target artifact, and verify the artifact bytes.
+///
+/// Operator build scripts can call this before embedding model data. The
+/// artifact path is resolved relative to the manifest file, and both inputs
+/// are registered with Cargo's incremental rebuild tracking.
+pub fn validate_manifest_artifact(
+    manifest_path: &Path,
+    artifact_id: &str,
+    target: &Platform,
+) -> Result<ValidatedBuildArtifact, BuildManifestError> {
+    println!("cargo:rerun-if-changed={}", manifest_path.display());
+    let manifest_json = fs::read_to_string(manifest_path)?;
+    let manifest = ModelManifest::parse_and_validate(&manifest_json)?;
+    let artifact = manifest.select_artifact(artifact_id, target)?.clone();
+    let parent = manifest_path.parent().unwrap_or_else(|| Path::new("."));
+    let artifact_path = parent.join(&artifact.path);
+    println!("cargo:rerun-if-changed={}", artifact_path.display());
+    let bytes = fs::read(&artifact_path)?;
+    ModelManifest::verify_artifact_bytes(&artifact, &bytes)?;
+    Ok(ValidatedBuildArtifact {
+        manifest_path: manifest_path.to_path_buf(),
+        artifact_path,
+        artifact,
+    })
 }
 
 /// Read the base's `template.js` and the operator's WGSL, substitute
@@ -60,7 +126,7 @@ pub fn generate_extern_block(cfg: &BridgeConfig<'_>) -> std::io::Result<()> {
     println!("cargo:rerun-if-changed=build.rs");
 
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR unset"));
-    let out_rs  = out_dir.join("ort_bridge_generated.rs");
+    let out_rs = out_dir.join("ort_bridge_generated.rs");
 
     // Non-wasm build: emit an empty stub so operator crate's non-wasm build
     // succeeds even if it accidentally references the file (it shouldn't —
@@ -94,9 +160,9 @@ pub fn generate_extern_block(cfg: &BridgeConfig<'_>) -> std::io::Result<()> {
     // Sentinels: single occurrence each (asserted below). Template comments
     // never repeat the raw sentinel string.
     let sent_wgsl = "__PREPROCESS_WGSL__";
-    let sent_dst  = "__DST_SIZE__";
+    let sent_dst = "__DST_SIZE__";
     let n_wgsl = template.matches(sent_wgsl).count();
-    let n_dst  = template.matches(sent_dst).count();
+    let n_dst = template.matches(sent_dst).count();
     assert_eq!(
         n_wgsl, 1,
         "rimeflow-onnx-base template.js must contain exactly one `{sent_wgsl}`; found {n_wgsl}",
@@ -108,7 +174,7 @@ pub fn generate_extern_block(cfg: &BridgeConfig<'_>) -> std::io::Result<()> {
 
     let js = template
         .replace(sent_wgsl, &wgsl_js)
-        .replace(sent_dst,  &cfg.dst_size.to_string());
+        .replace(sent_dst, &cfg.dst_size.to_string());
 
     // Encode the entire JS blob as a Rust raw string literal for
     // `#[wasm_bindgen(inline_js = r#"..."#)]`. Grow the `#`-count until no

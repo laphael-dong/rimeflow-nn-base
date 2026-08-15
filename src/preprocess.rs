@@ -25,14 +25,14 @@ use bytemuck::{Pod, Zeroable};
 /// invariants.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LetterboxParams {
-    pub src_w:    u32,
-    pub src_h:    u32,
+    pub src_w: u32,
+    pub src_h: u32,
     pub dst_size: u32,
-    pub scale:    f32,
+    pub scale: f32,
     /// Normalized pad in destination-space (0..1). Multiply by `dst_size` for
     /// pixel-space (needed by the operator crate's postprocess decoder).
-    pub pad_x:    f32,
-    pub pad_y:    f32,
+    pub pad_x: f32,
+    pub pad_y: f32,
 }
 
 impl LetterboxParams {
@@ -41,12 +41,23 @@ impl LetterboxParams {
         let scale = (dst_f / src_w as f32).min(dst_f / src_h as f32);
         let pad_x = (1.0 - (src_w as f32 * scale) / dst_f) / 2.0;
         let pad_y = (1.0 - (src_h as f32 * scale) / dst_f) / 2.0;
-        Self { src_w, src_h, dst_size, scale, pad_x, pad_y }
+        Self {
+            src_w,
+            src_h,
+            dst_size,
+            scale,
+            pad_x,
+            pad_y,
+        }
     }
 
     /// Pad in destination-pixel units, ready for the operator's postprocess.
-    pub fn pad_x_px(&self) -> f32 { self.pad_x * self.dst_size as f32 }
-    pub fn pad_y_px(&self) -> f32 { self.pad_y * self.dst_size as f32 }
+    pub fn pad_x_px(&self) -> f32 {
+        self.pad_x * self.dst_size as f32
+    }
+    pub fn pad_y_px(&self) -> f32 {
+        self.pad_y * self.dst_size as f32
+    }
 }
 
 /// Uniform buffer layout — matches the base's WGSL `Params` struct contract
@@ -56,27 +67,27 @@ impl LetterboxParams {
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
 pub struct PreprocessUniform {
-    pub src_w:    f32,
-    pub src_h:    f32,
+    pub src_w: f32,
+    pub src_h: f32,
     pub dst_size: u32,
-    pub _pad_a:   u32,
-    pub scale:    f32,
-    pub pad_x:    f32,
-    pub pad_y:    f32,
-    pub _pad_b:   f32,
+    pub _pad_a: u32,
+    pub scale: f32,
+    pub pad_x: f32,
+    pub pad_y: f32,
+    pub _pad_b: f32,
 }
 
 impl From<LetterboxParams> for PreprocessUniform {
     fn from(lb: LetterboxParams) -> Self {
         Self {
-            src_w:    lb.src_w as f32,
-            src_h:    lb.src_h as f32,
+            src_w: lb.src_w as f32,
+            src_h: lb.src_h as f32,
             dst_size: lb.dst_size,
-            _pad_a:   0,
-            scale:    lb.scale,
-            pad_x:    lb.pad_x,
-            pad_y:    lb.pad_y,
-            _pad_b:   0.0,
+            _pad_a: 0,
+            scale: lb.scale,
+            pad_x: lb.pad_x,
+            pad_y: lb.pad_y,
+            _pad_b: 0.0,
         }
     }
 }
@@ -100,11 +111,11 @@ impl From<LetterboxParams> for PreprocessUniform {
 ///
 /// See rules doc §16.7 for the reference letterbox prologue.
 pub struct PreprocessPipeline {
-    pipeline:   wgpu::ComputePipeline,
+    pipeline: wgpu::ComputePipeline,
     dst_buffer: wgpu::Buffer,
     uni_buffer: wgpu::Buffer,
-    sampler:    wgpu::Sampler,
-    dst_size:   u32,
+    sampler: wgpu::Sampler,
+    dst_size: u32,
 }
 
 impl PreprocessPipeline {
@@ -135,36 +146,42 @@ impl PreprocessPipeline {
         wgsl: &str,
     ) -> Self {
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label:  Some("rimeflow-onnx-base-preprocess-shader"),
+            label: Some("rimeflow-onnx-base-preprocess-shader"),
             source: wgpu::ShaderSource::Wgsl(wgsl.into()),
         });
         let pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
-            label:  Some("rimeflow-onnx-base-preprocess-pipeline"),
+            label: Some("rimeflow-onnx-base-preprocess-pipeline"),
             layout: None,
             module: &shader,
-            entry_point:         Some("main"),
+            entry_point: Some("main"),
             compilation_options: Default::default(),
             cache: None,
         });
         let dst_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("rimeflow-onnx-base-preprocess-dst"),
-            size:  3u64 * dst_size as u64 * dst_size as u64 * 4,
+            size: 3u64 * dst_size as u64 * dst_size as u64 * 4,
             usage: dst_buffer_usage,
             mapped_at_creation: false,
         });
         let uni_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("rimeflow-onnx-base-preprocess-uniform"),
-            size:  std::mem::size_of::<PreprocessUniform>() as u64,
+            size: std::mem::size_of::<PreprocessUniform>() as u64,
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
         let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
-            label:      Some("rimeflow-onnx-base-preprocess-sampler"),
+            label: Some("rimeflow-onnx-base-preprocess-sampler"),
             mag_filter: wgpu::FilterMode::Linear,
             min_filter: wgpu::FilterMode::Linear,
             ..Default::default()
         });
-        Self { pipeline, dst_buffer, uni_buffer, sampler, dst_size }
+        Self {
+            pipeline,
+            dst_buffer,
+            uni_buffer,
+            sampler,
+            dst_size,
+        }
     }
 
     /// Permissive buffer-usage default: `STORAGE | COPY_SRC`. Compatible with:
@@ -183,11 +200,11 @@ impl PreprocessPipeline {
     /// Dispatch preprocess for one frame. Caller submits the queue.
     pub fn dispatch(
         &self,
-        device:     &wgpu::Device,
-        queue:      &wgpu::Queue,
-        encoder:    &mut wgpu::CommandEncoder,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        encoder: &mut wgpu::CommandEncoder,
         scene_view: &wgpu::TextureView,
-        letterbox:  LetterboxParams,
+        letterbox: LetterboxParams,
     ) {
         debug_assert_eq!(
             letterbox.dst_size, self.dst_size,
@@ -197,13 +214,25 @@ impl PreprocessPipeline {
         queue.write_buffer(&self.uni_buffer, 0, bytemuck::bytes_of(&uni));
 
         let bg = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout:  &self.pipeline.get_bind_group_layout(0),
-            label:   Some("rimeflow-onnx-base-preprocess-bg"),
+            layout: &self.pipeline.get_bind_group_layout(0),
+            label: Some("rimeflow-onnx-base-preprocess-bg"),
             entries: &[
-                wgpu::BindGroupEntry { binding: 0, resource: wgpu::BindingResource::TextureView(scene_view) },
-                wgpu::BindGroupEntry { binding: 1, resource: wgpu::BindingResource::Sampler(&self.sampler) },
-                wgpu::BindGroupEntry { binding: 2, resource: self.dst_buffer.as_entire_binding() },
-                wgpu::BindGroupEntry { binding: 3, resource: self.uni_buffer.as_entire_binding() },
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: wgpu::BindingResource::TextureView(scene_view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: wgpu::BindingResource::Sampler(&self.sampler),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 2,
+                    resource: self.dst_buffer.as_entire_binding(),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 3,
+                    resource: self.uni_buffer.as_entire_binding(),
+                },
             ],
         });
 
@@ -224,8 +253,12 @@ impl PreprocessPipeline {
     /// - DirectML: `output().as_hal::<wgpu_hal::api::Dx12>()` → `ID3D12Resource`
     /// - CoreML:   `output().as_hal::<wgpu_hal::api::Metal>()` → `MTLBuffer`
     /// - CPU:      `output().slice(..).map_async` → `&[f32]`
-    pub fn output(&self) -> &wgpu::Buffer { &self.dst_buffer }
-    pub fn dst_size(&self) -> u32 { self.dst_size }
+    pub fn output(&self) -> &wgpu::Buffer {
+        &self.dst_buffer
+    }
+    pub fn dst_size(&self) -> u32 {
+        self.dst_size
+    }
 }
 
 #[cfg(test)]

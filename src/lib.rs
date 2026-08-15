@@ -40,6 +40,11 @@
 
 pub mod preprocess;
 
+pub mod backend;
+pub mod error;
+pub mod lifecycle;
+pub mod manifest;
+
 /// Test-first public contract seam for the Phase 2 backend contract.
 ///
 /// This module deliberately contains no manifest parsing, runtime factory, or
@@ -56,4 +61,20 @@ pub mod ort_bridge;
 
 pub mod build_helper;
 
+pub use backend::{
+    BackendFactory, BackendInitRequest, BackendInstance, BackendKind, DType, ExecutionPlan,
+    ModelInput, Platform, RawModelOutput, RawTensor, ResolvedBackend, RuntimeBackend, TensorData,
+};
+pub use error::{InferenceError, InitFailure, InitializationStage, TimeoutBoundary};
+pub use lifecycle::{
+    InitOutcome, LifecycleError, LifecycleSnapshot, RuntimeLifecycle, WebInitOutcome,
+};
+pub use manifest::{
+    Artifact, ArtifactFormat, ArtifactTarget, Layout, ManifestError, ModelManifest, TensorSpec,
+};
 pub use preprocess::{LetterboxParams, PreprocessPipeline, PreprocessUniform};
+
+#[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
+pub use backend::legacy_ort::{LegacyOrtBackend, LegacyOrtMetadata};
+#[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
+pub use native_ort::{InferError as LegacyInferError, NativeOrtBackend, ResolvedEp};
