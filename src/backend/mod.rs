@@ -9,6 +9,7 @@ pub mod coreml;
 
 pub mod litert_v2;
 pub mod windows_ml;
+pub mod mindspore_lite;
 
 #[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
 pub mod legacy_ort;
@@ -28,6 +29,14 @@ pub use windows_ml::{
     WindowsMlAdapterConfig, WindowsMlAdapterFactory, WindowsMlBackend, WindowsMlMachineReport,
     WindowsMlRoleBinding, WindowsMlRoleMap, WindowsMlRunnerCommand, WINDOWS_ML_PACKAGE_VERSION,
     WINDOWS_ML_RUNNER_SCHEMA_VERSION,
+};
+pub use mindspore_lite::{
+    MindSporeLiteAdapterBuilder, MindSporeLiteAvailability, MindSporeLiteBackend,
+    MindSporeLiteBootstrapError, MindSporeLiteDiagnostics, MindSporeLiteIoPlan,
+    MindSporeLiteLoadedRuntime, MindSporeLiteRuntime, MindSporeLiteRuntimeError,
+    MindSporeLiteRuntimeLoader, MindSporeLiteTensorBinding, MindSporeLiteTensorDescriptor,
+    VerifiedMindSporeLiteArtifact, MINDSPORE_LITE_INFERENCE_TIMEOUT_MS,
+    MINDSPORE_LITE_NATIVE_INITIALIZATION_TIMEOUT_MS, MINDSPORE_LITE_RUNTIME_VERSION,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]

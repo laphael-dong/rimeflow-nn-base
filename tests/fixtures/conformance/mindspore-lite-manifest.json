@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "model": {
+    "id": "rimeflow-yolov8n",
+    "version": "mindspore-lite-test-v1"
+  },
+  "tensors": {
+    "inputs": [
+      {
+        "role": "image",
+        "name": "images",
+        "index": 0,
+        "shape": [1, 640, 640, 3],
+        "layout": "NHWC",
+        "dtype": "f32"
+      }
+    ],
+    "outputs": [
+      {
+        "role": "detections",
+        "name": "output0",
+        "index": 0,
+        "shape": [1, 84, 8400],
+        "layout": "NCHW",
+        "dtype": "f32"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "id": "harmonyos-mindspore-fp32",
+      "format": "mindspore-lite",
+      "targets": [
+        {
+          "os": "harmonyos",
+          "arch": "arm64-v8a"
+        }
+      ],
+      "path": "models/yolov8n-fp32.ms",
+      "sha256": "bfd1221629fcc0a0b8c8df0df3925e85f8cc845d236e41c5e73a0d2da27ab59d",
+      "converter": {
+        "name": "converter_lite",
+        "version": "2.7.0"
+      },
+      "inputs": ["image"],
+      "outputs": ["detections"]
+    }
+  ]
+}
