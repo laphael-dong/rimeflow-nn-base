@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "owner": "rimeflow-nn-base",
+  "phase": 2,
+  "status": "passed",
+  "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+  "modelIdentity": {
+    "repository": "https://github.com/laphael-dong/rimeflow-nn-validation.git",
+    "commit": "c90d3957fbbd04b3f0b29eff7bc873b70eed4400",
+    "tree": "341d8b00fb5d4d9afeac856418950c1faa408b2e",
+    "path": "models/yolov8n.onnx",
+    "blob": "22f19afe710dfa942b3e644c4e5a7ac5c42ac403",
+    "bytes": 12851098,
+    "sha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad"
+  },
+  "results": [
+    {
+      "id": "RFB-BASE-MANIFEST-001",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_manifest_red.rs",
+        "name": "valid_manifest_is_accepted_by_schema_and_semantics",
+        "command": "cargo test --test phase2_manifest_red valid_manifest_is_accepted_by_schema_and_semantics"
+      },
+      "executedCommand": "cargo test --test phase2_manifest_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-MANIFEST-002",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_manifest_red.rs",
+        "name": "structural_manifest_error_is_rejected_consistently",
+        "command": "cargo test --test phase2_manifest_red structural_manifest_error_is_rejected_consistently"
+      },
+      "executedCommand": "cargo test --test phase2_manifest_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-MANIFEST-003",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_manifest_red.rs",
+        "name": "unknown_schema_version_is_rejected_before_initialization",
+        "command": "cargo test --test phase2_manifest_red unknown_schema_version_is_rejected_before_initialization"
+      },
+      "executedCommand": "cargo test --test phase2_manifest_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-MANIFEST-004",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_manifest_red.rs",
+        "name": "artifact_integrity_or_target_mismatch_is_rejected",
+        "command": "cargo test --test phase2_manifest_red artifact_integrity_or_target_mismatch_is_rejected"
+      },
+      "executedCommand": "cargo test --test phase2_manifest_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-MANIFEST-005",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_manifest_red.rs",
+        "name": "quantized_tensor_requires_cross_field_parameters",
+        "command": "cargo test --test phase2_manifest_red quantized_tensor_requires_cross_field_parameters"
+      },
+      "executedCommand": "cargo test --test phase2_manifest_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-001",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_lifecycle_red.rs",
+        "name": "native_selection_is_fixed_across_repeated_initialize_requests",
+        "command": "cargo test --test phase2_lifecycle_red native_selection_is_fixed_across_repeated_initialize_requests"
+      },
+      "executedCommand": "cargo test --test phase2_lifecycle_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-002",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_lifecycle_red.rs",
+        "name": "every_native_initialization_stage_fails_atomically_with_one_fallback",
+        "command": "cargo test --test phase2_lifecycle_red every_native_initialization_stage_fails_atomically_with_one_fallback"
+      },
+      "executedCommand": "cargo test --test phase2_lifecycle_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-003",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_lifecycle_red.rs",
+        "name": "native_initialization_timeout_returns_structured_fallback",
+        "command": "cargo test --test phase2_lifecycle_red native_initialization_timeout_returns_structured_fallback"
+      },
+      "executedCommand": "cargo test --test phase2_lifecycle_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-004",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_lifecycle_red.rs",
+        "name": "web_initialization_failure_is_terminal_without_native_retry",
+        "command": "cargo test --test phase2_lifecycle_red web_initialization_failure_is_terminal_without_native_retry"
+      },
+      "executedCommand": "cargo test --test phase2_lifecycle_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-005",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_lifecycle_red.rs",
+        "name": "concurrent_or_repeated_initialization_publishes_one_backend",
+        "command": "cargo test --test phase2_lifecycle_red concurrent_or_repeated_initialization_publishes_one_backend"
+      },
+      "executedCommand": "cargo test --test phase2_lifecycle_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-006",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_lifecycle_red.rs",
+        "name": "released_runtime_rejects_later_use_without_reinitializing",
+        "command": "cargo test --test phase2_lifecycle_red released_runtime_rejects_later_use_without_reinitializing"
+      },
+      "executedCommand": "cargo test --test phase2_lifecycle_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-007",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_lifecycle_red.rs",
+        "name": "inference_failure_does_not_switch_or_rebuild_the_backend",
+        "command": "cargo test --test phase2_lifecycle_red inference_failure_does_not_switch_or_rebuild_the_backend"
+      },
+      "executedCommand": "cargo test --test phase2_lifecycle_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-LIFECYCLE-008",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_lifecycle_red.rs",
+        "name": "ready_and_fallback_diagnostics_remain_observable",
+        "command": "cargo test --test phase2_lifecycle_red ready_and_fallback_diagnostics_remain_observable"
+      },
+      "executedCommand": "cargo test --test phase2_lifecycle_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-ADAPTER-001",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_adapter_conformance_red.rs",
+        "name": "supported_platform_adapter_conforms_to_manifest_contract",
+        "command": "cargo test --test phase2_adapter_conformance_red supported_platform_adapter_conforms_to_manifest_contract"
+      },
+      "executedCommand": "cargo test --test phase2_adapter_conformance_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-ADAPTER-002",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tests/phase2_adapter_conformance_red.rs",
+        "name": "unavailable_adapter_or_artifact_returns_native_fallback_diagnostic",
+        "command": "cargo test --test phase2_adapter_conformance_red unavailable_adapter_or_artifact_returns_native_fallback_diagnostic"
+      },
+      "executedCommand": "cargo test --test phase2_adapter_conformance_red",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-TRACE-001",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tools/verify_phase2_requirement_matrix.mjs",
+        "name": "matrix-validates-traceability",
+        "command": "node tools/verify_phase2_requirement_matrix.mjs"
+      },
+      "executedCommand": "node tools/verify_phase2_requirement_matrix.mjs",
+      "exitCode": 0
+    },
+    {
+      "id": "RFB-BASE-TRACE-002",
+      "result": "passed",
+      "commitSha": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2",
+      "test": {
+        "file": "tools/verify_phase2_requirement_matrix.mjs",
+        "name": "matrix-rejects-unproven-completion",
+        "command": "node tools/verify_phase2_requirement_matrix.mjs"
+      },
+      "executedCommand": "node tools/verify_phase2_requirement_matrix.mjs",
+      "exitCode": 0
+    }
+  ],
+  "suites": [
+    {
+      "file": "tests/phase2_manifest_red.rs",
+      "command": "cargo test --test phase2_manifest_red",
+      "exitCode": 0,
+      "passedTests": 5,
+      "status": "passed"
+    },
+    {
+      "file": "tests/phase2_lifecycle_red.rs",
+      "command": "cargo test --test phase2_lifecycle_red",
+      "exitCode": 0,
+      "passedTests": 8,
+      "status": "passed"
+    },
+    {
+      "file": "tests/phase2_adapter_conformance_red.rs",
+      "command": "cargo test --test phase2_adapter_conformance_red",
+      "exitCode": 0,
+      "passedTests": 2,
+      "status": "passed"
+    },
+    {
+      "file": "tests/manifest_contract.rs",
+      "command": "cargo test --test manifest_contract",
+      "exitCode": 0,
+      "passedTests": 5,
+      "status": "passed"
+    },
+    {
+      "file": "tests/runtime_contract.rs",
+      "command": "cargo test --test runtime_contract",
+      "exitCode": 0,
+      "passedTests": 6,
+      "status": "passed"
+    },
+    {
+      "file": "tests/legacy_ort_smoke.rs",
+      "command": "RIMEFLOW_YOLOV8N_MODEL=<locked-model> cargo test --features native --test legacy_ort_smoke -- --ignored",
+      "exitCode": 0,
+      "passedTests": 1,
+      "status": "passed"
+    },
+    {
+      "file": "tools/verify_model_manifest_fixtures.mjs",
+      "command": "node tools/verify_model_manifest_fixtures.mjs",
+      "exitCode": 0,
+      "passedTests": 5,
+      "status": "passed"
+    },
+    {
+      "file": "tools/verify_phase2_requirement_matrix.mjs",
+      "command": "node tools/verify_phase2_requirement_matrix.mjs",
+      "exitCode": 0,
+      "passedTests": 2,
+      "status": "passed"
+    }
+  ]
+}
