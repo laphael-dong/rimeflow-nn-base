@@ -25,6 +25,18 @@ native-nnapi      = ["native", "ort/nnapi"]
 native-qnn        = ["native", "ort/qnn"]
 native-openvino   = ["native", "ort/openvino"]
 
+# Direct Apple Core ML framework adapter. This is intentionally separate from
+# `native-coreml`, which is the legacy ONNX Runtime CoreML execution provider.
+native-coreml-adapter = [
+  "dep:block2",
+  "dep:objc2",
+  "dep:objc2-core-foundation",
+  "dep:objc2-core-graphics",
+  "dep:objc2-core-ml",
+  "dep:objc2-core-video",
+  "dep:objc2-foundation",
+]
+
 # Turn on when operator crate build.rs uses `build_helper::generate_extern_block`.
 # It pulls in std::{env, fs, path} which are already there; this gate exists
 # only for symmetry with future helpers that may need heavier deps.
@@ -57,6 +69,15 @@ web-sys = { version = "0.3", features = [
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 ort       = { version = "=2.0.0-rc.12", default-features = false, optional = true }
 thiserror = { version = "1", optional = true }
+
+[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
+block2 = { version = "0.6.2", default-features = false, features = ["alloc"], optional = true }
+objc2 = { version = "0.6.4", default-features = false, features = ["std"], optional = true }
+objc2-core-foundation = { version = "0.3.2", default-features = false, features = ["CFData", "std"], optional = true }
+objc2-core-graphics = { version = "0.3.2", default-features = false, features = ["CGColorSpace", "CGDataProvider", "CGImage", "objc2", "std"], optional = true }
+objc2-core-ml = { version = "0.3.2", default-features = false, features = ["MLDictionaryFeatureProvider", "MLFeatureProvider", "MLFeatureValue", "MLFeatureValue_MLImageConversion", "MLModel", "MLModel_MLModelCompilation", "MLMultiArray", "block2", "objc2-core-graphics", "objc2-core-video", "std"], optional = true }
+objc2-core-video = { version = "0.3.2", default-features = false, features = ["CVPixelBuffer", "objc2"], optional = true }
+objc2-foundation = { version = "0.3.2", default-features = false, features = ["NSArray", "NSDictionary", "NSError", "NSObject", "NSSet", "NSString", "NSURL", "NSValue", "std"], optional = true }
 
 [dev-dependencies]
 pollster = "0.4"

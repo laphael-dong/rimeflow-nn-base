@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "model": {
+    "id": "rimeflow-yolov8n",
+    "version": "yolov8n-coreml-20260811"
+  },
+  "tensors": {
+    "inputs": [
+      {
+        "role": "image",
+        "name": "image",
+        "shape": [1, 3, 640, 640],
+        "layout": "NCHW",
+        "dtype": "f32"
+      }
+    ],
+    "outputs": [
+      {
+        "role": "detections",
+        "name": "var_911",
+        "shape": [1, 84, 8400],
+        "layout": "NCHW",
+        "dtype": "f32"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "id": "apple-coreml-fp32",
+      "format": "coreml",
+      "targets": [
+        { "os": "macos", "arch": "aarch64" },
+        { "os": "macos", "arch": "x86_64" },
+        { "os": "ios", "arch": "aarch64" }
+      ],
+      "path": "yolov8n-fp32.mlpackage",
+      "sha256": "299e6218590fb62da49407e334431a43a999a96020bdf52b4ebc04708218fb98",
+      "converter": {
+        "name": "coremltools",
+        "version": "9.0"
+      },
+      "inputs": ["image"],
+      "outputs": ["detections"]
+    }
+  ]
+}

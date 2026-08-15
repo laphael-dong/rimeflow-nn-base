@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "change": "rimeflow-backend-contract",
+  "task": "OS-6-BASE-COREML-ADAPTER-IMPLEMENT-01",
+  "taskMode": "implementation",
+  "owner": "Base",
+  "status": "build-verified-apple-runner-blocked",
+  "completionClaims": {
+    "baseAdapterImplementation": true,
+    "realAppleRuntimeExecuted": false,
+    "supportedPlatform": false,
+    "performance": false,
+    "productPackage": false,
+    "release": false
+  },
+  "fixedIdentities": {
+    "baseCommit": "72e14f714c1036eeed4342c6aa1bd6f05bc2bc50",
+    "validationCommit": "27582f5dbbbf7a33e827a1712e66dfa3c656850d",
+    "validationArtifactReport": "evidence/conversions/coreml-artifact-manifest.json",
+    "artifactFormat": "Core ML ML Program .mlpackage",
+    "artifactTreeSha256": "299e6218590fb62da49407e334431a43a999a96020bdf52b4ebc04708218fb98",
+    "artifactTrackedByGit": false,
+    "baseManifestFixture": {
+      "path": "tests/fixtures/conformance/coreml-manifest.json",
+      "sha256": "8f178b85b092a25b6ff4c849fcf164b2314d29ce1bae886254d58eab53ae9e88"
+    }
+  },
+  "implementation": {
+    "module": "src/backend/coreml.rs",
+    "feature": "native-coreml-adapter",
+    "targetGate": "feature + (target_os=macos or target_os=ios)",
+    "officialApis": [
+      "MLModel.compileModelAtURL:completionHandler:",
+      "MLModel.modelWithContentsOfURL:error:",
+      "MLFeatureValue.featureValueWithCGImage:pixelsWide:pixelsHigh:pixelFormatType:options:error:",
+      "MLModel.predictionFromFeatures:error:",
+      "MLMultiArray.dataPointer"
+    ],
+    "legacyOrtCoremlEpFeatureUnchanged": "native-coreml",
+    "artifactIdentity": "Validation-compatible sorted package file records (bytes,path,sha256), compact JSON, SHA-256",
+    "roleMapping": {
+      "logicalInputRole": "image",
+      "runtimeInputFeature": "image",
+      "logicalOutputRole": "detections",
+      "runtimeOutputFeature": "var_911",
+      "outputShape": [1, 84, 8400]
+    },
+    "diagnostics": {
+      "backend": "core_ml",
+      "configuredProvider": "CoreML",
+      "accelerator": null,
+      "executionPlan": "unknown",
+      "runtimeVersion": null
+    }
+  },
+  "checks": {
+    "manifestIo": "build-verified",
+    "initializationTimeout": "build-verified",
+    "smokeInference": "blocked-no-real-apple-runner",
+    "goldenOutput": "blocked-no-real-apple-runner",
+    "faultInjection": "build-verified",
+    "diagnostics": "build-verified",
+    "performance": "blocked-no-real-apple-runner-no-threshold-claim",
+    "packageLoad": "blocked-no-real-apple-runner-no-product-package-claim"
+  },
+  "verification": {
+    "linuxFocusedTests": "passed-7-tests-with-and-without-feature",
+    "linuxFullTests": "passed-43-tests-plus-1-ignored-doctest",
+    "appleTargetStaticCheck": "passed-aarch64-apple-darwin-library-and-tests",
+    "realAppleRunner": "unavailable"
+  },
+  "realRunnerCommand": "RIMEFLOW_COREML_PACKAGE=<locked-validation-mlpackage> cargo test --target <apple-target> --features native-coreml-adapter --test coreml_conformance real_coreml_package_load_and_smoke_inference -- --ignored --exact",
+  "blockers": [
+    "The locked .mlpackage is not present in this Base worktree and Validation records it as untracked.",
+    "No real macOS or iOS runner is attached for Core ML package compilation, load, smoke, golden, performance, or product package evidence."
+  ],
+  "ownershipBoundary": [
+    "Validation and RimeCut were read only.",
+    "No OpenSpec, tasks 7-9, CI, release, push, PR, signing, or other platform implementation was modified."
+  ]
+}

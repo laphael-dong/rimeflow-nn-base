@@ -61,14 +61,17 @@ pub mod ort_bridge;
 
 pub mod build_helper;
 
+pub use backend::coreml_package_tree_sha256;
 pub use backend::{
     AdapterConformanceCase, AdapterConformanceCheck, AdapterConformanceCheckKind,
     AdapterConformanceReport, AdapterConformanceStatus, AdapterSelection, BackendFactory,
     BackendInitRequest, BackendInstance, BackendKind, CapabilityStatus, ConformanceEvidenceKind,
-    ConformanceReportError, ConformanceRunner, DType, ExecutionPlan, ModelInput,
-    NativeAdapterCapability, OneShotNativeAdapterFactory, Platform, PlatformAdapterFactory,
-    RawModelOutput, RawTensor, ResolvedBackend, RuntimeBackend, SelectedNativeAdapter, TensorData,
+    ConformanceReportError, ConformanceRunner, CoreMlBackend, CoreMlIoMapping,
+    CoreMlPackageIdentity, DType, ExecutionPlan, ModelInput, NativeAdapterCapability,
+    OneShotNativeAdapterFactory, Platform, PlatformAdapterFactory, RawModelOutput, RawTensor,
+    ResolvedBackend, RuntimeBackend, SelectedNativeAdapter, TensorData,
     ADAPTER_CONFORMANCE_SCHEMA_V1, ADAPTER_CONFORMANCE_SCHEMA_VERSION,
+    DEFAULT_COREML_INITIALIZATION_TIMEOUT,
 };
 pub use error::{InferenceError, InitFailure, InitializationStage, TimeoutBoundary};
 pub use lifecycle::{

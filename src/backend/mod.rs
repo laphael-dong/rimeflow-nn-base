@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::error::{InferenceError, InitFailure};
 
 pub mod conformance;
+pub mod coreml;
 
 #[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
 pub mod legacy_ort;
@@ -15,6 +16,10 @@ pub use conformance::{
     ConformanceEvidenceKind, ConformanceReportError, ConformanceRunner, NativeAdapterCapability,
     OneShotNativeAdapterFactory, PlatformAdapterFactory, SelectedNativeAdapter,
     ADAPTER_CONFORMANCE_SCHEMA_V1, ADAPTER_CONFORMANCE_SCHEMA_VERSION,
+};
+pub use coreml::{
+    coreml_package_tree_sha256, CoreMlBackend, CoreMlIoMapping, CoreMlPackageIdentity,
+    DEFAULT_COREML_INITIALIZATION_TIMEOUT,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
