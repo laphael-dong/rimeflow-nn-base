@@ -13,6 +13,7 @@ internal static class Program
     private const string SourcePackage = "Microsoft.WindowsAppSDK.ML";
     private const string RuntimePackage = "Microsoft.Windows.AI.MachineLearning";
     private const string PackageVersion = "2.1.74";
+    private const int PerformanceWarmupRuns = 5;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -86,6 +87,7 @@ internal static class Program
             return (binding, name, values);
         }).ToArray();
 
+        Stopwatch initializationTimer = Stopwatch.StartNew();
         state.FailureStage = "catalog-registration";
         state.WindowsMlApiCalled = true;
         state.CatalogRegistrationAttempted = true;
@@ -123,8 +125,11 @@ internal static class Program
         var namedInputs = inputBindings.Select((item, index) =>
             NamedOnnxValue.CreateFromTensor(item.name, new DenseTensor<float>(item.values, inputMetadata[index].Metadata.Dimensions.ToArray()))).ToArray();
 
+        initializationTimer.Stop();
         state.FailureStage = "inference";
+        Stopwatch coldInferenceTimer = Stopwatch.StartNew();
         using IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results = session.Run(namedInputs);
+        coldInferenceTimer.Stop();
         state.InferenceExecuted = true;
 
         state.FailureStage = "output-validation";
@@ -144,6 +149,22 @@ internal static class Program
             outputSnapshots.Add(new OutputSnapshot(binding.Role, expected.name, binding.Shape, values.Length, binding.Path));
         }
 
+        for (int index = 0; index < (request.PerformanceRuns > 0 ? PerformanceWarmupRuns : 0); index++)
+        {
+            using IDisposableReadOnlyCollection<DisposableNamedOnnxValue> warmupResults = session.Run(namedInputs);
+            ValidateOutputResults(warmupResults, request.Outputs, outputMetadata);
+        }
+
+        var warmInferenceSamples = new List<double>(request.PerformanceRuns);
+        for (int index = 0; index < request.PerformanceRuns; index++)
+        {
+            Stopwatch warmInferenceTimer = Stopwatch.StartNew();
+            using IDisposableReadOnlyCollection<DisposableNamedOnnxValue> warmResults = session.Run(namedInputs);
+            warmInferenceTimer.Stop();
+            ValidateOutputResults(warmResults, request.Outputs, outputMetadata);
+            warmInferenceSamples.Add(warmInferenceTimer.Elapsed.TotalMilliseconds);
+        }
+
         state.FailureStage = "provider-introspection";
         IReadOnlyList<OrtEpDevice?> inputDevices = session.GetEpDeviceForInputs();
         if (inputDevices.Count != inputMetadata.Length || inputDevices.Any(device => device is null))
@@ -158,7 +179,9 @@ internal static class Program
         state.FailureStage = "module-identity";
         Assembly catalogAssembly = typeof(ExecutionProviderCatalog).Assembly;
         Assembly ortAssembly = typeof(InferenceSession).Assembly;
-        if (!catalogAssembly.GetName().Name!.Equals(RuntimePackage, StringComparison.Ordinal) ||
+        // The NuGet package ships the native WinRT component separately from
+        // the managed projection that contains ExecutionProviderCatalog.
+        if (!catalogAssembly.GetName().Name!.Equals("Microsoft.Windows.AI.MachineLearning.Projection", StringComparison.Ordinal) ||
             !ortAssembly.GetName().Name!.Equals("Microsoft.ML.OnnxRuntime", StringComparison.Ordinal))
         {
             throw new InvalidOperationException("loaded assemblies are not the Windows ML projection and its bundled ORT API");
@@ -197,6 +220,16 @@ internal static class Program
                 SessionInputDevices = inputDevices.Select(device => DeviceSnapshot(device!)).ToArray(),
             },
             Outputs = outputSnapshots.ToArray(),
+            Performance = request.PerformanceRuns > 0
+                ? new PerformanceIdentity
+                {
+                    WarmupRuns = PerformanceWarmupRuns,
+                    InitializationMs = initializationTimer.Elapsed.TotalMilliseconds,
+                    ColdInferenceMs = coldInferenceTimer.Elapsed.TotalMilliseconds,
+                    WarmInferenceMs = warmInferenceSamples.ToArray(),
+                    PeakProcessRssBytes = Process.GetCurrentProcess().PeakWorkingSet64,
+                }
+                : null,
         };
     }
 
@@ -204,6 +237,7 @@ internal static class Program
     {
         if (request.SchemaVersion != 1) throw new ArgumentException("unsupported Windows ML runner request schema");
         if (request.Mode is not ("smoke" or "infer")) throw new ArgumentException("runner mode must be smoke or infer");
+        if (request.PerformanceRuns is < 0 or > 100) throw new ArgumentException("performanceRuns must be between 0 and 100");
         if (request.Inputs is null || request.Inputs.Length != 1) throw new ArgumentException("Windows ML base adapter requires one input");
         if (request.Outputs is null || request.Outputs.Length == 0) throw new ArgumentException("Windows ML base adapter requires outputs");
         if (string.IsNullOrWhiteSpace(request.ExpectedModelSha256) || request.ExpectedModelSha256.Length != 64 || request.ExpectedModelSha256.Any(character => !Uri.IsHexDigit(character))) throw new ArgumentException("invalid expected model SHA-256");
@@ -236,6 +270,25 @@ internal static class Program
             throw new InvalidDataException($"runtime {direction} metadata drift for role {binding.Role}");
         }
         return (name, value);
+    }
+
+    private static void ValidateOutputResults(
+        IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results,
+        IReadOnlyList<TensorBinding> bindings,
+        IReadOnlyList<(string name, NodeMetadata Metadata)> metadata)
+    {
+        for (int index = 0; index < bindings.Count; index++)
+        {
+            TensorBinding binding = bindings[index];
+            string expectedName = metadata[index].name;
+            DisposableNamedOnnxValue result = results.SingleOrDefault(item => item.Name.Equals(expectedName, StringComparison.Ordinal))
+                ?? throw new InvalidDataException($"runtime output {expectedName} was not produced");
+            float[] values = result.AsEnumerable<float>().ToArray();
+            if (values.Length != ElementCount(binding.Shape) || values.Any(value => !float.IsFinite(value)))
+            {
+                throw new InvalidDataException($"output role {binding.Role} has an element or finite-value mismatch");
+            }
+        }
     }
 
     private static int ElementCount(IReadOnlyList<int> shape) => shape.Aggregate(1, checked((count, dimension) => count * dimension));
@@ -355,6 +408,7 @@ internal static class Program
         public string Mode { get; set; } = "";
         public string ModelPath { get; set; } = "";
         public string ExpectedModelSha256 { get; set; } = "";
+        public int PerformanceRuns { get; set; }
         public TensorBinding[] Inputs { get; set; } = [];
         public TensorBinding[] Outputs { get; set; } = [];
     }
@@ -386,6 +440,7 @@ internal static class Program
         public RuntimeIdentity? Runtime { get; set; }
         public ExecutionIdentity? Execution { get; set; }
         public OutputSnapshot[]? Outputs { get; set; }
+        public PerformanceIdentity? Performance { get; set; }
         public RunnerError? Error { get; set; }
     }
 
@@ -407,6 +462,15 @@ internal static class Program
         public DeviceIdentity? SelectedDevice { get; set; }
         public string[] ProfileProviders { get; set; } = [];
         public DeviceIdentity[] SessionInputDevices { get; set; } = [];
+    }
+
+    private sealed class PerformanceIdentity
+    {
+        public int WarmupRuns { get; set; }
+        public double InitializationMs { get; set; }
+        public double ColdInferenceMs { get; set; }
+        public double[] WarmInferenceMs { get; set; } = [];
+        public long PeakProcessRssBytes { get; set; }
     }
 
     private sealed class DeviceIdentity

@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "task": "OS6-WINDOWS-X64-WINDOWSML-REPAIR-01",
+  "taskId": "task_e190a02c4ae2",
+  "mode": "implementation",
+  "result": "ready-for-management-acceptance",
+  "scope": {
+    "supportedTarget": "windows/x86_64",
+    "windowsArm64": "non-target-blocked-no-runner-no-support-claim",
+    "publication": "not-performed",
+    "finalProductPackage": "not-built-task-local-resource-bundle-only"
+  },
+  "fixedIdentities": {
+    "base": {
+      "commit": "83d330e1717b844d71f9fe2af314e96afa768978",
+      "tree": "5faafe63537a69beabe1f4c851f946c69133ffeb"
+    },
+    "validation": {
+      "commit": "563a7388d72be8c11209446a70e816df6d45525a",
+      "tree": "c54e48296665ffe08a0c101dd515b3e9713478f2"
+    },
+    "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+    "inputSha256": "7cde7a22823666ede34cae26a348a563dbd7e64df800406b433733baabee24fe",
+    "goldenSha256": "37cc9955c15f1c4283fd2ed0d8aa360905357fd03a386db3a526d94dd0cca212"
+  },
+  "runner": {
+    "ssh": "ci@192.168.1.18:22",
+    "computer": "PC-2025072306",
+    "os": "Microsoft Windows 11 Pro 10.0.26200",
+    "architecture": "x64",
+    "cpu": "AMD Ryzen 7 8700G w/ Radeon 780M Graphics",
+    "taskDirectory": "C:\\Users\\ci\\AppData\\Local\\Temp\\rimeflow-os6-windows-x64-windowsml-repair-01",
+    "rawLogDirectory": "C:\\Users\\ci\\AppData\\Local\\Temp\\rimeflow-os6-windows-x64-windowsml-repair-01\\logs",
+    "tools": {
+      "dotnetSdk": "8.0.423",
+      "dotnetRuntime": "Microsoft.NETCore.App 8.0.29",
+      "git": "2.52.0.windows.1",
+      "rustc": "1.97.1",
+      "cargo": "1.97.1",
+      "bun": "1.3.14",
+      "visualStudioBuildTools": "D:\\VS2022\\BuildTools",
+      "windowsSdk": "10.0.26100.0"
+    }
+  },
+  "packageGraph": {
+    "status": "coherent-official-locked-self-contained",
+    "direct": {
+      "Microsoft.WindowsAppSDK.ML": "2.1.74",
+      "Microsoft.Windows.AI.MachineLearning": "2.1.74"
+    },
+    "officialDependencies": {
+      "Microsoft.Windows.AI.MachineLearning": "[2.1.74, 3.0.0)",
+      "Microsoft.WindowsAppSDK.Base": "2.0.4",
+      "Microsoft.WindowsAppSDK.Foundation": "2.0.21"
+    },
+    "windowsAppSdkSelfContained": true,
+    "excluded": {
+      "Microsoft.WindowsAppSDK.Runtime/2.1.3": "its ComponentReference requires ML 2.1.1 and conflicts with the locked ML 2.1.74 component"
+    },
+    "projectSha256": "f7c50ab9492cd12517b72007c805733044df12dd01cb9f367ae1b48851f420c7",
+    "lockSha256": "8505f1f62452c2104cd89ad30cf3a4aa28df052fc62c9c98bc7bbf0dd6df6c07"
+  },
+  "runtimeProof": {
+    "state": "runtime-verified",
+    "target": "win-x64",
+    "windowsMlApiCalled": true,
+    "catalogRegistrationCompleted": true,
+    "sessionCreated": true,
+    "inferenceExecuted": true,
+    "runtimeIntrospectionComplete": true,
+    "outputPublished": true,
+    "sourcePackage": "Microsoft.WindowsAppSDK.ML/2.1.74",
+    "runtimePackage": "Microsoft.Windows.AI.MachineLearning/2.1.74",
+    "managedProjectionAssembly": "Microsoft.Windows.AI.MachineLearning.Projection/2.1.74.48216",
+    "ortVersion": "1.24.6",
+    "provider": "DmlExecutionProvider",
+    "providerVendor": "Microsoft",
+    "device": "GPU",
+    "runnerDllSha256": "0e3591a26fb0d0905b6d1d85fedb8ab7f8ac43c778eba7d122e0925c2364ef46",
+    "output": {
+      "role": "detections",
+      "name": "output0",
+      "shape": [1, 84, 8400],
+      "elements": 705600,
+      "finite": true,
+      "sha256": "791832132f6db28f24c0771306f1f7a74e63c5e4815b9b0b3d8d286cf8341e38"
+    }
+  },
+  "goldenCompatibility": {
+    "fixture": "single-target",
+    "rule": "abs(candidate-web) <= 1e-5 + 1e-4 * abs(web)",
+    "mismatchCount": 0,
+    "maxAbsoluteDifference": 0.001373291015625,
+    "maxAbsoluteDifferenceIndex": 33415,
+    "maxToleranceRatio": 0.13647780802602591,
+    "status": "passed"
+  },
+  "performance": {
+    "method": {
+      "coldRuns": 1,
+      "warmupRuns": 5,
+      "sampleRuns": 30,
+      "sameSession": true
+    },
+    "initializationMs": 323.3895,
+    "coldInferenceMs": 32.7576,
+    "warmInferenceMs": {
+      "p50": 12.9469,
+      "p95": 15.2754,
+      "min": 11.9108,
+      "max": 16.2785
+    },
+    "peakProcessRssBytes": 207224832,
+    "absoluteThresholds": {
+      "initializationMaxMs": 30000,
+      "coldInferenceMaxMs": 2000,
+      "warmInferenceP95MaxMs": 1000,
+      "peakProcessRssMaxBytes": 1073741824,
+      "status": "passed"
+    },
+    "relativeThresholdNote": "Captured against the frozen method; no same-host Windows Web/legacy comparison was fabricated. Management formal acceptance must apply any required cross-backend comparator policy."
+  },
+  "initializationFallback": {
+    "corruptIdentityRunnerExit": 1,
+    "failureStage": "model-identity",
+    "windowsMlApiCalled": false,
+    "catalogRegistrationAttempted": false,
+    "sessionCreated": false,
+    "inferenceExecuted": false,
+    "outputPublished": false,
+    "expectedClassification": "UseWebFallback during initialization",
+    "lifecycleEvidence": "windows_ml_adapter, runtime_contract, and phase2_lifecycle_red tests prove one structured fallback for initialization failures and InferenceError without switching after readiness",
+    "status": "passed"
+  },
+  "resourceBundle": {
+    "classification": "task-local-adapter-runtime-resource-bundle-not-final-installer",
+    "manifestSha256": "7fd8ca52119df631066313d14c98653eee76fd6153cce1755f034d55c0d0dea9",
+    "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+    "zipBytes": 11059094,
+    "zipSha256": "2e50c347bd68e0ce2f6f5103f3de7896d404946fb2d21eb8d6d0be5073591d61",
+    "loadedByRuntimeProof": true,
+    "status": "passed"
+  },
+  "diagnosisAndCorrections": [
+    "First publish failure: Microsoft.WindowsAppSDK.Runtime 2.1.3 required ML component 2.1.1 while the project locked ML 2.1.74; removed the incompatible meta-package and enabled self-contained Windows App SDK component packaging.",
+    "A task-local NuGet download ended prematurely once; the bounded restore completed using only the task-local package directory.",
+    "The first real inference completed but the identity guard compared a managed projection type against the native package ID; official assembly metadata proved the type is in Microsoft.Windows.AI.MachineLearning.Projection, and the guard was corrected.",
+    "The first successful capture included cold inference in initialization and omitted the frozen five-run warmup; measurement boundaries and warmup reporting were corrected before the final capture.",
+    "Bun materialized all frozen validation modules but its install process stopped making progress; the task-owned process was terminated and the exporter ran successfully from the verified task-local modules."
+  ],
+  "commands": [
+    {"command": "git -C <task>/base rev-parse HEAD && git -C <task>/base rev-parse HEAD^{tree}", "exit": 0},
+    {"command": "git -C <task>/validation rev-parse HEAD && git -C <task>/validation rev-parse HEAD^{tree}", "exit": 0},
+    {"command": "dotnet restore WindowsMlRunner.csproj --force-evaluate /p:RestoreLockedMode=false", "exit": 0},
+    {"command": "dotnet restore WindowsMlRunner.csproj --locked-mode", "exit": 0},
+    {"command": "dotnet publish WindowsMlRunner.csproj --configuration Release --runtime win-x64 --no-restore --self-contained false --output <task>/artifacts/build-final", "exit": 0},
+    {"command": "dotnet <task>/artifacts/build-final/WindowsMlRunner.dll --request <task>/artifacts/requests/infer-performance.json --report <task>/artifacts/reports/infer-performance.json", "exit": 0},
+    {"command": "dotnet <task>/artifacts/build-final/WindowsMlRunner.dll --request <task>/artifacts/requests/corrupt-identity.json --report <task>/artifacts/reports/corrupt-identity.json", "exit": 1, "expected": true},
+    {"command": "PowerShell float32 LE comparison using abs(candidate-web) <= 1e-5 + 1e-4 * abs(web)", "exit": 0},
+    {"command": "cargo test --offline --features windowsml --test windows_ml_adapter --test platform_factory --test runtime_contract --test phase2_lifecycle_red", "exit": 0},
+    {"command": "cargo test --offline --features windowsml --test windows_ml_adapter", "exit": 0},
+    {"command": "git diff --check", "exit": 0}
+  ],
+  "retryAccounting": {
+    "cyclesUsed": 4,
+    "cyclesBudget": 4,
+    "blindRetries": 0,
+    "networkRepairUsed": 1
+  },
+  "delivery": {
+    "startingCommit": "83d330e1717b844d71f9fe2af314e96afa768978",
+    "finalCommit": "the signed-off commit containing this receipt; resolve with git rev-parse HEAD",
+    "push": "not-performed",
+    "formalCi": "not-run-unavailable-for-this-task"
+  },
+  "blockers": [
+    "Windows ARM64 is outside the accepted target and remains blocked without a real runner.",
+    "Final RimeCut installer/package and product package-size metrics are explicitly outside Base ownership.",
+    "Formal CI was unavailable and was not fabricated."
+  ]
+}

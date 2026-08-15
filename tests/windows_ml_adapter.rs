@@ -105,10 +105,8 @@ fn checked_in_runner_uses_only_pinned_official_windows_ml_packages() {
     assert!(project.contains(
         "<PackageReference Include=\"Microsoft.Windows.AI.MachineLearning\" Version=\"[2.1.74]\" />"
     ));
-    assert!(project.contains(
-        "<PackageReference Include=\"Microsoft.WindowsAppSDK.Runtime\" Version=\"[2.1.3]\" />"
-    ));
-    assert!(project.contains("<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>"));
+    assert!(project.contains("<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>"));
+    assert!(!project.contains("Microsoft.WindowsAppSDK.Runtime"));
     assert!(!project.contains("PackageReference Include=\"Microsoft.ML.OnnxRuntime\""));
     for api in [
         "ExecutionProviderCatalog.GetDefault",
@@ -121,9 +119,12 @@ fn checked_in_runner_uses_only_pinned_official_windows_ml_packages() {
         assert!(source.contains(api), "missing official API guard: {api}");
     }
     assert!(source.contains("Linux ORT is not an accepted substitute"));
+    assert!(source.contains("Microsoft.Windows.AI.MachineLearning.Projection"));
+    assert!(source.contains("performanceRuns must be between 0 and 100"));
+    assert!(source.contains("PerformanceWarmupRuns = 5"));
     assert!(lock.contains("net8.0-windows10.0.17763/win-x64"));
     assert!(lock.contains("net8.0-windows10.0.17763/win-arm64"));
-    assert!(lock.contains("\"Microsoft.WindowsAppSDK.Runtime\""));
+    assert!(!lock.contains("Microsoft.WindowsAppSDK.Runtime"));
 }
 
 #[cfg(not(target_os = "windows"))]
