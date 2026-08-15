@@ -8,8 +8,8 @@ pub mod conformance;
 pub mod coreml;
 
 pub mod litert_v2;
-pub mod windows_ml;
 pub mod mindspore_lite;
+pub mod windows_ml;
 
 #[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
 pub mod legacy_ort;
@@ -25,11 +25,6 @@ pub use coreml::{
     coreml_package_tree_sha256, CoreMlBackend, CoreMlIoMapping, CoreMlPackageIdentity,
     DEFAULT_COREML_INITIALIZATION_TIMEOUT,
 };
-pub use windows_ml::{
-    WindowsMlAdapterConfig, WindowsMlAdapterFactory, WindowsMlBackend, WindowsMlMachineReport,
-    WindowsMlRoleBinding, WindowsMlRoleMap, WindowsMlRunnerCommand, WINDOWS_ML_PACKAGE_VERSION,
-    WINDOWS_ML_RUNNER_SCHEMA_VERSION,
-};
 pub use mindspore_lite::{
     MindSporeLiteAdapterBuilder, MindSporeLiteAvailability, MindSporeLiteBackend,
     MindSporeLiteBootstrapError, MindSporeLiteDiagnostics, MindSporeLiteIoPlan,
@@ -37,6 +32,11 @@ pub use mindspore_lite::{
     MindSporeLiteRuntimeLoader, MindSporeLiteTensorBinding, MindSporeLiteTensorDescriptor,
     VerifiedMindSporeLiteArtifact, MINDSPORE_LITE_INFERENCE_TIMEOUT_MS,
     MINDSPORE_LITE_NATIVE_INITIALIZATION_TIMEOUT_MS, MINDSPORE_LITE_RUNTIME_VERSION,
+};
+pub use windows_ml::{
+    WindowsMlAdapterConfig, WindowsMlAdapterFactory, WindowsMlBackend, WindowsMlMachineReport,
+    WindowsMlRoleBinding, WindowsMlRoleMap, WindowsMlRunnerCommand, WINDOWS_ML_PACKAGE_VERSION,
+    WINDOWS_ML_RUNNER_SCHEMA_VERSION,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
