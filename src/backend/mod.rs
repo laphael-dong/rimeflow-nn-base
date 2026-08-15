@@ -4,8 +4,18 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{InferenceError, InitFailure};
 
+pub mod conformance;
+
 #[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
 pub mod legacy_ort;
+
+pub use conformance::{
+    AdapterConformanceCase, AdapterConformanceCheck, AdapterConformanceCheckKind,
+    AdapterConformanceReport, AdapterConformanceStatus, AdapterSelection, CapabilityStatus,
+    ConformanceEvidenceKind, ConformanceReportError, ConformanceRunner, NativeAdapterCapability,
+    OneShotNativeAdapterFactory, PlatformAdapterFactory, SelectedNativeAdapter,
+    ADAPTER_CONFORMANCE_SCHEMA_V1, ADAPTER_CONFORMANCE_SCHEMA_VERSION,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

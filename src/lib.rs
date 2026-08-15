@@ -62,8 +62,13 @@ pub mod ort_bridge;
 pub mod build_helper;
 
 pub use backend::{
-    BackendFactory, BackendInitRequest, BackendInstance, BackendKind, DType, ExecutionPlan,
-    ModelInput, Platform, RawModelOutput, RawTensor, ResolvedBackend, RuntimeBackend, TensorData,
+    AdapterConformanceCase, AdapterConformanceCheck, AdapterConformanceCheckKind,
+    AdapterConformanceReport, AdapterConformanceStatus, AdapterSelection, BackendFactory,
+    BackendInitRequest, BackendInstance, BackendKind, CapabilityStatus, ConformanceEvidenceKind,
+    ConformanceReportError, ConformanceRunner, DType, ExecutionPlan, ModelInput,
+    NativeAdapterCapability, OneShotNativeAdapterFactory, Platform, PlatformAdapterFactory,
+    RawModelOutput, RawTensor, ResolvedBackend, RuntimeBackend, SelectedNativeAdapter, TensorData,
+    ADAPTER_CONFORMANCE_SCHEMA_V1, ADAPTER_CONFORMANCE_SCHEMA_VERSION,
 };
 pub use error::{InferenceError, InitFailure, InitializationStage, TimeoutBoundary};
 pub use lifecycle::{
@@ -75,6 +80,6 @@ pub use manifest::{
 pub use preprocess::{LetterboxParams, PreprocessPipeline, PreprocessUniform};
 
 #[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
-pub use backend::legacy_ort::{LegacyOrtBackend, LegacyOrtMetadata};
+pub use backend::legacy_ort::{LegacyOrtBackend, LegacyOrtMetadata, LinuxOrtBackend};
 #[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
 pub use native_ort::{InferError as LegacyInferError, NativeOrtBackend, ResolvedEp};

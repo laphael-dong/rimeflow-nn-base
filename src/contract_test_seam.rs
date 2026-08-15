@@ -7,9 +7,10 @@
 use std::fmt;
 
 use crate::backend::{
-    BackendInitRequest as RuntimeInitRequest, BackendInstance, BackendKind as RuntimeBackendKind,
-    ExecutionPlan, ModelInput, Platform, RawModelOutput, RawTensor,
-    ResolvedBackend as RuntimeResolvedBackend, RuntimeBackend, TensorData,
+    AdapterSelection as RuntimeAdapterSelection, BackendInitRequest as RuntimeInitRequest,
+    BackendInstance, BackendKind as RuntimeBackendKind, CapabilityStatus, ExecutionPlan,
+    ModelInput, NativeAdapterCapability, Platform, PlatformAdapterFactory, RawModelOutput,
+    RawTensor, ResolvedBackend as RuntimeResolvedBackend, RuntimeBackend, TensorData,
 };
 use crate::error::{InferenceError, InitFailure as RuntimeInitFailure};
 use crate::lifecycle::{
@@ -306,22 +307,94 @@ impl DeterministicRuntimeFake {
         case: AdapterConformanceCase,
     ) -> Result<AdapterConformanceOutcome, ContractSeamError> {
         self.operations.push(ContractOperation::AdapterConformance);
-        if case.runtime_evidence_available {
-            Ok(AdapterConformanceOutcome::Ready {
+        let format = match case.adapter {
+            BackendKind::LegacyOrt | BackendKind::LinuxOrt => "onnx",
+            BackendKind::CoreMl => "coreml",
+            BackendKind::LiteRtV2 => "tflite",
+            BackendKind::WindowsMl => "windowsml",
+            BackendKind::MindSporeLite => "mindspore-lite",
+            BackendKind::WebOnnx => "onnx",
+        };
+        let manifest_json = serde_json::json!({
+            "schemaVersion": 1,
+            "model": { "id": "yolov8n", "version": "8.0.0" },
+            "tensors": {
+                "inputs": [{
+                    "role": "image",
+                    "name": "images",
+                    "shape": [1, 3, 640, 640],
+                    "layout": "NCHW",
+                    "dtype": "f32"
+                }],
+                "outputs": [{
+                    "role": "detections",
+                    "name": "output0",
+                    "shape": [1, 84, 8400],
+                    "layout": "NCHW",
+                    "dtype": "f32"
+                }]
+            },
+            "artifacts": [{
+                "id": case.artifact_id,
+                "format": format,
+                "targets": [{ "os": case.target.os, "arch": case.target.arch }],
+                "path": "model.bin",
+                "sha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+                "inputs": ["image"],
+                "outputs": ["detections"]
+            }]
+        })
+        .to_string();
+        let manifest = ModelManifest::parse_and_validate(&manifest_json)
+            .map_err(|error| ContractSeamError::ManifestRejected { code: error.code() })?;
+        let target = Platform::new(case.target.os, case.target.arch);
+        let runtime_kind = runtime_backend_kind(case.adapter);
+        let mut capability = NativeAdapterCapability::ready(
+            runtime_kind,
+            target.clone(),
+            vec![manifest.artifacts[0].format],
+        );
+        if !case.runtime_evidence_available {
+            capability.artifact =
+                CapabilityStatus::unavailable("legacy conformance case has no artifact evidence");
+        }
+        let request = RuntimeInitRequest {
+            target,
+            model_id: "yolov8n".to_owned(),
+            model_version: "8.0.0".to_owned(),
+            artifact_id: case.artifact_id.to_owned(),
+            artifact_sha256: "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad"
+                .to_owned(),
+        };
+        match PlatformAdapterFactory::new(manifest, vec![capability]).select_once(&request) {
+            RuntimeAdapterSelection::Ready { selected } => Ok(AdapterConformanceOutcome::Ready {
                 resolved: ResolvedBackend {
-                    kind: case.adapter,
+                    kind: map_backend_kind(selected.backend_kind),
                     target: case.target,
                     artifact_id: case.artifact_id,
                 },
-            })
-        } else {
-            Ok(AdapterConformanceOutcome::UseWebFallback {
-                failure: InitFailure {
-                    code: "adapter_or_artifact_unavailable",
-                    stage: InitializationStage::ArtifactIntegrity,
-                },
-            })
+            }),
+            RuntimeAdapterSelection::UseWebFallback { failure } => {
+                Ok(AdapterConformanceOutcome::UseWebFallback {
+                    failure: InitFailure {
+                        code: static_code(&failure.code),
+                        stage: failure.stage,
+                    },
+                })
+            }
         }
+    }
+}
+
+fn runtime_backend_kind(kind: BackendKind) -> RuntimeBackendKind {
+    match kind {
+        BackendKind::LegacyOrt => RuntimeBackendKind::LegacyOrt,
+        BackendKind::CoreMl => RuntimeBackendKind::CoreMl,
+        BackendKind::LiteRtV2 => RuntimeBackendKind::LiteRtV2,
+        BackendKind::WindowsMl => RuntimeBackendKind::WindowsMl,
+        BackendKind::LinuxOrt => RuntimeBackendKind::LinuxOrt,
+        BackendKind::MindSporeLite => RuntimeBackendKind::MindSporeLite,
+        BackendKind::WebOnnx => RuntimeBackendKind::WebOnnx,
     }
 }
 

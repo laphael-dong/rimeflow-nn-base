@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rimeflow.dev/schemas/adapter-conformance.schema.json",
+  "title": "Rimeflow adapter conformance report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "case", "runner", "selection", "checks"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "case": { "$ref": "#/$defs/case" },
+    "runner": { "$ref": "#/$defs/runner" },
+    "selection": { "$ref": "#/$defs/selection" },
+    "checks": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": { "$ref": "#/$defs/check" }
+    }
+  },
+  "$defs": {
+    "platform": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "arch"],
+      "properties": {
+        "os": { "type": "string", "minLength": 1 },
+        "arch": { "type": "string", "minLength": 1 }
+      }
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "modelId",
+        "modelVersion",
+        "target",
+        "adapter",
+        "artifactId",
+        "artifactSha256",
+        "manifestSha256",
+        "nativeInitializationTimeoutMs"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "modelId": { "type": "string", "minLength": 1 },
+        "modelVersion": { "type": "string", "minLength": 1 },
+        "target": { "$ref": "#/$defs/platform" },
+        "adapter": {
+          "enum": [
+            "legacy_ort",
+            "core_ml",
+            "lite_rt_v2",
+            "windows_ml",
+            "linux_ort",
+            "mind_spore_lite",
+            "web_onnx"
+          ]
+        },
+        "artifactId": { "type": "string", "minLength": 1 },
+        "artifactSha256": { "$ref": "#/$defs/sha256" },
+        "manifestSha256": { "$ref": "#/$defs/sha256" },
+        "nativeInitializationTimeoutMs": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "runner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "target"],
+      "properties": {
+        "kind": { "enum": ["real-target", "build-only", "unavailable"] },
+        "target": { "$ref": "#/$defs/platform" },
+        "runnerId": { "type": "string", "minLength": 1 }
+      }
+    },
+    "failure": {
+      "type": "object",
+      "required": ["code", "stage", "message"],
+      "properties": {
+        "code": { "type": "string", "minLength": 1 },
+        "stage": {
+          "enum": [
+            "manifest_parse",
+            "artifact_integrity",
+            "runtime_load",
+            "device_create",
+            "model_compile",
+            "io_discovery",
+            "buffer_prepare",
+            "smoke_inference"
+          ]
+        },
+        "message": { "type": "string", "minLength": 1 },
+        "platform": { "type": ["object", "null"] },
+        "modelVersion": { "type": ["string", "null"] },
+        "attemptedBackend": { "type": ["string", "null"] }
+      }
+    },
+    "selected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "backendKind",
+        "platform",
+        "artifactId",
+        "artifactSha256",
+        "executionPlan"
+      ],
+      "properties": {
+        "backendKind": { "type": "string", "minLength": 1 },
+        "platform": { "$ref": "#/$defs/platform" },
+        "artifactId": { "type": "string", "minLength": 1 },
+        "artifactSha256": { "$ref": "#/$defs/sha256" },
+        "configuredProvider": { "type": "string" },
+        "accelerator": { "type": "string" },
+        "executionPlan": { "enum": ["full", "partitioned", "unknown"] },
+        "runtimeVersion": { "type": "string" }
+      }
+    },
+    "selection": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "selected"],
+          "properties": {
+            "kind": { "const": "ready" },
+            "selected": { "$ref": "#/$defs/selected" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "failure"],
+          "properties": {
+            "kind": { "const": "useWebFallback" },
+            "failure": { "$ref": "#/$defs/failure" }
+          }
+        }
+      ]
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "status", "detail"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "manifest_io",
+            "initialization_timeout",
+            "smoke_inference",
+            "golden_output",
+            "fault_injection",
+            "diagnostics",
+            "performance",
+            "package_load"
+          ]
+        },
+        "status": { "enum": ["passed", "build-verified", "blocked", "failed"] },
+        "detail": { "type": "string", "minLength": 1 },
+        "evidencePath": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

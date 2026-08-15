@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "change": "rimeflow-backend-contract",
+  "task": "OS-6-BASE-PLATFORM-FACTORY-IMPLEMENT-01",
+  "taskMode": "implementation",
+  "owner": "Base",
+  "scopeStatus": "base-owned-implementation-and-evidence",
+  "completionClaims": {
+    "baseFactoryScope": true,
+    "phase6Group": false,
+    "change": false,
+    "release": false,
+    "supportedPlatform": false
+  },
+  "fixedIdentities": {
+    "base": {
+      "repository": "github/rimeflow-nn-base",
+      "ref": "refs/heads/laphael-dong/os6-base-platform-factory-implement",
+      "expectedCommit": "96fcfa0a54a3db1978af5ec38fc3a92132be4ee3",
+      "expectedTree": "2a41a1f0bae4784cf9d2a0896c8d74929a1bbd2e",
+      "expectedParent": "bc2c0139e744517df5a9d3ee6d0cbe17b6de7ab2"
+    },
+    "validation": {
+      "repository": "github/rimeflow-nn-validation",
+      "ref": "refs/heads/laphael-dong/os5-validation-manifest-golden-implement",
+      "commit": "ef483004c57a48d8373171018f8b0ada8fb590d9",
+      "tree": "a623127b71736065bfb6cc3a89166fe9bbae21ef",
+      "parent": "eaf4dc1f8e5a88d4a235bc85f6844e6ff29900f2",
+      "modelPath": "models/yolov8n.onnx",
+      "modelBlob": "22f19afe710dfa942b3e644c4e5a7ac5c42ac403",
+      "modelBytes": 12851098,
+      "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+      "manifestPath": "evidence/manifest/validation-runtime-manifest.json"
+    },
+    "baseConformanceManifest": {
+      "path": "tests/fixtures/conformance/linux-ort-manifest.json",
+      "sha256": "6f411aedec1550f3306459468dc3b4a0a4bc2558f5233f5f25404f1ac50e9c26"
+    }
+  },
+  "implementation": {
+    "schemaPath": "schemas/adapter-conformance.schema.json",
+    "schemaSha256": "7be0f234a3b13e3e822ce86f7e0406213867ac08c07b5149a1a7ea5e772a787b",
+    "requiredChecks": [
+      "manifest_io",
+      "initialization_timeout",
+      "smoke_inference",
+      "golden_output",
+      "fault_injection",
+      "diagnostics",
+      "performance",
+      "package_load"
+    ],
+    "selectionPolicy": [
+      "select exactly once from target, artifact manifest, and Native capability",
+      "artifact, runtime, device, and smoke unready states return UseWebFallback",
+      "Ready diagnostics must match the cached selection",
+      "post-Ready inference errors do not rebuild or switch adapters"
+    ],
+    "files": [
+      "src/backend/conformance.rs",
+      "src/backend/mod.rs",
+      "src/backend/legacy_ort.rs",
+      "src/contract_test_seam.rs",
+      "src/lib.rs",
+      "schemas/adapter-conformance.schema.json",
+      "tests/platform_factory.rs",
+      "tests/linux_ort_conformance.rs",
+      "tests/fixtures/conformance/linux-ort-manifest.json",
+      "reports/os6-base-platform-factory-implementation-report.json"
+    ]
+  },
+  "linuxX8664": {
+    "target": "linux/x86_64",
+    "runnerEvidence": "executed-local-target",
+    "runnerId": "local-linux-x86_64",
+    "adapter": "linux_ort",
+    "configuredProvider": "CPU",
+    "accelerator": null,
+    "executionPlan": "unknown",
+    "runtime": "ort-2.0.0-rc.12",
+    "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+    "status": "executed-with-package-boundary",
+    "supportedClaim": false,
+    "checks": {
+      "manifest_io": "passed",
+      "initialization_timeout": "passed",
+      "smoke_inference": "passed",
+      "golden_output": "passed",
+      "fault_injection": "passed",
+      "diagnostics": "passed",
+      "performance": "build-verified-no-formal-threshold",
+      "package_load": "blocked-base-does-not-own-final-product-package"
+    },
+    "observed": {
+      "outputRole": "detections",
+      "outputShape": [1, 84, 8400],
+      "outputElements": 705600,
+      "finiteOutput": true,
+      "goldenMaxAbsDifference": "<=1e-6",
+      "selectionEvaluations": 1,
+      "buildAttempts": 1,
+      "publishedInstances": 1,
+      "postReadinessInferenceError": "inference_failed",
+      "postReadinessRebuilds": 0
+    },
+    "commands": [
+      "cargo test --test platform_factory --test phase2_adapter_conformance_red",
+      "RIMEFLOW_YOLOV8N_MODEL=<fixed-validation-model> cargo test --features native --test linux_ort_conformance -- --ignored",
+      "RIMEFLOW_YOLOV8N_MODEL=<fixed-validation-model> cargo test --features native --test legacy_ort_smoke real_yolov8n_legacy_adapter_matches_native_ort_output -- --ignored --exact"
+    ]
+  },
+  "otherTargets": [
+    {
+      "id": "macos-arm64-coreml",
+      "target": "macos/arm64",
+      "adapter": "core_ml",
+      "status": "blocked",
+      "reason": "no real Apple Silicon runner and no Base CoreML adapter implementation"
+    },
+    {
+      "id": "macos-x86_64-coreml",
+      "target": "macos/x86_64",
+      "adapter": "core_ml",
+      "status": "blocked",
+      "reason": "no real Intel Mac runner and no Base CoreML adapter implementation"
+    },
+    {
+      "id": "ios-arm64-coreml",
+      "target": "ios/arm64",
+      "adapter": "core_ml",
+      "status": "blocked",
+      "reason": "no real iOS device runner, signing evidence, or Base CoreML adapter implementation"
+    },
+    {
+      "id": "android-arm64-litert-v2",
+      "target": "android/arm64-v8a",
+      "adapter": "lite_rt_v2",
+      "status": "blocked",
+      "reason": "no real Android device runner and no authorized LiteRT artifact/runtime adapter"
+    },
+    {
+      "id": "windows-x86_64-windowsml",
+      "target": "windows/x86_64",
+      "adapter": "windows_ml",
+      "status": "blocked",
+      "reason": "no native Windows runner and no Base Windows ML adapter implementation"
+    },
+    {
+      "id": "windows-arm64-windowsml",
+      "target": "windows/arm64",
+      "adapter": "windows_ml",
+      "status": "blocked",
+      "reason": "no native Windows ARM64 runner and no Base Windows ML adapter implementation"
+    },
+    {
+      "id": "linux-x86_64-ort-accelerated",
+      "target": "linux/x86_64",
+      "adapter": "linux_ort",
+      "status": "blocked",
+      "reason": "no observed OpenVINO/CUDA/TensorRT provider runner; CPU evidence is not substituted"
+    },
+    {
+      "id": "linux-arm64-ort",
+      "target": "linux/aarch64",
+      "adapter": "linux_ort",
+      "status": "blocked",
+      "reason": "no native aarch64 runner or runtime/package-load evidence"
+    },
+    {
+      "id": "harmonyos-arm64-mindspore",
+      "target": "harmonyos/arm64-v8a",
+      "adapter": "mind_spore_lite",
+      "status": "blocked",
+      "reason": "no HarmonyOS device, signing, NDK, or MindSpore Lite adapter evidence"
+    },
+    {
+      "id": "web-wasm-reference",
+      "target": "web/wasm32",
+      "adapter": "web_onnx",
+      "status": "build-verified",
+      "reason": "fallback reference is outside this Native factory task; no supported claim"
+    },
+    {
+      "id": "web-webgpu-observation",
+      "target": "web/wasm32",
+      "adapter": "web_onnx",
+      "status": "blocked",
+      "reason": "observation-only evidence is not a Native adapter conformance result"
+    }
+  ],
+  "verification": {
+    "cargoTest": "passed",
+    "cargoTestNative": "passed-with-2-ignored-real-runs",
+    "focusedFactoryAndPhase2": "passed-7-tests",
+    "realLinuxOrt": "passed-1-ignored-test",
+    "realLegacyOrtCompatibility": "passed-1-ignored-test",
+    "diffCheck": "passed",
+    "generatedAt": "2026-08-15",
+    "host": {
+      "os": "linux",
+      "arch": "x86_64",
+      "kernel": "7.0.0-28-generic",
+      "rustc": "1.97.1",
+      "cargo": "1.97.1",
+      "glibc": "2.39"
+    }
+  },
+  "ownershipBoundary": [
+    "Validation artifact conversion and golden artifact transformation were not modified",
+    "RimeCut, tasks 7-9, CI, release, push, PR, and OpenSpec checkbox state were not modified"
+  ],
+  "reportGeneratedFromBaseHead": "96fcfa0a54a3db1978af5ec38fc3a92132be4ee3"
+}

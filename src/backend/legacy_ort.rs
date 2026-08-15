@@ -36,17 +36,22 @@ impl LegacyOrtBackend {
         dst_size: u32,
         metadata: LegacyOrtMetadata,
     ) -> Result<Self, InitFailure> {
+        Self::from_model_bytes_with_kind(model_bytes, dst_size, metadata, BackendKind::LegacyOrt)
+    }
+
+    fn from_model_bytes_with_kind(
+        model_bytes: &[u8],
+        dst_size: u32,
+        metadata: LegacyOrtMetadata,
+        backend_kind: BackendKind,
+    ) -> Result<Self, InitFailure> {
         if sha256_hex(model_bytes) != metadata.artifact_sha256 {
             return Err(InitFailure::new(
                 "artifact_integrity_or_target_mismatch",
                 InitializationStage::ArtifactIntegrity,
                 "Legacy ORT model bytes do not match the manifest digest",
             )
-            .with_context(
-                metadata.platform,
-                metadata.model_version,
-                BackendKind::LegacyOrt,
-            ));
+            .with_context(metadata.platform, metadata.model_version, backend_kind));
         }
         let started = Instant::now();
         let inner = NativeOrtBackend::from_model_bytes(model_bytes, dst_size).map_err(|error| {
@@ -58,11 +63,11 @@ impl LegacyOrtBackend {
             .with_context(
                 metadata.platform.clone(),
                 metadata.model_version.clone(),
-                BackendKind::LegacyOrt,
+                backend_kind,
             )
         })?;
         let resolved = ResolvedBackend {
-            backend_kind: BackendKind::LegacyOrt,
+            backend_kind,
             platform: metadata.platform,
             configured_provider: Some(configured_provider(inner.resolved_ep()).to_owned()),
             accelerator: None,
@@ -113,6 +118,44 @@ impl LegacyOrtBackend {
                 data: TensorData::F32(values),
             }],
         })
+    }
+}
+
+/// Linux ORT adapter with diagnostics distinct from the legacy compatibility path.
+pub struct LinuxOrtBackend {
+    inner: LegacyOrtBackend,
+}
+
+impl LinuxOrtBackend {
+    pub fn from_model_bytes(
+        model_bytes: &[u8],
+        dst_size: u32,
+        metadata: LegacyOrtMetadata,
+    ) -> Result<Self, InitFailure> {
+        LegacyOrtBackend::from_model_bytes_with_kind(
+            model_bytes,
+            dst_size,
+            metadata,
+            BackendKind::LinuxOrt,
+        )
+        .map(|inner| Self { inner })
+    }
+
+    pub fn resolved_backend(&self) -> &ResolvedBackend {
+        self.inner.resolved_backend()
+    }
+
+    pub fn infer_from_host_slice(
+        &mut self,
+        nchw: &[f32],
+    ) -> Result<RawModelOutput, InferenceError> {
+        self.inner.infer_from_host_slice(nchw)
+    }
+}
+
+impl RuntimeBackend for LinuxOrtBackend {
+    fn infer(&mut self, input: ModelInput) -> Result<RawModelOutput, InferenceError> {
+        self.inner.infer(input)
     }
 }
 
