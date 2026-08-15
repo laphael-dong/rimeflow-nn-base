@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "case": {
+    "id": "android-arm64-litert-v2-build-only",
+    "modelId": "rimeflow-yolov8n",
+    "modelVersion": "yolov8n-litert-20260811",
+    "target": {
+      "os": "android",
+      "arch": "arm64"
+    },
+    "adapter": "lite_rt_v2",
+    "artifactId": "validation-yolov8n-fp32-tflite",
+    "artifactSha256": "794e17d9a2795084787e5125bcfada6cb501c6afc4f708e7e58e96fd8dc84be1",
+    "manifestSha256": "f1f95bac2006cd02e364123ab9e7556cc331e6d20f49006c50fcebd15d0c4881",
+    "nativeInitializationTimeoutMs": 15000
+  },
+  "runner": {
+    "kind": "build-only",
+    "target": {
+      "os": "android",
+      "arch": "arm64"
+    }
+  },
+  "selection": {
+    "kind": "useWebFallback",
+    "failure": {
+      "code": "native_runtime_unavailable",
+      "stage": "runtime_load",
+      "message": "Linux verification host has no authorized Android arm64 device runner; the official target build is blocked by missing OpenSSL development metadata and NDK r27c",
+      "platform": {
+        "os": "android",
+        "arch": "arm64"
+      },
+      "modelVersion": "yolov8n-litert-20260811",
+      "attemptedBackend": "lite_rt_v2"
+    }
+  },
+  "checks": [
+    {
+      "kind": "manifest_io",
+      "status": "build-verified",
+      "detail": "Portable tests verify logical role/name/index mapping, NHWC shape enforcement, and F32 to U8/I8 quantization; Validation commit 27582f5 records the candidate as NCHW/FP32 and is not rewritten.",
+      "evidencePath": "tests/litert_v2_adapter.rs"
+    },
+    {
+      "kind": "initialization_timeout",
+      "status": "blocked",
+      "detail": "No Android arm64 runner was available to measure or enforce the 15000 ms target boundary."
+    },
+    {
+      "kind": "smoke_inference",
+      "status": "blocked",
+      "detail": "The CompiledModel smoke lifecycle is build-verified with a deterministic fake, but no Android device inference was executed."
+    },
+    {
+      "kind": "golden_output",
+      "status": "blocked",
+      "detail": "Validation host golden evidence cannot be relabeled as Android Base adapter output."
+    },
+    {
+      "kind": "fault_injection",
+      "status": "build-verified",
+      "detail": "Portable tests cover artifact, runtime, device, I/O, and smoke failure stages and preserve Web fallback diagnostics.",
+      "evidencePath": "tests/litert_v2_adapter.rs"
+    },
+    {
+      "kind": "diagnostics",
+      "status": "build-verified",
+      "detail": "Resolved backend, runtime version 2.1.6, official Rust binding 0.1.3, accelerator, artifact identity, I/O plan, and smoke state are machine-readable.",
+      "evidencePath": "src/backend/litert_v2.rs"
+    },
+    {
+      "kind": "performance",
+      "status": "blocked",
+      "detail": "No Android target performance samples were collected."
+    },
+    {
+      "kind": "package_load",
+      "status": "blocked",
+      "detail": "No Android application package or device-side LiteRT shared-library load was executed. The host has NDK 30.0.14904198 rather than required r27c, and the official Cargo target check stopped in openssl-sys because OpenSSL development metadata is absent."
+    }
+  ]
+}

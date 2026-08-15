@@ -7,6 +7,8 @@ use crate::error::{InferenceError, InitFailure};
 pub mod conformance;
 pub mod coreml;
 
+pub mod litert_v2;
+
 #[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
 pub mod legacy_ort;
 

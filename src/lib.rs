@@ -62,6 +62,17 @@ pub mod ort_bridge;
 pub mod build_helper;
 
 pub use backend::coreml_package_tree_sha256;
+
+pub use backend::litert_v2::{
+    quantize_f32, LiteRtCompiledRuntime, LiteRtIoPlan, LiteRtRuntimeError, LiteRtTensorBinding,
+    LiteRtTensorDescriptor, LiteRtV2Availability, LiteRtV2Backend, LiteRtV2BootstrapError,
+    LiteRtV2Diagnostics, VerifiedLiteRtArtifact, LITERT_RUNTIME_VERSION,
+    LITERT_RUST_BINDING_VERSION,
+};
+#[cfg(all(target_os = "android", feature = "litert-v2"))]
+pub use backend::litert_v2::{
+    AndroidLiteRtAccelerator, AndroidLiteRtV2Backend, AndroidLiteRtV2Factory,
+};
 pub use backend::{
     AdapterConformanceCase, AdapterConformanceCheck, AdapterConformanceCheckKind,
     AdapterConformanceReport, AdapterConformanceStatus, AdapterSelection, BackendFactory,

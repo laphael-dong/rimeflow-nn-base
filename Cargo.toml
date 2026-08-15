@@ -37,6 +37,10 @@ native-coreml-adapter = [
   "dep:objc2-foundation",
 ]
 
+# Android LiteRT v2 CompiledModel adapter. The official binding is target-only
+# so ordinary host builds do not download or link the Android runtime SDK.
+litert-v2         = ["dep:google-ai-edge-litert"]
+
 # Turn on when operator crate build.rs uses `build_helper::generate_extern_block`.
 # It pulls in std::{env, fs, path} which are already there; this gate exists
 # only for symmetry with future helpers that may need heavier deps.
@@ -78,6 +82,9 @@ objc2-core-graphics = { version = "0.3.2", default-features = false, features = 
 objc2-core-ml = { version = "0.3.2", default-features = false, features = ["MLDictionaryFeatureProvider", "MLFeatureProvider", "MLFeatureValue", "MLFeatureValue_MLImageConversion", "MLModel", "MLModel_MLModelCompilation", "MLMultiArray", "block2", "objc2-core-graphics", "objc2-core-video", "std"], optional = true }
 objc2-core-video = { version = "0.3.2", default-features = false, features = ["CVPixelBuffer", "objc2"], optional = true }
 objc2-foundation = { version = "0.3.2", default-features = false, features = ["NSArray", "NSDictionary", "NSError", "NSObject", "NSSet", "NSString", "NSURL", "NSValue", "std"], optional = true }
+
+[target.'cfg(target_os = "android")'.dependencies]
+google-ai-edge-litert = { version = "=0.1.3", optional = true }
 
 [dev-dependencies]
 pollster = "0.4"
