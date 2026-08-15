@@ -147,6 +147,15 @@
       "test": { "file": "tools/verify_phase2_requirement_matrix.mjs", "name": "matrix-validates-traceability", "command": "node tools/verify_phase2_requirement_matrix.mjs" },
       "reportPath": "target/phase2-base-red-test-report.json",
       "expected": "green: traceability matrix is structurally valid while behavior tests remain red"
+    },
+    {
+      "id": "RFB-BASE-TRACE-002",
+      "spec": "rimeflow-inference-runtime",
+      "requirement": "Runtime requirements have traceable executable tests",
+      "scenario": "A runtime requirement is marked complete",
+      "test": { "file": "tools/verify_phase2_requirement_matrix.mjs", "name": "matrix-rejects-unproven-completion", "command": "node tools/verify_phase2_requirement_matrix.mjs" },
+      "reportPath": "target/phase2-base-red-test-report.json",
+      "expected": "green: complete status requires passing executable evidence bound to a verified commit"
     }
   ]
 }

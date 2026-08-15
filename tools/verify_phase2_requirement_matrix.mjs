@@ -6,6 +6,7 @@ const root = process.cwd();
 const matrixPath = join(root, 'contract-tests/phase2-base-requirement-test-matrix.json');
 const matrix = JSON.parse(readFileSync(matrixPath, 'utf8'));
 const idPattern = /^RFB-BASE-[A-Z0-9-]+$/;
+const commitPattern = /^[0-9a-f]{40}$/;
 
 function assert(condition, message) {
   if (!condition) throw new Error(`Phase 2 Base matrix: ${message}`);
@@ -27,6 +28,49 @@ function collectRustTestFiles(directory) {
   });
 }
 
+function validateCompletionEvidence(entry, defaultStatus) {
+  const status = entry.status ?? defaultStatus;
+  assert(status === 'test-first-red' || status === 'complete', `${entry.id} has unsupported status ${status}`);
+  if (status !== 'complete') return;
+
+  assert(entry.expected.startsWith('green:'), `${entry.id} complete status requires a green expected outcome`);
+  const evidence = entry.completionEvidence;
+  assert(evidence && typeof evidence === 'object', `${entry.id} complete status requires completionEvidence`);
+  assert(evidence.result === 'passed', `${entry.id} complete status requires a passed executable result`);
+  assert(evidence.reportPath === entry.reportPath, `${entry.id} completion evidence must bind its reportPath`);
+  assert(commitPattern.test(evidence.commitSha), `${entry.id} completion evidence must bind a 40-character commit SHA`);
+}
+
+function assertRejected(action, expectedMessage) {
+  try {
+    action();
+  } catch (error) {
+    assert(error instanceof Error && error.message.includes(expectedMessage), `completion guard failed unexpectedly: ${error}`);
+    return;
+  }
+  throw new Error(`Phase 2 Base matrix: completion guard accepted invalid state: ${expectedMessage}`);
+}
+
+// RFB-BASE-TRACE-002: marking a requirement complete is invalid without commit-bound passing evidence.
+assertRejected(
+  () => validateCompletionEvidence({ id: 'completion-probe', status: 'complete', expected: 'red: pending', reportPath: 'probe.json' }, matrix.status),
+  'complete status requires a green expected outcome',
+);
+assertRejected(
+  () => validateCompletionEvidence({ id: 'completion-probe', status: 'complete', expected: 'green: passed', reportPath: 'probe.json' }, matrix.status),
+  'complete status requires completionEvidence',
+);
+validateCompletionEvidence(
+  {
+    id: 'completion-probe',
+    status: 'complete',
+    expected: 'green: passed',
+    reportPath: 'probe.json',
+    completionEvidence: { result: 'passed', reportPath: 'probe.json', commitSha: 'a'.repeat(40) },
+  },
+  matrix.status,
+);
+
 assert(matrix.schemaVersion === 1, 'schemaVersion must be 1');
 assert(matrix.owner === 'rimeflow-nn-base', 'owner must be rimeflow-nn-base');
 assert(matrix.phase === 2 && matrix.status === 'test-first-red', 'phase/status must describe Phase 2 red tests');
@@ -47,6 +91,7 @@ for (const entry of matrix.entries) {
   assert(typeof entry.test.command === 'string' && entry.test.command.trim() !== '', `${entry.id} has no command`);
   assert(entry.test.command.startsWith('cargo test ') || entry.test.command.startsWith('node '), `${entry.id} has an unsupported command`);
   assert(entry.expected.includes('not_implemented') || entry.expected.startsWith('green:'), `${entry.id} must declare an expected red or green outcome`);
+  validateCompletionEvidence(entry, matrix.status);
   const source = readTrackedFile(entry.test.file);
   assert(source.includes(entry.id), `${entry.id} is not declared in ${entry.test.file}`);
   listedTestFiles.add(entry.test.file);
