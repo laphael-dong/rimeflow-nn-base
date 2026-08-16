@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "deliveryTask": "OS6-LINUX-X64-ORT-CPU-PERFORMANCE-REPAIR-01",
+  "scope": "Base task 6.5 Linux x86_64 ONNX Runtime CPU adapter",
+  "recordedAt": "2026-08-16T03:39:31Z",
+  "result": {
+    "decision": "passed",
+    "frozenFunctionalGatesPassed": true,
+    "frozenPerformanceGatesPassed": true,
+    "summary": "The Linux ORT adapter now borrows aligned little-endian f32 input bytes instead of rebuilding 1,228,800 floats per inference, retains a byte-wise fallback for unaligned or big-endian input, and performs the required finite-output check with a behavior-equivalent unrolled scan. Real CPU ORT Load/Run/golden, corrupt-init UseWebFallback, post-Ready no-switch/no-rebuild, same-host Web initialization, same-host Legacy performance, absolute latency, and RSS gates all passed on the fixed Ubuntu x86_64 runner."
+  },
+  "frozenInputs": {
+    "startingBase": {
+      "commit": "83d330e1717b844d71f9fe2af314e96afa768978",
+      "tree": "5faafe63537a69beabe1f4c851f946c69133ffeb"
+    },
+    "validation": {
+      "commit": "563a7388d72be8c11209446a70e816df6d45525a",
+      "tree": "c54e48296665ffe08a0c101dd515b3e9713478f2",
+      "cleanAfterVerification": true
+    },
+    "inputEvidence": {
+      "path": "/tmp/rimeflow-os6-linux-x64-ort-supplement-01/report.json",
+      "sha256": "daff9d4707456abee0e83b780afa2c3dc8c08165c5412a67eb0690bdbb7d17e6"
+    },
+    "thresholds": {
+      "nativeInitializationAbsoluteMaxMs": 30000,
+      "nativeInitializationRelativeToWebMax": 2.0,
+      "coldInferenceAbsoluteMaxMs": 2000,
+      "coldInferenceRelativeToLegacyMax": 1.25,
+      "warmInferenceP95AbsoluteMaxMs": 1000,
+      "warmInferenceP95RelativeToLegacyMax": 1.15,
+      "peakProcessRssAbsoluteMaxBytes": 1073741824,
+      "peakProcessRssRelativeToLegacyMax": 1.25,
+      "combination": "all",
+      "missingMetricPolicy": "fail",
+      "mixedDeviceComparisonPolicy": "fail",
+      "mixedExecutionProviderPolicy": "fail"
+    }
+  },
+  "runner": {
+    "ssh": "raffael@192.168.1.28:22",
+    "hostname": "rimecut-ci-u28",
+    "os": "Ubuntu 24.04.3 LTS",
+    "kernel": "6.8.0-137-generic",
+    "architecture": "x86_64",
+    "cpu": "AMD Ryzen 7 8700G w/ Radeon 780M Graphics",
+    "rustc": "1.90.0 (1159e78c4 2025-09-14)",
+    "node": "v18.19.1",
+    "npm": "9.2.0",
+    "container": false
+  },
+  "resourceBundle": {
+    "archive": {
+      "path": "/tmp/rimeflow-os6-linux-x64-ort-supplement-01/resource-bundle.tar",
+      "bytes": 12861440,
+      "sha256": "3bc548ad3d86d6b328d4f26e7c1cc4fada9fd6b3718eb855b11e0afaeaeeaa15"
+    },
+    "manifest": {
+      "path": "manifest.json",
+      "bytes": 852,
+      "sha256": "6f411aedec1550f3306459468dc3b4a0a4bc2558f5233f5f25404f1ac50e9c26",
+      "schemaValidated": true,
+      "semanticsValidated": true
+    },
+    "model": {
+      "path": "models/yolov8n.onnx",
+      "bytes": 12851098,
+      "sha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+      "artifactDigestVerifiedBeforeLoad": true
+    },
+    "canonicalInput": {
+      "bytes": 4915200,
+      "sha256Float32Le": "7cde7a22823666ede34cae26a348a563dbd7e64df800406b433733baabee24fe"
+    },
+    "safeRelativePathVerified": true,
+    "selectedArtifactId": "linux-onnx-fp32"
+  },
+  "diagnosis": {
+    "rootCause": "RuntimeBackend::infer converted every four-byte input chunk with f32::from_le_bytes and collected a new 1,228,800-element Vec inside each timed candidate inference. The Legacy comparator borrowed the already prepared canonical input as &[f32], so the candidate alone paid approximately 50 ms of dev-profile decoding overhead. After removing that allocation, the behavior-required 705,600-value finite-output scan was the remaining unstable warm-p95 cost; an eight-lane unrolled scan reduced its Ubuntu dev-profile microbenchmark from approximately 2.09 ms to 0.80 ms without removing validation.",
+    "repair": [
+      "Borrow aligned f32 input bytes on little-endian targets through bytemuck::try_cast_slice.",
+      "Retain the original little-endian byte decoding as the fallback for unaligned input and for big-endian targets.",
+      "Retain finite-output rejection while reducing iterator overhead with an eight-value unrolled scan and remainder check."
+    ],
+    "behaviorPreserved": {
+      "model": true,
+      "provider": "CPU",
+      "outputRoleShapeAndDtype": true,
+      "littleEndianDecoding": true,
+      "unalignedInputSupport": true,
+      "nonFiniteOutputRejection": true,
+      "legacyComparatorUnchanged": true,
+      "thresholdsUnchanged": true
+    },
+    "finalSource": {
+      "path": "src/backend/legacy_ort.rs",
+      "sha256": "8673b88f979cdad8a0943cdd5095a295ab62a4300c738334eefa49a7f17dd202",
+      "diffFromStartingBaseSha256": "f31ab24a7f8d0d12540f0e5d49dc2b62ea51e6a1e710fbdaee0ea75f39f4aa15"
+    }
+  },
+  "cycles": [
+    {
+      "cycle": 0,
+      "classification": "exact failure reproduction",
+      "coldRelativeToLegacy": 3.057559,
+      "warmP95RelativeToLegacy": 3.196059,
+      "peakRssRelativeToLegacy": 1.428577
+    },
+    {
+      "cycle": 1,
+      "classification": "zero-copy aligned input",
+      "coldRelativeToLegacy": 1.212841,
+      "warmP95RelativeToLegacy": 1.109877,
+      "peakRssRelativeToLegacy": 1.1459
+    },
+    {
+      "cycle": 2,
+      "classification": "margin verification exposed finite-scan variance",
+      "coldRelativeToLegacy": 1.223183,
+      "warmP95RelativeToLegacy": 1.206258,
+      "peakRssRelativeToLegacy": 1.148133
+    },
+    {
+      "cycle": 3,
+      "classification": "final frozen acceptance after behavior-preserving finite-scan optimization",
+      "coldRelativeToLegacy": 1.174552,
+      "warmP95RelativeToLegacy": 1.041227,
+      "peakRssRelativeToLegacy": 1.143752
+    }
+  ],
+  "finalPerformance": {
+    "method": {
+      "candidateInput": "RuntimeLifecycle::infer(ModelInput::Tensor)",
+      "legacyInput": "NativeOrtBackend::infer_from_host_slice",
+      "webExecutionProvider": "wasm",
+      "webThreads": 1,
+      "warmupRuns": 5,
+      "sampleRuns": 30,
+      "buildProfile": "dev"
+    },
+    "candidate": {
+      "initializationMs": 283.958733,
+      "coldInferenceMs": 35.146093,
+      "warmInferenceP95Ms": 27.56379,
+      "peakProcessRssBytes": 122667008,
+      "outputSha256Float32Le": "c84b2985786685fe134fe4dbb7c091ecb72d5be7bdbd442aac832b0995013f27"
+    },
+    "sameHostLegacy": {
+      "initializationMs": 38.65007,
+      "coldInferenceMs": 29.922986,
+      "warmInferenceP95Ms": 26.472409,
+      "peakProcessRssBytes": 107249664,
+      "outputSha256Float32Le": "c84b2985786685fe134fe4dbb7c091ecb72d5be7bdbd442aac832b0995013f27"
+    },
+    "sameHostWeb": {
+      "runtime": "onnxruntime-web@1.27.0",
+      "executionProvider": "wasm",
+      "initializationMs": 176.778663,
+      "outputElements": 705600,
+      "finiteElements": 705600,
+      "outputSha256Float32Le": "37cc9955c15f1c4283fd2ed0d8aa360905357fd03a386db3a526d94dd0cca212",
+      "packageLockSha256": "0794f8a676b76b47362828b1d610cb10be88aac367ef2dd2c3ef8a0315842081",
+      "packageJsonSha256": "8cdbce0a4f6205109083cc4675477632147ed48e13fa7f891827fd08ef3c818c",
+      "registryIntegrity": "sha512-ogDLsqIozHZwifPuN37OproAo0byX6t43/bP8GzeZWBWD6MOGExswFAx3up4NS/vvWBOg2u2PXomDt3rMmdQSg==",
+      "distFiles": 58,
+      "nonzeroDistFiles": 58
+    },
+    "gates": {
+      "nativeInitializationAbsolute": { "observedMs": 283.958733, "maximumMs": 30000, "passed": true },
+      "nativeInitializationRelativeToWeb": { "ratio": 1.606295, "maximumRatio": 2.0, "passed": true },
+      "coldInferenceAbsolute": { "observedMs": 35.146093, "maximumMs": 2000, "passed": true },
+      "coldInferenceRelativeToLegacy": { "ratio": 1.174552, "maximumRatio": 1.25, "passed": true },
+      "warmInferenceP95Absolute": { "observedMs": 27.56379, "maximumMs": 1000, "passed": true },
+      "warmInferenceP95RelativeToLegacy": { "ratio": 1.041227, "maximumRatio": 1.15, "passed": true },
+      "peakProcessRssAbsolute": { "observedBytes": 122667008, "maximumBytes": 1073741824, "passed": true },
+      "peakProcessRssRelativeToLegacy": { "ratio": 1.143752, "maximumRatio": 1.25, "passed": true },
+      "overallPassed": true
+    }
+  },
+  "functionalAcceptance": {
+    "realCpuOrtLoad": true,
+    "realCpuOrtRun": true,
+    "acceptedGoldenDigestMatches": true,
+    "outputElements": 705600,
+    "finiteOutputElements": 705600,
+    "corruptArtifact": {
+      "outcome": "UseWebFallback",
+      "failureCode": "artifact_integrity_or_target_mismatch",
+      "stage": "artifact_integrity",
+      "buildAttempts": 1,
+      "publishedInstances": 0,
+      "webFallbacks": 1
+    },
+    "postReadyInferenceFailure": {
+      "failureCode": "inference_failed",
+      "buildAttempts": 1,
+      "publishedInstances": 1,
+      "backendSwitches": 0,
+      "sessionRebuilds": 0,
+      "webFallbacks": 0
+    }
+  },
+  "verification": {
+    "local": {
+      "cargoTestOfflineLockedFeaturesNative": "passed",
+      "cargoFmtCheck": "passed",
+      "cargoClippyOfflineLockedFeaturesNativeLibTestsDenyWarnings": "passed",
+      "gitDiffCheck": "passed"
+    },
+    "ubuntu": {
+      "platformFactoryAndAdapterConformanceTests": { "passed": 7, "failed": 0 },
+      "realLinuxOrtAndLegacyLockedModelTests": { "passed": 2, "failed": 0 },
+      "cargoFmtCheckRust190": "passed",
+      "cargoClippyRust190FeaturesNativeLibTestsDenyWarnings": "passed",
+      "validationPlatformConformance": { "platformCount": 6, "linuxOrtX64Status": "host-inference-verified", "passed": true },
+      "validationPlatformNegative": { "negativeCases": 8, "passed": true },
+      "validationIdentityReadback": "passed",
+      "modelIdentityReadback": "passed"
+    },
+    "nonBlockingObservation": "A local repository-wide clippy --all-targets -D warnings invocation reaches a pre-existing identity-op warning at examples/task1_native_benchmark.rs:49. The affected library and all tests pass strict clippy locally and with Rust 1.90 on Ubuntu; the unrelated example was not modified."
+  },
+  "rawArtifacts": {
+    "root": "/tmp/rimeflow-os6-linux-x64-ort-repair-01/cycle3",
+    "candidate": { "path": "candidate.json", "sha256": "625fde407b53f2acdd01c8d6918cee24c6c858347ebe3cc7570b566525c4b7cb" },
+    "legacy": { "path": "legacy.json", "sha256": "f3897dc21c6b4f537472382111acd8b3efed6fc8c2d7dfdb9378d43613c562db" },
+    "web": { "path": "web.json", "sha256": "7e9ff651a8a8f61749d5fc4b1ff9b885d64d9511114e50f66892290f3cb7c6ad" },
+    "acceptance": { "path": "acceptance.json", "sha256": "9e6d5d8226ffed67134e0aec77a4061f596b2a2ff2cc574a46051fd7c6021d6f" }
+  },
+  "exclusions": {
+    "finalProductPackageClaim": false,
+    "linuxArm64Claim": false,
+    "acceleratedExecutionProviderClaim": false,
+    "thresholdWaiver": false,
+    "ciOrRunnerPolicyChanged": false,
+    "dockerUsed": false
+  }
+}

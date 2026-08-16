@@ -2,6 +2,7 @@
 
 #![cfg(all(not(target_arch = "wasm32"), feature = "native"))]
 
+use std::borrow::Cow;
 use std::time::Instant;
 
 use crate::backend::{
@@ -105,7 +106,7 @@ impl LegacyOrtBackend {
             .ok_or_else(|| {
                 InferenceError::new("output_shape_overflow", "output shape overflows")
             })?;
-        if values.len() != expected || values.iter().any(|value| !value.is_finite()) {
+        if values.len() != expected || !all_finite(&values) {
             return Err(InferenceError::new(
                 "smoke_output_invalid",
                 format!("expected {expected} finite values, got {}", values.len()),
@@ -174,14 +175,42 @@ impl RuntimeBackend for LegacyOrtBackend {
                 "Legacy ORT fast path requires f32 input",
             ));
         }
-        let mut values = Vec::with_capacity(bytes.len() / 4);
-        for chunk in bytes.chunks_exact(4) {
-            values.push(f32::from_le_bytes(
-                chunk.try_into().expect("four-byte chunk"),
-            ));
-        }
+        let values = f32_values_from_le_bytes(&bytes);
         self.infer_from_host_slice(&values)
     }
+}
+
+fn f32_values_from_le_bytes(bytes: &[u8]) -> Cow<'_, [f32]> {
+    #[cfg(target_endian = "little")]
+    if let Ok(values) = bytemuck::try_cast_slice(bytes) {
+        return Cow::Borrowed(values);
+    }
+
+    Cow::Owned(
+        bytes
+            .chunks_exact(4)
+            .map(|chunk| f32::from_le_bytes(chunk.try_into().expect("four-byte chunk")))
+            .collect(),
+    )
+}
+
+fn all_finite(values: &[f32]) -> bool {
+    let mut index = 0;
+    while index + 8 <= values.len() {
+        if !values[index].is_finite()
+            || !values[index + 1].is_finite()
+            || !values[index + 2].is_finite()
+            || !values[index + 3].is_finite()
+            || !values[index + 4].is_finite()
+            || !values[index + 5].is_finite()
+            || !values[index + 6].is_finite()
+            || !values[index + 7].is_finite()
+        {
+            return false;
+        }
+        index += 8;
+    }
+    values[index..].iter().all(|value| value.is_finite())
 }
 
 fn configured_provider(provider: ResolvedEp) -> &'static str {
@@ -199,4 +228,48 @@ fn configured_provider(provider: ResolvedEp) -> &'static str {
 
 fn map_inference_error(error: InferError) -> InferenceError {
     InferenceError::new("inference_failed", error.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{all_finite, f32_values_from_le_bytes};
+    use std::borrow::Cow;
+
+    #[test]
+    fn aligned_little_endian_f32_bytes_are_borrowed() {
+        let values = [1.25f32, -3.5, 0.0];
+        let decoded = f32_values_from_le_bytes(bytemuck::cast_slice(&values));
+
+        assert_eq!(decoded.as_ref(), values);
+        #[cfg(target_endian = "little")]
+        assert!(matches!(decoded, Cow::Borrowed(_)));
+    }
+
+    #[test]
+    fn unaligned_f32_bytes_preserve_little_endian_values() {
+        let expected = [1.25f32, -3.5, 0.0];
+        let mut storage = vec![0u8; expected.len() * 4 + 4];
+        let aligned_offset = storage.as_ptr().align_offset(std::mem::align_of::<f32>());
+        let unaligned_offset = (aligned_offset + 1) % 4;
+        let bytes = &mut storage[unaligned_offset..unaligned_offset + expected.len() * 4];
+        for (chunk, value) in bytes.chunks_exact_mut(4).zip(expected) {
+            chunk.copy_from_slice(&value.to_le_bytes());
+        }
+
+        let decoded = f32_values_from_le_bytes(bytes);
+
+        assert_eq!(decoded.as_ref(), expected);
+        assert!(matches!(decoded, Cow::Owned(_)));
+    }
+
+    #[test]
+    fn finite_scan_checks_every_unrolled_lane_and_remainder() {
+        for index in 0..17 {
+            let mut values = vec![1.0f32; 17];
+            assert!(all_finite(&values));
+            values[index] = f32::INFINITY;
+            assert!(!all_finite(&values), "missed non-finite value at {index}");
+        }
+        assert!(all_finite(&[]));
+    }
 }
