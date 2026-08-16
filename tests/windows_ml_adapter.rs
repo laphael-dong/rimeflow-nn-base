@@ -122,6 +122,10 @@ fn checked_in_runner_uses_only_pinned_official_windows_ml_packages() {
     assert!(source.contains("Microsoft.Windows.AI.MachineLearning.Projection"));
     assert!(source.contains("performanceRuns must be between 0 and 100"));
     assert!(source.contains("PerformanceWarmupRuns = 5"));
+    assert!(source.contains("InitializationBreakdownMs"));
+    assert!(source.contains("CollectExecutionProfile { get; set; } = true"));
+    assert!(source.contains("InputBindingExcluded"));
+    assert!(source.contains("new InferenceSession(request.ModelPath, sessionOptions)"));
     assert!(lock.contains("net8.0-windows10.0.17763/win-x64"));
     assert!(lock.contains("net8.0-windows10.0.17763/win-arm64"));
     assert!(!lock.contains("Microsoft.WindowsAppSDK.Runtime"));

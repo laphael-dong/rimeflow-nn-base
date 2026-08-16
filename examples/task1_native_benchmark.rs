@@ -22,6 +22,7 @@ fn percentile(samples: &[f64], percentile: f64) -> f64 {
     sorted[index]
 }
 
+#[cfg(target_os = "linux")]
 fn peak_rss_bytes() -> Option<u64> {
     let status = fs::read_to_string("/proc/self/status").ok()?;
     let line = status.lines().find(|line| line.starts_with("VmHWM:"))?;
@@ -30,6 +31,61 @@ fn peak_rss_bytes() -> Option<u64> {
         .parse::<u64>()
         .ok()
         .map(|value| value * 1024)
+}
+
+#[cfg(target_os = "windows")]
+fn peak_rss_bytes() -> Option<u64> {
+    use std::ffi::c_void;
+
+    #[repr(C)]
+    struct ProcessMemoryCounters {
+        cb: u32,
+        page_fault_count: u32,
+        peak_working_set_size: usize,
+        working_set_size: usize,
+        quota_peak_paged_pool_usage: usize,
+        quota_paged_pool_usage: usize,
+        quota_peak_non_paged_pool_usage: usize,
+        quota_non_paged_pool_usage: usize,
+        pagefile_usage: usize,
+        peak_pagefile_usage: usize,
+    }
+
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn GetCurrentProcess() -> *mut c_void;
+    }
+    #[link(name = "psapi")]
+    unsafe extern "system" {
+        fn GetProcessMemoryInfo(
+            process: *mut c_void,
+            counters: *mut ProcessMemoryCounters,
+            size: u32,
+        ) -> i32;
+    }
+
+    let mut counters = ProcessMemoryCounters {
+        cb: std::mem::size_of::<ProcessMemoryCounters>()
+            .try_into()
+            .ok()?,
+        page_fault_count: 0,
+        peak_working_set_size: 0,
+        working_set_size: 0,
+        quota_peak_paged_pool_usage: 0,
+        quota_paged_pool_usage: 0,
+        quota_peak_non_paged_pool_usage: 0,
+        quota_non_paged_pool_usage: 0,
+        pagefile_usage: 0,
+        peak_pagefile_usage: 0,
+    };
+    let succeeded =
+        unsafe { GetProcessMemoryInfo(GetCurrentProcess(), &mut counters, counters.cb) };
+    (succeeded != 0).then_some(counters.peak_working_set_size as u64)
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "windows")))]
+fn peak_rss_bytes() -> Option<u64> {
+    None
 }
 
 fn digest_f32(values: &[f32]) -> String {

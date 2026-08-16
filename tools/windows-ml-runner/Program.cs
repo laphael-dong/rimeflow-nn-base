@@ -94,6 +94,7 @@ internal static class Program
         ExecutionProviderCatalog catalog = ExecutionProviderCatalog.GetDefault();
         await catalog.RegisterCertifiedAsync();
         state.CatalogRegistrationCompleted = true;
+        double catalogRegistrationEndMs = initializationTimer.Elapsed.TotalMilliseconds;
 
         state.FailureStage = "device-selection";
         OrtEnv ortEnv = OrtEnv.Instance();
@@ -103,29 +104,38 @@ internal static class Program
             .OrderBy(device => DevicePriority(device.HardwareDevice.Type))
             .ThenBy(device => device.EpName, StringComparer.Ordinal)
             .First();
+        double deviceSelectionEndMs = initializationTimer.Elapsed.TotalMilliseconds;
 
-        state.ProfilePrefix = Path.Combine(Path.GetTempPath(), $"rimeflow-winml-{Environment.ProcessId}-{Guid.NewGuid():N}-");
         using var sessionOptions = new SessionOptions
         {
-            ProfileOutputPathPrefix = state.ProfilePrefix,
-            EnableProfiling = true,
             GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL,
         };
+        if (request.CollectExecutionProfile)
+        {
+            state.ProfilePrefix = Path.Combine(Path.GetTempPath(), $"rimeflow-winml-{Environment.ProcessId}-{Guid.NewGuid():N}-");
+            sessionOptions.ProfileOutputPathPrefix = state.ProfilePrefix;
+            sessionOptions.EnableProfiling = true;
+        }
         sessionOptions.AppendExecutionProvider(ortEnv, [selectedDevice], new Dictionary<string, string>());
+        double sessionOptionsEndMs = initializationTimer.Elapsed.TotalMilliseconds;
 
         state.FailureStage = "session-creation";
         using var session = new InferenceSession(request.ModelPath, sessionOptions);
         state.SessionCreated = true;
+        double sessionCreationEndMs = initializationTimer.Elapsed.TotalMilliseconds;
 
         state.FailureStage = "metadata-validation";
         var inputMetadata = request.Inputs.Select(binding => ResolveMetadata(session.InputMetadata, binding, "input")).ToArray();
         var outputMetadata = request.Outputs.Select(binding => ResolveMetadata(session.OutputMetadata, binding, "output")).ToArray();
         if (inputMetadata.Length != inputBindings.Length) throw new InvalidDataException("input binding count changed during metadata validation");
+        double metadataValidationEndMs = initializationTimer.Elapsed.TotalMilliseconds;
+        initializationTimer.Stop();
 
+        Stopwatch inputBindingTimer = Stopwatch.StartNew();
         var namedInputs = inputBindings.Select((item, index) =>
             NamedOnnxValue.CreateFromTensor(item.name, new DenseTensor<float>(item.values, inputMetadata[index].Metadata.Dimensions.ToArray()))).ToArray();
+        inputBindingTimer.Stop();
 
-        initializationTimer.Stop();
         state.FailureStage = "inference";
         Stopwatch coldInferenceTimer = Stopwatch.StartNew();
         using IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results = session.Run(namedInputs);
@@ -171,10 +181,14 @@ internal static class Program
         {
             throw new InvalidDataException("Windows ML did not expose the actual EP device for every input");
         }
-        string profilePath = session.EndProfiling();
-        state.ProfilePath = profilePath;
-        string[] profileProviders = ReadProfileProviders(profilePath);
-        if (profileProviders.Length == 0) throw new InvalidDataException("Windows ML profile did not expose a provider");
+        string[] profileProviders = [];
+        if (request.CollectExecutionProfile)
+        {
+            string profilePath = session.EndProfiling();
+            state.ProfilePath = profilePath;
+            profileProviders = ReadProfileProviders(profilePath);
+            if (profileProviders.Length == 0) throw new InvalidDataException("Windows ML profile did not expose a provider");
+        }
 
         state.FailureStage = "module-identity";
         Assembly catalogAssembly = typeof(ExecutionProviderCatalog).Assembly;
@@ -216,6 +230,7 @@ internal static class Program
             Execution = new ExecutionIdentity
             {
                 SelectedDevice = DeviceSnapshot(selectedDevice),
+                ExecutionProfileCollected = request.CollectExecutionProfile,
                 ProfileProviders = profileProviders,
                 SessionInputDevices = inputDevices.Select(device => DeviceSnapshot(device!)).ToArray(),
             },
@@ -225,6 +240,15 @@ internal static class Program
                 {
                     WarmupRuns = PerformanceWarmupRuns,
                     InitializationMs = initializationTimer.Elapsed.TotalMilliseconds,
+                    InitializationBreakdownMs = new InitializationBreakdown
+                    {
+                        CatalogRegistration = catalogRegistrationEndMs,
+                        DeviceSelection = deviceSelectionEndMs - catalogRegistrationEndMs,
+                        SessionOptions = sessionOptionsEndMs - deviceSelectionEndMs,
+                        SessionCreation = sessionCreationEndMs - sessionOptionsEndMs,
+                        MetadataValidation = metadataValidationEndMs - sessionCreationEndMs,
+                        InputBindingExcluded = inputBindingTimer.Elapsed.TotalMilliseconds,
+                    },
                     ColdInferenceMs = coldInferenceTimer.Elapsed.TotalMilliseconds,
                     WarmInferenceMs = warmInferenceSamples.ToArray(),
                     PeakProcessRssBytes = Process.GetCurrentProcess().PeakWorkingSet64,
@@ -409,6 +433,7 @@ internal static class Program
         public string ModelPath { get; set; } = "";
         public string ExpectedModelSha256 { get; set; } = "";
         public int PerformanceRuns { get; set; }
+        public bool CollectExecutionProfile { get; set; } = true;
         public TensorBinding[] Inputs { get; set; } = [];
         public TensorBinding[] Outputs { get; set; } = [];
     }
@@ -460,6 +485,7 @@ internal static class Program
     private sealed class ExecutionIdentity
     {
         public DeviceIdentity? SelectedDevice { get; set; }
+        public bool ExecutionProfileCollected { get; set; }
         public string[] ProfileProviders { get; set; } = [];
         public DeviceIdentity[] SessionInputDevices { get; set; } = [];
     }
@@ -468,9 +494,20 @@ internal static class Program
     {
         public int WarmupRuns { get; set; }
         public double InitializationMs { get; set; }
+        public InitializationBreakdown InitializationBreakdownMs { get; set; } = new();
         public double ColdInferenceMs { get; set; }
         public double[] WarmInferenceMs { get; set; } = [];
         public long PeakProcessRssBytes { get; set; }
+    }
+
+    private sealed class InitializationBreakdown
+    {
+        public double CatalogRegistration { get; set; }
+        public double DeviceSelection { get; set; }
+        public double SessionOptions { get; set; }
+        public double SessionCreation { get; set; }
+        public double MetadataValidation { get; set; }
+        public double InputBindingExcluded { get; set; }
     }
 
     private sealed class DeviceIdentity

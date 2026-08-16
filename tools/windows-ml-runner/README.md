@@ -35,3 +35,10 @@ the frozen five warmup runs before recording 30 samples on the same
 `initializationMs` (ending before cold inference), `coldInferenceMs`, and
 `peakProcessRssBytes`. The default is zero, so normal adapter requests retain
 one smoke/inference execution without performance warmups or samples.
+
+Performance requests may set `"collectExecutionProfile": false` to exclude ORT
+execution tracing from the production initialization measurement. Functional
+acceptance still uses the default profiled run to prove the actual provider;
+the unprofiled performance run continues to report the selected and per-input
+Windows ML EP devices. Input tensor binding is reported separately because the
+frozen Web and Legacy initialization boundaries both end before input binding.
