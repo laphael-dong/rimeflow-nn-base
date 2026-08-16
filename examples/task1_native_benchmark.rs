@@ -102,7 +102,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let input_bytes = fs::read(&input_path)?;
     let input: &[f32] = bytemuck::try_cast_slice(&input_bytes)
         .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error.to_string()))?;
-    if input.len() != 1 * 3 * 640 * 640 || input.iter().any(|value| !value.is_finite()) {
+    if input.len() != 3 * 640 * 640 || input.iter().any(|value| !value.is_finite()) {
         return Err("canonical input must contain 1x3x640x640 finite float32 values".into());
     }
 

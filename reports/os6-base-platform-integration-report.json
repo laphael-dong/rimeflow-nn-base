@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "deliveryTask": "OS6-BASE-PLATFORM-INTEGRATION-01",
+  "mode": "formal-acceptance",
+  "recordedAt": "2026-08-16T04:26:12Z",
+  "result": "passed",
+  "identity": {
+    "acceptedBaseParent": {
+      "commit": "83d330e1717b844d71f9fe2af314e96afa768978",
+      "tree": "5faafe63537a69beabe1f4c851f946c69133ffeb"
+    },
+    "acceptedLinux": {
+      "commit": "dc4fd83b26db91d17c4e5aa0fcf790da42636873",
+      "tree": "bc12303ca5f379b42c2d047c8fa2210c1a4723ce"
+    },
+    "acceptedWindowsFunctional": {
+      "sourceCommit": "e6b40bc9aa23d92bb4f295c231a7718ad5152c38",
+      "sourceTree": "5869e036b57ba71c58745b260929e256ecf85a7b",
+      "integrationCherryPick": "13c2ea4d56b39285868f676b7d057448bd60ee2d"
+    },
+    "acceptedWindowsPerformance": {
+      "sourceCommit": "eb209648a38b01d4cbc0303ccc24a1493122db18",
+      "sourceTree": "9ea374ca2a0ba6f77a5b3fcf8ac8fec466c88dd3",
+      "integrationCherryPick": "1902558ff8623101818a5dfb7b3732f55d5d640e"
+    },
+    "finalCandidate": {
+      "commit": "the Signed-off-by commit containing this report",
+      "tree": "resolve with git rev-parse HEAD^{tree}",
+      "reportBlob": "resolve with git rev-parse HEAD:reports/os6-base-platform-integration-report.json"
+    },
+    "validation": {
+      "commit": "563a7388d72be8c11209446a70e816df6d45525a",
+      "tree": "c54e48296665ffe08a0c101dd515b3e9713478f2"
+    },
+    "frozenInputs": {
+      "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+      "inputSha256Float32Le": "7cde7a22823666ede34cae26a348a563dbd7e64df800406b433733baabee24fe",
+      "webGoldenSha256Float32Le": "37cc9955c15f1c4283fd2ed0d8aa360905357fd03a386db3a526d94dd0cca212",
+      "nativeCpuGoldenSha256Float32Le": "c84b2985786685fe134fe4dbb7c091ecb72d5be7bdbd442aac832b0995013f27",
+      "thresholdContractSha256": "ff0399fb9d04e58cc22cf715782eb02b0f56353ec6fd711a890bede84f1c0c3d"
+    }
+  },
+  "acceptedReports": {
+    "linux": {
+      "path": "reports/os6-base-linux-x64-ort-performance-repair-report.json",
+      "sha256": "ad376a50c930bc5f4da846b9105b2334e5ad2d2cd05517ff3315a6b9ac6cba43"
+    },
+    "windowsFunctional": {
+      "path": "reports/os6-windows-x64-windowsml-repair-report.json",
+      "sha256": "3c014d675a0d6cc7356c948af042b2f0e9f86b71331220b70ece913aaf4d8b9c"
+    },
+    "windowsPerformance": {
+      "path": "reports/os6-windows-x64-windowsml-performance-repair-02.json",
+      "sha256": "21385b1f15f7358106df010311c8fd4ee60ddfd7a4656e18f8acdf5a3e02aad0"
+    }
+  },
+  "integration": {
+    "conflicts": 0,
+    "thresholdChanges": 0,
+    "behaviorChanges": 0,
+    "integrationCorrection": "Removed a clippy identity operation in the Windows performance example without changing its 1x3x640x640 validation.",
+    "dco": "all source commits and the containing integration commit carry Signed-off-by trailers"
+  },
+  "localVerification": {
+    "cargoFmtCheck": "passed",
+    "gitDiffCheck": "passed",
+    "cargoClippyAllTargetsNativeWindowsmlDenyWarnings": "passed",
+    "cargoTestAllTargetsWindowsml": "passed",
+    "focusedSuites": {
+      "windowsMlAdapter": 6,
+      "platformFactory": 5,
+      "runtimeContract": 6,
+      "manifestContract": 5,
+      "liteRtV2": 5,
+      "mindSporeLite": 6
+    },
+    "manifestFixtureValidator": "passed-5-fixtures"
+  },
+  "linuxX64OrtCpu": {
+    "runner": {
+      "ssh": "raffael@192.168.1.28:22",
+      "hostname": "rimecut-ci-u28",
+      "os": "Ubuntu 24.04.3 LTS",
+      "architecture": "x86_64",
+      "taskRoot": "/tmp/rimeflow-os6-base-platform-integration-02"
+    },
+    "resourceBundle": {
+      "archiveSha256": "3bc548ad3d86d6b328d4f26e7c1cc4fada9fd6b3718eb855b11e0afaeaeeaa15",
+      "manifestSha256": "6f411aedec1550f3306459468dc3b4a0a4bc2558f5233f5f25404f1ac50e9c26",
+      "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+      "manifestSchemaAndSemantics": "passed",
+      "artifactDigestVerifiedBeforeLoad": true,
+      "loaded": true
+    },
+    "functional": {
+      "realOrtCpuLoadRun": "passed",
+      "outputElements": 705600,
+      "finiteOutputElements": 705600,
+      "goldenSha256": "c84b2985786685fe134fe4dbb7c091ecb72d5be7bdbd442aac832b0995013f27",
+      "goldenMismatch": false,
+      "corruptInitialization": {
+        "outcome": "UseWebFallback",
+        "failureCode": "artifact_integrity_or_target_mismatch",
+        "windowsOrOrtRuntimeReached": false
+      },
+      "postReadyInferenceFailure": {
+        "backendSwitches": 0,
+        "sessionRebuilds": 0,
+        "buildAttempts": 1,
+        "publishedInstances": 1,
+        "webFallbacks": 0
+      },
+      "realModelFocusedTests": "passed-2"
+    },
+    "performance": {
+      "profile": "dev",
+      "warmupRuns": 5,
+      "sampleRuns": 30,
+      "candidate": {
+        "initializationMs": 289.298721,
+        "coldInferenceMs": 33.641505,
+        "warmInferenceP95Ms": 27.213086,
+        "peakProcessRssBytes": 125554688
+      },
+      "sameHostLegacy": {
+        "coldInferenceMs": 30.68003,
+        "warmInferenceP95Ms": 26.533506,
+        "peakProcessRssBytes": 118677504
+      },
+      "sameHostWeb": {
+        "initializationMs": 176.7786629796028,
+        "runtime": "onnxruntime-web@1.27.0",
+        "provider": "wasm",
+        "threads": 1
+      },
+      "ratios": {
+        "initializationToWeb": 1.636502483523026,
+        "coldToLegacy": 1.096527773929817,
+        "warmP95ToLegacy": 1.0256121448857909,
+        "rssToLegacy": 1.057948505556706
+      },
+      "thresholds": {
+        "initializationToWebMax": 2.0,
+        "coldToLegacyMax": 1.25,
+        "warmP95ToLegacyMax": 1.15,
+        "rssToLegacyMax": 1.25,
+        "allAbsoluteAndRelativeGates": "passed"
+      }
+    },
+    "evidence": {
+      "candidate": {
+        "path": "/tmp/rimeflow-os6-base-platform-integration-02/candidate-debug.json",
+        "sha256": "0af37c2a5cee7e70b6a974dd2580fe1626a381b760e24d8c2b2591b2f362f81f"
+      },
+      "legacy": {
+        "path": "/tmp/rimeflow-os6-base-platform-integration-02/legacy-debug.json",
+        "sha256": "6d5d0366a8a64ed8b85423be3bf9f0a783880d39029740737723acea4a85bf9a"
+      }
+    }
+  },
+  "windowsX64WindowsMl": {
+    "runner": {
+      "ssh": "ci@192.168.1.18:22",
+      "computer": "PC-2025072306",
+      "os": "Microsoft Windows 11 Pro 10.0.26200",
+      "architecture": "x64",
+      "taskRoot": "C:\\Users\\ci\\AppData\\Local\\Temp\\rimeflow-os6-base-platform-integration-02"
+    },
+    "packageGraph": {
+      "Microsoft.WindowsAppSDK.ML": "2.1.74",
+      "Microsoft.Windows.AI.MachineLearning": "2.1.74",
+      "lockedRestore": "passed",
+      "lockedPublishWinX64": "passed"
+    },
+    "functional": {
+      "state": "runtime-verified",
+      "sourcePackage": "Microsoft.WindowsAppSDK.ML/2.1.74",
+      "runtimePackage": "Microsoft.Windows.AI.MachineLearning/2.1.74",
+      "ortVersion": "1.24.6",
+      "provider": "DmlExecutionProvider",
+      "device": "GPU",
+      "executionProfileCollected": true,
+      "loadRunOutputPublished": true,
+      "goldenElements": 705600,
+      "goldenMismatchCount": 0,
+      "goldenMaxAbsoluteDifference": 0.001373291015625,
+      "candidateOutputSha256": "791832132f6db28f24c0771306f1f7a74e63c5e4815b9b0b3d8d286cf8341e38",
+      "corruptIdentity": {
+        "exit": 1,
+        "failureStage": "model-identity",
+        "windowsMlApiCalled": false,
+        "classification": "UseWebFallback during initialization"
+      },
+      "postReadyInferenceFailure": {
+        "backendSwitches": 0,
+        "sessionRebuilds": 0,
+        "evidence": "focused lifecycle/runtime suites plus the accepted Windows adapter contract"
+      },
+      "resourceBundle": {
+        "manifestSha256": "7fd8ca52119df631066313d14c98653eee76fd6153cce1755f034d55c0d0dea9",
+        "modelSha256": "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad",
+        "archiveSha256": "2e50c347bd68e0ce2f6f5103f3de7896d404946fb2d21eb8d6d0be5073591d61",
+        "loaded": true
+      },
+      "focusedWindowsTests": "passed-24"
+    },
+    "performance": {
+      "warmupRuns": 5,
+      "sampleRuns": 30,
+      "candidate": {
+        "initializationMs": 258.895,
+        "coldInferenceMs": 28.0959,
+        "warmInferenceP95Ms": 14.3994,
+        "peakProcessRssBytes": 205914112
+      },
+      "sameHostFrozenComparators": {
+        "webInitializationMs": 157.4929,
+        "legacyColdInferenceMs": 35.3709,
+        "legacyWarmInferenceP95Ms": 26.8677,
+        "legacyPeakProcessRssBytes": 182308864
+      },
+      "ratios": {
+        "initializationToWeb": 1.6438518815768837,
+        "coldToLegacy": 0.7943224515067471,
+        "warmP95ToLegacy": 0.5359372034078094,
+        "rssToLegacy": 1.129479431126289
+      },
+      "thresholds": {
+        "initializationToWebMax": 2.0,
+        "coldToLegacyMax": 1.25,
+        "warmP95ToLegacyMax": 1.15,
+        "rssToLegacyMax": 1.25,
+        "allAbsoluteAndRelativeGates": "passed"
+      }
+    },
+    "evidence": {
+      "functionalReport": {
+        "path": "C:\\Users\\ci\\AppData\\Local\\Temp\\rimeflow-os6-base-platform-integration-02\\reports\\infer-functional-perf02.json",
+        "sha256": "c49db0337997438428f462a3f4fa52326237c3d22a287799234f987dffb715e6"
+      },
+      "performanceReport": {
+        "path": "C:\\Users\\ci\\AppData\\Local\\Temp\\rimeflow-os6-base-platform-integration-02\\reports\\infer-performance-perf02-final.json",
+        "sha256": "207f2a8ef4da85324e1fc9361e7211be6509bfed44abc02d99ffbc8f3c3353d3"
+      },
+      "corruptIdentityReport": {
+        "path": "C:\\Users\\ci\\AppData\\Local\\Temp\\rimeflow-os6-base-platform-integration-02\\reports\\corrupt-identity.json",
+        "sha256": "aeb2829e29c228d77d687c9171395917a28fefac84faef919eb1ed3343c394c2"
+      },
+      "runnerDllSha256": "2f1e671e73c859d9b384074b14112ffbf87dd2c6fc2edaea138d3b511735e913"
+    }
+  },
+  "platformMatrix": [
+    {
+      "target": "linux/x86_64",
+      "adapter": "ORT CPU",
+      "status": "runtime-and-performance-verified"
+    },
+    {
+      "target": "windows/x86_64",
+      "adapter": "Windows ML",
+      "status": "runtime-and-performance-verified"
+    },
+    {
+      "target": "macos/arm64",
+      "adapter": "Core ML",
+      "status": "blocked",
+      "reason": "No physical Apple hardware runner is authorized; VM evidence is not a physical-hardware performance claim."
+    },
+    {
+      "target": "ios/arm64",
+      "adapter": "Core ML",
+      "status": "blocked",
+      "reason": "No real iOS runner or tracked locked .mlpackage is available."
+    },
+    {
+      "target": "android/arm64-v8a",
+      "adapter": "LiteRT v2",
+      "status": "build-verified",
+      "reason": "Contract and adapter tests pass; no authorized Android device runner, complete NDK r27c, or target OpenSSL metadata is available for runtime proof."
+    },
+    {
+      "target": "windows/arm64",
+      "adapter": "Windows ML",
+      "status": "blocked",
+      "reason": "No real Windows ARM64 runner evidence exists."
+    },
+    {
+      "target": "linux/arm64",
+      "adapter": "ORT CPU",
+      "status": "blocked",
+      "reason": "No authorized Linux ARM64 runner or frozen ARM64 runtime artifact exists."
+    },
+    {
+      "target": "linux/x86_64",
+      "adapter": "ORT accelerated EP",
+      "status": "blocked",
+      "reason": "Only the CPU execution provider was frozen and verified; no accelerated EP artifact or comparator contract is authorized."
+    },
+    {
+      "target": "harmonyos/arm64-v8a",
+      "adapter": "MindSpore Lite",
+      "status": "build-verified",
+      "reason": "Manifest, lifecycle, and fake-runtime conformance tests pass; no HarmonyOS SDK/runtime artifact or authorized device runner is available."
+    }
+  ],
+  "publication": {
+    "remote": "origin",
+    "repository": "https://github.com/laphael-dong/rimeflow-nn-base.git",
+    "ref": "refs/heads/laphael-dong/os6-base-platform-adapters-integration",
+    "push": "performed only after all substantive gates passed",
+    "readback": "recorded in formal-acceptance worker feedback"
+  },
+  "exclusions": {
+    "openSpecEdited": false,
+    "validationEdited": false,
+    "rimeCutEdited": false,
+    "ciChanged": false,
+    "dockerUsed": false,
+    "thresholdWaiver": false,
+    "mergePerformed": false,
+    "releasePerformed": false,
+    "macosPhysicalPerformanceClaim": false,
+    "nonTargetSupportClaim": false
+  }
+}
