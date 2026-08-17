@@ -54,18 +54,33 @@
     },
     {
       "target": "android-arm64-device",
-      "runnerId": null,
-      "owner": null,
+      "runnerId": "RFCX90C568W",
+      "owner": "RFB-ANDROID-DEVICE-ACCEPT-01 accepted device owner",
       "requiredOwnerRole": "RimeCut Android 设备/CI 管理员",
       "osArchitecture": "Android API 26+ / arm64-v8a 真机",
-      "deviceModel": null,
+      "deviceModel": "Samsung SM-S9210",
       "sdkRuntime": "LiteRT v2 2.1.6 / Android NDK r27c",
-      "accessMethod": "adb（当前 adb devices 为空）",
+      "accessMethod": "adb（accepted read-only evidence; no new invocation in this closure task）",
       "signingCapability": "unverified",
       "ciAvailability": false,
       "requiredCiJob": "litert-android-arm64-device-conformance",
       "state": "blocked",
-      "unblockCondition": "指派具体 owner、设备型号/序列号与 runner ID，授权 CI 使用 USB/网络 adb 和测试签名；提供获授权同源 TFLite/CompiledModel，在真机记录 delegate、Load/Run、安装与包内字节。"
+      "unblockCondition": "future approved same-device comparative performance result (or a separate performance approval that explicitly authorizes recommendation/support) must set performancePassed=true; current Validation exception is expired at report completion and cannot promote supported/final close.",
+      "observedEvidence": {
+        "deviceEvidenceRoot": ".device-evidence/rfb-android-device-accept-02",
+        "deviceManifestSha256": "bc7ab86c8afc89b019ed3831fdad0a23ec9b2d15d8ec2c9adba6d765a5b322ff",
+        "validationReportSha256": "b9aa52ce8e046f67cca266b0ad90763f83cec3a692b81d0318ca0a94b460098c",
+        "validationCommit": "eef2fabf33b954fd75f7772db4c2175fda03dde7",
+        "bundleId": "sha256-0c309e3f63aa69920a1ac55a42b0a5211771671bf7df0fa180205550ce535866",
+        "bundleManifestSha256": "62fa77644a12d42391a20a80523fdf81825cdd31737edebbd0d5f1c012c3d9b5",
+        "runnerSha256": "627206702b9ed1260b3f3d7b0bb24c543c7fa4d4f8978ae587a10f173f8d8033",
+        "runtimeSha256": "35e34acfb76722868b0fe6bccab9d4432ac3f9fe95e7f29d2d6c030b66052369",
+        "tfliteSha256": "794e17d9a2795084787e5125bcfada6cb501c6afc4f708e7e58e96fd8dc84be1",
+        "performanceOutcome": "exception-recorded-no-comparative-pass",
+        "performancePassed": false,
+        "supported": false,
+        "finalPlatformClose": false
+      }
     },
     {
       "target": "windows-x86_64",

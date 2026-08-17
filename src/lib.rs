@@ -40,6 +40,7 @@
 
 pub mod preprocess;
 
+pub mod android_runner;
 pub mod backend;
 pub mod error;
 pub mod lifecycle;
@@ -63,6 +64,11 @@ pub mod build_helper;
 
 pub use backend::coreml_package_tree_sha256;
 
+pub use android_runner::{
+    AndroidBundleManifest, AndroidRunnerFile, AndroidRunnerFixture, AndroidRunnerReport,
+    AndroidRunnerReportState, ANDROID_RUNNER_BUNDLE_SCHEMA_VERSION,
+    ANDROID_RUNNER_REPORT_SCHEMA_VERSION,
+};
 pub use backend::litert_v2::{
     quantize_f32, LiteRtCompiledRuntime, LiteRtIoPlan, LiteRtRuntimeError, LiteRtTensorBinding,
     LiteRtTensorDescriptor, LiteRtV2Availability, LiteRtV2Backend, LiteRtV2BootstrapError,

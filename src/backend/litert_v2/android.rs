@@ -6,6 +6,7 @@ use std::sync::mpsc::{self, Receiver, Sender, SyncSender};
 use std::thread::{self, JoinHandle};
 use std::time::Instant;
 
+use litert::model::Tensor;
 use litert::{
     CompiledModel, ElementType, EnvironmentBuilder, LiteRtHwAccelerator, Model, Options,
     TensorBuffer,
@@ -365,9 +366,6 @@ fn discover_io(
     let signature = model.signature(0).map_err(|error| {
         LiteRtV2BootstrapError::io_discovery(format!("LiteRT signature discovery failed: {error}"))
     })?;
-    let subgraph = signature.subgraph().map_err(|error| {
-        LiteRtV2BootstrapError::io_discovery(format!("LiteRT subgraph discovery failed: {error}"))
-    })?;
     let input_names = signature
         .input_names()
         .map_err(|error| LiteRtV2BootstrapError::io_discovery(error.to_string()))?
@@ -384,41 +382,72 @@ fn discover_io(
                 .map_err(|error| LiteRtV2BootstrapError::io_discovery(error.to_string()))
         })
         .collect::<Result<Vec<_>, _>>()?;
+    validate_signature_bindings(&input_names, input_specs, "input")?;
+    validate_signature_bindings(&output_names, output_specs, "output")?;
 
     let inputs = input_names
         .iter()
         .enumerate()
-        .map(|(index, name)| {
-            let tensor = subgraph.input_tensor_by_name(name).map_err(|error| {
+        .map(|(index, binding_name)| {
+            let tensor = signature.input_tensor(index).map_err(|error| {
                 LiteRtV2BootstrapError::io_discovery(format!(
-                    "LiteRT input {name} discovery failed: {error}"
+                    "LiteRT input binding {binding_name} at signature index {index} discovery failed: {error}"
                 ))
             })?;
-            descriptor(index, name, tensor.element_type(), input_specs)
+            descriptor(index, binding_name, &tensor, input_specs, "input")
         })
         .collect::<Result<Vec<_>, _>>()?;
     let outputs = output_names
         .iter()
         .enumerate()
-        .map(|(index, name)| {
-            let tensor = subgraph.output_tensor_by_name(name).map_err(|error| {
+        .map(|(index, binding_name)| {
+            let tensor = signature.output_tensor(index).map_err(|error| {
                 LiteRtV2BootstrapError::io_discovery(format!(
-                    "LiteRT output {name} discovery failed: {error}"
+                    "LiteRT output binding {binding_name} at signature index {index} discovery failed: {error}"
                 ))
             })?;
-            descriptor(index, name, tensor.element_type(), output_specs)
+            descriptor(index, binding_name, &tensor, output_specs, "output")
         })
         .collect::<Result<Vec<_>, _>>()?;
     Ok((inputs, outputs))
 }
 
+fn validate_signature_bindings(
+    binding_names: &[String],
+    specs: &[TensorSpec],
+    kind: &str,
+) -> Result<(), LiteRtV2BootstrapError> {
+    if binding_names.len() != specs.len() {
+        return Err(LiteRtV2BootstrapError::io_discovery(format!(
+            "LiteRT signature exposes {} {kind}(s), manifest declares {}",
+            binding_names.len(),
+            specs.len()
+        )));
+    }
+    let mut unique_names = std::collections::HashSet::new();
+    if binding_names
+        .iter()
+        .any(|name| name.is_empty() || !unique_names.insert(name.as_str()))
+    {
+        return Err(LiteRtV2BootstrapError::io_discovery(format!(
+            "LiteRT signature exposes an empty or duplicate {kind} binding name"
+        )));
+    }
+    Ok(())
+}
+
 fn descriptor(
     index: usize,
-    name: &str,
-    element_type: Result<ElementType, litert::Error>,
+    binding_name: &str,
+    tensor: &Tensor<'_>,
     specs: &[TensorSpec],
+    kind: &str,
 ) -> Result<LiteRtTensorDescriptor, LiteRtV2BootstrapError> {
-    let dtype = match element_type
+    let name = tensor
+        .name()
+        .map_err(|error| LiteRtV2BootstrapError::io_discovery(error.to_string()))?;
+    let dtype = match tensor
+        .element_type()
         .map_err(|error| LiteRtV2BootstrapError::io_discovery(error.to_string()))?
     {
         ElementType::Float32 => DType::F32,
@@ -430,32 +459,65 @@ fn descriptor(
             )))
         }
     };
-    let spec = specs
+    let ranked_type = tensor.ranked_tensor_type().map_err(|error| {
+        LiteRtV2BootstrapError::io_discovery(format!(
+            "LiteRT {kind} tensor {name} shape discovery failed: {error}"
+        ))
+    })?;
+    let rank = ranked_type.layout.rank() as usize;
+    if rank > ranked_type.layout.dimensions.len() {
+        return Err(LiteRtV2BootstrapError::io_discovery(format!(
+            "LiteRT {kind} tensor {name} rank {rank} exceeds the binding layout capacity"
+        )));
+    }
+    let shape = ranked_type.layout.dimensions[..rank]
         .iter()
-        .find(|spec| {
-            spec.name
-                .as_deref()
-                .is_some_and(|candidate| candidate == name)
-                || spec.index == Some(index)
+        .map(|dimension| {
+            usize::try_from(*dimension).map_err(|_| {
+                LiteRtV2BootstrapError::io_discovery(format!(
+                    "LiteRT {kind} tensor {name} has dynamic or invalid shape"
+                ))
+            })
         })
+        .collect::<Result<Vec<_>, _>>()?;
+    let mut candidates = specs.iter().filter(|spec| {
+        spec.name
+            .as_deref()
+            .is_none_or(|candidate| candidate == name)
+            && spec.index.is_none_or(|candidate| candidate == index)
+    });
+    let spec = candidates
+        .next()
         .ok_or_else(|| {
             LiteRtV2BootstrapError::io_discovery(format!(
-                "LiteRT tensor {name} has no logical manifest role"
+                "LiteRT {kind} binding {binding_name} resolves to tensor {name} at index {index}, which has no logical manifest role"
             ))
         })?;
-    let shape = spec
+    if candidates.next().is_some() {
+        return Err(LiteRtV2BootstrapError::io_discovery(format!(
+            "LiteRT {kind} binding {binding_name} resolves ambiguously to tensor {name} at index {index}"
+        )));
+    }
+    let expected_shape = spec
         .shape
         .iter()
         .map(|dimension| {
             usize::try_from(*dimension).map_err(|_| {
                 LiteRtV2BootstrapError::io_discovery(format!(
-                    "LiteRT tensor {name} has an invalid manifest shape"
+                    "LiteRT {kind} tensor {name} has an invalid manifest shape"
                 ))
             })
         })
         .collect::<Result<Vec<_>, _>>()?;
+    if shape != expected_shape || dtype != spec.dtype {
+        return Err(LiteRtV2BootstrapError::io_discovery(format!(
+            "LiteRT {kind} binding {binding_name} resolves to tensor {name} with {shape:?}/{dtype:?}, manifest requires {expected_shape:?}/{:?}",
+            spec.dtype
+        )));
+    }
     Ok(LiteRtTensorDescriptor {
         name: name.to_owned(),
+        signature_binding_name: Some(binding_name.to_owned()),
         index,
         shape,
         dtype,

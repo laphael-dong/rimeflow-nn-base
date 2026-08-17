@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rimeflow.dev/schemas/android-base-closure.schema.json",
+  "title": "Rimeflow Android LiteRT Base closure",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "reportId", "status", "finalPlatformClose", "supported", "performancePassed", "remainingBlocker", "identities", "device", "ioContract", "gates"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "reportId": { "const": "RFB-ANDROID-BASE-CLOSE-01" },
+    "status": { "const": "device-golden-verified-pending-comparative-performance" },
+    "finalPlatformClose": { "const": false },
+    "supported": { "const": false },
+    "performancePassed": { "const": false },
+    "remainingBlocker": { "$ref": "#/$defs/blocker" },
+    "identities": { "$ref": "#/$defs/identities" },
+    "device": { "$ref": "#/$defs/device" },
+    "ioContract": { "$ref": "#/$defs/ioContract" },
+    "gates": { "$ref": "#/$defs/gates" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome", "samePhoneBaselineAvailable", "exceptionExpiry", "requiredNextGate", "notPerformanceApproval", "notSupportedStatus"],
+      "properties": {
+        "outcome": { "const": "exception-recorded-no-comparative-pass" },
+        "samePhoneBaselineAvailable": { "const": false },
+        "exceptionExpiry": { "const": "independent Validation report completion" },
+        "requiredNextGate": { "type": "string", "minLength": 1 },
+        "notPerformanceApproval": { "const": true },
+        "notSupportedStatus": { "const": true }
+      }
+    },
+    "identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseCommit", "runnerCommit", "validationCommit", "validationCandidateCommit", "validationReportSha256", "deviceManifestSha256", "executionSummarySha256", "bundleId", "bundleManifestSha256", "runnerSha256", "runtimeSha256", "tfliteSha256", "generatedModelManifestSha256", "historicalArtifactManifestSha256", "deviceEvidenceRoot", "validationReportPath", "deviceManifestPath", "executionSummaryPath"],
+      "properties": {
+        "baseCommit": { "$ref": "#/$defs/commit" },
+        "runnerCommit": { "$ref": "#/$defs/commit" },
+        "validationCommit": { "$ref": "#/$defs/commit" },
+        "validationCandidateCommit": { "$ref": "#/$defs/commit" },
+        "validationReportSha256": { "$ref": "#/$defs/sha256" },
+        "deviceManifestSha256": { "$ref": "#/$defs/sha256" },
+        "executionSummarySha256": { "$ref": "#/$defs/sha256" },
+        "bundleId": { "type": "string", "pattern": "^sha256-[0-9a-f]{64}$" },
+        "bundleManifestSha256": { "$ref": "#/$defs/sha256" },
+        "runnerSha256": { "$ref": "#/$defs/sha256" },
+        "runtimeSha256": { "$ref": "#/$defs/sha256" },
+        "tfliteSha256": { "$ref": "#/$defs/sha256" },
+        "generatedModelManifestSha256": { "$ref": "#/$defs/sha256" },
+        "historicalArtifactManifestSha256": { "$ref": "#/$defs/sha256" },
+        "deviceEvidenceRoot": { "type": "string", "minLength": 1 },
+        "validationReportPath": { "type": "string", "minLength": 1 },
+        "deviceManifestPath": { "type": "string", "minLength": 1 },
+        "executionSummaryPath": { "type": "string", "minLength": 1 }
+      }
+    },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["serial", "manufacturer", "model", "android", "apiLevel", "abi", "fingerprint"],
+      "properties": {
+        "serial": { "const": "RFCX90C568W" },
+        "manufacturer": { "const": "samsung" },
+        "model": { "const": "SM-S9210" },
+        "android": { "const": "16" },
+        "apiLevel": { "const": "36" },
+        "abi": { "const": "arm64-v8a" },
+        "fingerprint": { "type": "string", "minLength": 1 }
+      }
+    },
+    "tensor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "signatureBindingName", "runtimeName", "runtimeIndex", "shape", "dtype", "layout"],
+      "properties": {
+        "role": { "type": "string", "minLength": 1 },
+        "signatureBindingName": { "type": "string", "minLength": 1 },
+        "runtimeName": { "type": "string", "minLength": 1 },
+        "runtimeIndex": { "const": 0 },
+        "shape": { "type": "array", "minItems": 1, "items": { "type": "integer", "minimum": 1 } },
+        "dtype": { "const": "f32" },
+        "layout": { "const": "NCHW" }
+      }
+    },
+    "ioContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "signatureBindingNamesSeparateFromRuntimeNames", "rolesShapesDtypesLayoutsVerified", "finiteOutputVerified", "input", "output"],
+      "properties": {
+        "status": { "const": "matched" },
+        "signatureBindingNamesSeparateFromRuntimeNames": { "const": true },
+        "rolesShapesDtypesLayoutsVerified": { "const": true },
+        "finiteOutputVerified": { "const": true },
+        "input": { "$ref": "#/$defs/tensor" },
+        "output": { "$ref": "#/$defs/tensor" }
+      }
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manifestParity", "ioContract", "initialization", "smokeInference", "goldenComparison", "faults", "packageLoad", "performance"],
+      "properties": {
+        "manifestParity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "actualFileCount", "declaredFileCount", "duplicateEntryCount", "everyByteCountMatched", "everySha256Matched", "extraFileCount", "missingFileCount", "selfEntryCount"],
+          "properties": {
+            "status": { "const": "passed" },
+            "actualFileCount": { "const": 164 },
+            "declaredFileCount": { "const": 164 },
+            "duplicateEntryCount": { "const": 0 },
+            "everyByteCountMatched": { "const": true },
+            "everySha256Matched": { "const": true },
+            "extraFileCount": { "const": 0 },
+            "missingFileCount": { "const": 0 },
+            "selfEntryCount": { "const": 0 }
+          }
+        },
+        "ioContract": { "$ref": "#/$defs/ioGate" },
+        "initialization": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "watchdogExitCode", "timedOut", "initializationMs", "resolvedInitializationMs", "deadlineMs"],
+          "properties": {
+            "status": { "const": "passed" },
+            "watchdogExitCode": { "const": 0 },
+            "timedOut": { "const": false },
+            "initializationMs": { "const": 233 },
+            "resolvedInitializationMs": { "const": 202 },
+            "deadlineMs": { "const": 30000 }
+          }
+        },
+        "smokeInference": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "selectionCode", "invocationCount", "outputFinite"],
+          "properties": {
+            "status": { "const": "passed" },
+            "selectionCode": { "const": "litert_v2_cpu_selected" },
+            "invocationCount": { "const": 1 },
+            "outputFinite": { "const": true }
+          }
+        },
+        "goldenComparison": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "fixtureCount", "runsPerFixture", "outputCount", "deterministic", "rawMismatchCount", "classMismatchCount", "anchorMismatchCount", "countMismatchCount", "validationReportSha256"],
+          "properties": {
+            "status": { "const": "passed" },
+            "fixtureCount": { "const": 5 },
+            "runsPerFixture": { "const": 2 },
+            "outputCount": { "const": 10 },
+            "deterministic": { "const": true },
+            "rawMismatchCount": { "const": 0 },
+            "classMismatchCount": { "const": 0 },
+            "anchorMismatchCount": { "const": 0 },
+            "countMismatchCount": { "const": 0 },
+            "validationReportSha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "faults": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "initialization", "postReady", "derivedInputsNeverPromote", "acceptedBytesUnchanged"],
+          "properties": {
+            "status": { "const": "passed" },
+            "initialization": { "$ref": "#/$defs/initFault" },
+            "postReady": { "$ref": "#/$defs/postFault" },
+            "derivedInputsNeverPromote": { "const": true },
+            "acceptedBytesUnchanged": { "const": true }
+          }
+        },
+        "packageLoad": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "accelerator", "loadedLibraryCount", "loadedRuntimeSha256", "runtimeShaMatches"],
+          "properties": {
+            "status": { "const": "passed" },
+            "accelerator": { "const": "CPU" },
+            "loadedLibraryCount": { "const": 50 },
+            "loadedRuntimeSha256": { "$ref": "#/$defs/sha256" },
+            "runtimeShaMatches": { "const": true }
+          }
+        },
+        "performance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "outcome", "performancePassed", "samePhoneBaselineAvailable", "absoluteMetrics", "exception"],
+          "properties": {
+            "status": { "const": "blocked" },
+            "outcome": { "const": "exception-recorded-no-comparative-pass" },
+            "performancePassed": { "const": false },
+            "samePhoneBaselineAvailable": { "const": false },
+            "absoluteMetrics": { "$ref": "#/$defs/metrics" },
+            "exception": { "$ref": "#/$defs/exception" }
+          }
+        }
+      }
+    },
+    "ioGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "signatureBindingNamesSeparateFromRuntimeNames", "rolesShapesDtypesLayoutsVerified", "finiteOutputVerified"],
+      "properties": {
+        "status": { "const": "passed" },
+        "signatureBindingNamesSeparateFromRuntimeNames": { "const": true },
+        "rolesShapesDtypesLayoutsVerified": { "const": true },
+        "finiteOutputVerified": { "const": true }
+      }
+    },
+    "initFault": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["failureStage", "selectionCode", "resolvedBackend", "fallbackEligible"],
+      "properties": {
+        "failureStage": { "const": "ArtifactIntegrity" },
+        "selectionCode": { "const": "adapter_or_artifact_unavailable" },
+        "resolvedBackend": { "const": false },
+        "fallbackEligible": { "const": true }
+      }
+    },
+    "postFault": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["failureStage", "selectionCode", "resolvedBackendRetained", "backendSwitchObserved", "backendRecreationObserved"],
+      "properties": {
+        "failureStage": { "const": "inference" },
+        "selectionCode": { "const": "invalid_tensor_bytes" },
+        "resolvedBackendRetained": { "const": true },
+        "backendSwitchObserved": { "const": false },
+        "backendRecreationObserved": { "const": false }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["initializationMs", "resolvedInitializationMs", "coldInferenceMs", "warmupRuns", "measuredSampleCount", "warmMinMs", "warmMeanMs", "warmMedianMs", "warmMaxMs", "peakProcessRssBytes"],
+      "properties": {
+        "initializationMs": { "const": 233 },
+        "resolvedInitializationMs": { "const": 202 },
+        "coldInferenceMs": { "const": 131.493177 },
+        "warmupRuns": { "const": 5 },
+        "measuredSampleCount": { "const": 30 },
+        "warmMinMs": { "const": 134.936667 },
+        "warmMeanMs": { "const": 151.3271631333333 },
+        "warmMedianMs": { "const": 152.133386 },
+        "warmMaxMs": { "const": 159.20000000000002 },
+        "peakProcessRssBytes": { "const": 116412416 }
+      }
+    },
+    "exception": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "approved", "deviceSerial", "expiry", "notPerformanceApproval", "notGoldenApproval", "notSupportedStatus", "reason"],
+      "properties": {
+        "kind": { "const": "non-submitter-absolute-metric" },
+        "approved": { "const": true },
+        "deviceSerial": { "const": "RFCX90C568W" },
+        "expiry": { "const": "independent Validation report completion" },
+        "notPerformanceApproval": { "const": true },
+        "notGoldenApproval": { "const": true },
+        "notSupportedStatus": { "const": true },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

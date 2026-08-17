@@ -200,8 +200,8 @@ const REPLAY_TOOLS = {
 };
 export const REPLAY_OUTPUT_TUPLES = [
   ['evidence/schemas/platform-matrix.schema.json', 4798, '3fd8927707a794618f710c50469c83ab2dac8ad82793829ccf0d4552653f92ad'],
-  ['evidence/platform/platform-matrix.json', 26058, 'f187d7b0a6828002ad37d476bce98d85c92a445fccb070980ba390e9c1c9be99'],
-  ['evidence/platform/runner-inventory.json', 7886, '74efa7db7ebcf5806984c4b2ff731e43d5e664860eb84deef41955f7f47e5524'],
+  ['evidence/platform/platform-matrix.json', 26488, '793e91a089c798303f24a3f864e5e0a570d04619099cdc7e1987c5757948fc46'],
+  ['evidence/platform/runner-inventory.json', 9098, 'bb7f88596e1292b9232871e85befa0bc008185d73e63af43d616546b62bca361'],
   ['evidence/reports/local-environment.json', 1218, 'cbbe13827e2f3ff06764c138144d3b286e6dc4ceca7f44b2f0e47348551aacce'],
   ['evidence/performance/backend-thresholds.json', 2716, 'ff0399fb9d04e58cc22cf715782eb02b0f56353ec6fd711a890bede84f1c0c3d'],
   ['evidence/performance/linux-x86_64-capture.json', 13864, 'fe68fed790455fb180dd03305f28f1c882c4a38edfb17fe6810584ac8c972058'],

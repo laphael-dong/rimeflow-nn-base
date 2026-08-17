@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "case": {
-    "id": "android-arm64-litert-v2-build-only",
+    "id": "android-arm64-litert-v2-device",
     "modelId": "rimeflow-yolov8n",
     "modelVersion": "yolov8n-litert-20260811",
     "target": {
@@ -12,72 +12,80 @@
     "artifactId": "validation-yolov8n-fp32-tflite",
     "artifactSha256": "794e17d9a2795084787e5125bcfada6cb501c6afc4f708e7e58e96fd8dc84be1",
     "manifestSha256": "f1f95bac2006cd02e364123ab9e7556cc331e6d20f49006c50fcebd15d0c4881",
-    "nativeInitializationTimeoutMs": 15000
+    "nativeInitializationTimeoutMs": 30000
   },
   "runner": {
-    "kind": "build-only",
+    "kind": "real-target",
     "target": {
       "os": "android",
       "arch": "arm64"
-    }
+    },
+    "runnerId": "RFCX90C568W"
   },
   "selection": {
-    "kind": "useWebFallback",
-    "failure": {
-      "code": "native_runtime_unavailable",
-      "stage": "runtime_load",
-      "message": "Linux verification host has no authorized Android arm64 device runner; the official target build is blocked by missing OpenSSL development metadata and NDK r27c",
+    "kind": "ready",
+    "selected": {
+      "backendKind": "lite_rt_v2",
       "platform": {
         "os": "android",
         "arch": "arm64"
       },
-      "modelVersion": "yolov8n-litert-20260811",
-      "attemptedBackend": "lite_rt_v2"
+      "artifactId": "validation-yolov8n-fp32-tflite",
+      "artifactSha256": "794e17d9a2795084787e5125bcfada6cb501c6afc4f708e7e58e96fd8dc84be1",
+      "configuredProvider": "LiteRT CompiledModel",
+      "accelerator": "CPU",
+      "executionPlan": "full",
+      "runtimeVersion": "2.1.6"
     }
   },
   "checks": [
     {
       "kind": "manifest_io",
-      "status": "build-verified",
-      "detail": "Portable tests verify logical role/name/index mapping, NHWC shape enforcement, and F32 to U8/I8 quantization; Validation commit 27582f5 records the candidate as NCHW/FP32 and is not rewritten.",
-      "evidencePath": "tests/litert_v2_adapter.rs"
+      "status": "passed",
+      "detail": "Accepted device I/O contract matched logical image/detections roles; signature bindings args_0/output_0 remain distinct from runtime tensor names serving_default_args_0/serving_default_output_0_output, with NCHW FP32 shapes [1,3,640,640] -> [1,84,8400].",
+      "evidencePath": "reports/rfb-android-base-closure-01.json#/gates/ioContract"
     },
     {
       "kind": "initialization_timeout",
-      "status": "blocked",
-      "detail": "No Android arm64 runner was available to measure or enforce the 15000 ms target boundary."
+      "status": "passed",
+      "detail": "Accepted runner watchdog completed without timeout; initialization 233 ms and resolved initialization 202 ms under the frozen 30000 ms deadline.",
+      "evidencePath": "reports/rfb-android-base-closure-01.json#/gates/initialization"
     },
     {
       "kind": "smoke_inference",
-      "status": "blocked",
-      "detail": "The CompiledModel smoke lifecycle is build-verified with a deterministic fake, but no Android device inference was executed."
+      "status": "passed",
+      "detail": "Accepted one-shot production AndroidLiteRtV2Factory -> CompiledModel -> RuntimeBackend::infer completed CPU smoke inference with finite output.",
+      "evidencePath": "reports/rfb-android-base-closure-01.json#/gates/smokeInference"
     },
     {
       "kind": "golden_output",
-      "status": "blocked",
-      "detail": "Validation host golden evidence cannot be relabeled as Android Base adapter output."
+      "status": "passed",
+      "detail": "Independent Validation report passed five-fixture comparison with two deterministic runs per fixture and zero raw/class/anchor/count mismatches; no tolerance was changed.",
+      "evidencePath": "reports/rfb-android-base-closure-01.json#/gates/goldenComparison"
     },
     {
       "kind": "fault_injection",
-      "status": "build-verified",
-      "detail": "Portable tests cover artifact, runtime, device, I/O, and smoke failure stages and preserve Web fallback diagnostics.",
-      "evidencePath": "tests/litert_v2_adapter.rs"
+      "status": "passed",
+      "detail": "Accepted device fault boundaries observed ArtifactIntegrity adapter_or_artifact_unavailable as fallback-eligible and post-ready invalid_tensor_bytes as InferenceError-style without backend switch/recreation.",
+      "evidencePath": "reports/rfb-android-base-closure-01.json#/gates/faults"
     },
     {
       "kind": "diagnostics",
-      "status": "build-verified",
-      "detail": "Resolved backend, runtime version 2.1.6, official Rust binding 0.1.3, accelerator, artifact identity, I/O plan, and smoke state are machine-readable.",
-      "evidencePath": "src/backend/litert_v2.rs"
+      "status": "passed",
+      "detail": "Device, bundle, runtime, adapter, signature binding, runtime tensor identity and CPU selection diagnostics are machine-readable and digest-bound.",
+      "evidencePath": "reports/rfb-android-base-closure-01.json#/identities"
     },
     {
       "kind": "performance",
       "status": "blocked",
-      "detail": "No Android target performance samples were collected."
+      "detail": "Absolute cold/warm/RSS metrics were collected, but Validation explicitly records exception-recorded-no-comparative-pass with performancePassed=false and samePhoneBaselineAvailable=false; a future approved same-device comparative result or separate performance approval is required.",
+      "evidencePath": "reports/rfb-android-base-closure-01.json#/gates/performance"
     },
     {
       "kind": "package_load",
-      "status": "blocked",
-      "detail": "No Android application package or device-side LiteRT shared-library load was executed. The host has NDK 30.0.14904198 rather than required r27c, and the official Cargo target check stopped in openssl-sys because OpenSSL development metadata is absent."
+      "status": "passed",
+      "detail": "Accepted CPU package-load proof observed 50 loaded libraries and libLiteRt.so SHA-256 equal to the frozen runtime digest from the accepted bundle.",
+      "evidencePath": "reports/rfb-android-base-closure-01.json#/gates/packageLoad"
     }
   ]
 }

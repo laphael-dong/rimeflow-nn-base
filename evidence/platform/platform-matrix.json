@@ -159,11 +159,11 @@
       "os": "android",
       "arch": "arm64-v8a",
       "minimumOsVersion": "API 26",
-      "deviceRunner": "Android SDK/NDK 已安装，但 adb devices 无真实设备",
+      "deviceRunner": "已观测真实目标 runner：Samsung SM-S9210 / RFCX90C568W / Android 16 API 36 / arm64-v8a",
       "officialSdkRuntime": "LiteRT v2 2.1.6 / Android NDK r27c",
-      "converter": "ai-edge-litert 2.1.6 仅提供 TFLite runtime；ONNX 到 TFLite 导出链尚未获准且缺少同源源模型",
+      "converter": "Validation 已接受外部 TFLite candidate；conversion manifest SHA-256 f1f95bac2006cd02e364123ab9e7556cc331e6d20f49006c50fcebd15d0c4881，LiteRT runtime 不承担 ONNX 转换",
       "artifactFormat": "tflite/CompiledModel",
-      "adapter": "LiteRT v2 CompiledModel adapter（后续任务，当前不存在）",
+      "adapter": "LiteRT v2 CompiledModel adapter（AndroidLiteRtV2Factory -> CompiledModel -> RuntimeBackend::infer）",
       "timeoutsMs": {
         "nativeInitialization": 30000,
         "webInitialization": 30000
@@ -171,7 +171,7 @@
       "rollbackBaseline": "base 30791ea + operator eacbcf0 + RimeCut e021e60",
       "requiredCiJob": "litert-android-arm64-device-conformance",
       "state": "blocked",
-      "evidence": "锁定 runtime 不包含 ONNX converter；缺少获准的 TFLite/SavedModel 中间产物与真实 Android 设备",
+      "evidence": "真实 runner/conformance 已观察；Base closure reports/rfb-android-base-closure-01.json 绑定 device manifest bc7ab86c8afc89b019ed3831fdad0a23ec9b2d15d8ec2c9adba6d765a5b322ff、Validation report b9aa52ce8e046f67cca266b0ad90763f83cec3a692b81d0318ca0a94b460098c 与 bundle sha256-0c309e3f63aa69920a1ac55a42b0a5211771671bf7df0fa180205550ce535866；性能比较例外使 recommendation/support 仍 blocked",
       "officialVersionEvidence": {
         "checkedOn": "2026-08-10",
         "minimumOs": {
