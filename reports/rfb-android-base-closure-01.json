@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "reportId": "RFB-ANDROID-BASE-CLOSE-01",
+  "status": "device-golden-verified-pending-comparative-performance",
+  "finalPlatformClose": false,
+  "supported": false,
+  "performancePassed": false,
+  "remainingBlocker": {
+    "outcome": "exception-recorded-no-comparative-pass",
+    "samePhoneBaselineAvailable": false,
+    "exceptionExpiry": "independent Validation report completion",
+    "requiredNextGate": "Future approved same-device comparative performance result, or separate performance approval explicitly authorizing recommendation/support; absolute metrics alone cannot promote this platform.",
+    "notPerformanceApproval": true,
+    "notSupportedStatus": true
+  },
+  "identities": {
+    "baseCommit": "52c85ec737dc4b4ab482f6c2654f914150c4dfae",
+    "runnerCommit": "52c85ec737dc4b4ab482f6c2654f914150c4dfae",
+    "validationCommit": "eef2fabf33b954fd75f7772db4c2175fda03dde7",
+    "validationCandidateCommit": "c7bca1cdc1235bbb294c0e40cdfcfacfdc95a660",
+    "validationReportSha256": "b9aa52ce8e046f67cca266b0ad90763f83cec3a692b81d0318ca0a94b460098c",
+    "deviceManifestSha256": "bc7ab86c8afc89b019ed3831fdad0a23ec9b2d15d8ec2c9adba6d765a5b322ff",
+    "executionSummarySha256": "0f45ab0fbe30d0017b6c70c5e43e04a17838d89dd947ccecbf7a0c0f8f2337db",
+    "bundleId": "sha256-0c309e3f63aa69920a1ac55a42b0a5211771671bf7df0fa180205550ce535866",
+    "bundleManifestSha256": "62fa77644a12d42391a20a80523fdf81825cdd31737edebbd0d5f1c012c3d9b5",
+    "runnerSha256": "627206702b9ed1260b3f3d7b0bb24c543c7fa4d4f8978ae587a10f173f8d8033",
+    "runtimeSha256": "35e34acfb76722868b0fe6bccab9d4432ac3f9fe95e7f29d2d6c030b66052369",
+    "tfliteSha256": "794e17d9a2795084787e5125bcfada6cb501c6afc4f708e7e58e96fd8dc84be1",
+    "generatedModelManifestSha256": "1b059b63ca70f2bb353efa718aed75b428b4361056149fdfc5012738e6ce6e9b",
+    "historicalArtifactManifestSha256": "f1f95bac2006cd02e364123ab9e7556cc331e6d20f49006c50fcebd15d0c4881",
+    "deviceEvidenceRoot": ".device-evidence/rfb-android-device-accept-02",
+    "validationReportPath": "evidence/reports/android-litert-device-validation-report.json",
+    "deviceManifestPath": ".device-evidence/rfb-android-device-accept-02/evidence-manifest.json",
+    "executionSummaryPath": ".device-evidence/rfb-android-device-accept-02/execution-summary.json"
+  },
+  "device": {
+    "serial": "RFCX90C568W",
+    "manufacturer": "samsung",
+    "model": "SM-S9210",
+    "android": "16",
+    "apiLevel": "36",
+    "abi": "arm64-v8a",
+    "fingerprint": "samsung/e1qzcx/e1q:16/BP4A.251205.006/S9210ZCU5DZDP:user/release-keys"
+  },
+  "ioContract": {
+    "status": "matched",
+    "signatureBindingNamesSeparateFromRuntimeNames": true,
+    "rolesShapesDtypesLayoutsVerified": true,
+    "finiteOutputVerified": true,
+    "input": {
+      "role": "image",
+      "signatureBindingName": "args_0",
+      "runtimeName": "serving_default_args_0",
+      "runtimeIndex": 0,
+      "shape": [1, 3, 640, 640],
+      "dtype": "f32",
+      "layout": "NCHW"
+    },
+    "output": {
+      "role": "detections",
+      "signatureBindingName": "output_0",
+      "runtimeName": "serving_default_output_0_output",
+      "runtimeIndex": 0,
+      "shape": [1, 84, 8400],
+      "dtype": "f32",
+      "layout": "NCHW"
+    }
+  },
+  "gates": {
+    "manifestParity": {
+      "status": "passed",
+      "actualFileCount": 164,
+      "declaredFileCount": 164,
+      "duplicateEntryCount": 0,
+      "everyByteCountMatched": true,
+      "everySha256Matched": true,
+      "extraFileCount": 0,
+      "missingFileCount": 0,
+      "selfEntryCount": 0
+    },
+    "ioContract": {
+      "status": "passed",
+      "signatureBindingNamesSeparateFromRuntimeNames": true,
+      "rolesShapesDtypesLayoutsVerified": true,
+      "finiteOutputVerified": true
+    },
+    "initialization": {
+      "status": "passed",
+      "watchdogExitCode": 0,
+      "timedOut": false,
+      "initializationMs": 233,
+      "resolvedInitializationMs": 202,
+      "deadlineMs": 30000
+    },
+    "smokeInference": {
+      "status": "passed",
+      "selectionCode": "litert_v2_cpu_selected",
+      "invocationCount": 1,
+      "outputFinite": true
+    },
+    "goldenComparison": {
+      "status": "passed",
+      "fixtureCount": 5,
+      "runsPerFixture": 2,
+      "outputCount": 10,
+      "deterministic": true,
+      "rawMismatchCount": 0,
+      "classMismatchCount": 0,
+      "anchorMismatchCount": 0,
+      "countMismatchCount": 0,
+      "validationReportSha256": "b9aa52ce8e046f67cca266b0ad90763f83cec3a692b81d0318ca0a94b460098c"
+    },
+    "faults": {
+      "status": "passed",
+      "initialization": {
+        "failureStage": "ArtifactIntegrity",
+        "selectionCode": "adapter_or_artifact_unavailable",
+        "resolvedBackend": false,
+        "fallbackEligible": true
+      },
+      "postReady": {
+        "failureStage": "inference",
+        "selectionCode": "invalid_tensor_bytes",
+        "resolvedBackendRetained": true,
+        "backendSwitchObserved": false,
+        "backendRecreationObserved": false
+      },
+      "derivedInputsNeverPromote": true,
+      "acceptedBytesUnchanged": true
+    },
+    "packageLoad": {
+      "status": "passed",
+      "accelerator": "CPU",
+      "loadedLibraryCount": 50,
+      "loadedRuntimeSha256": "35e34acfb76722868b0fe6bccab9d4432ac3f9fe95e7f29d2d6c030b66052369",
+      "runtimeShaMatches": true
+    },
+    "performance": {
+      "status": "blocked",
+      "outcome": "exception-recorded-no-comparative-pass",
+      "performancePassed": false,
+      "samePhoneBaselineAvailable": false,
+      "absoluteMetrics": {
+        "initializationMs": 233,
+        "resolvedInitializationMs": 202,
+        "coldInferenceMs": 131.493177,
+        "warmupRuns": 5,
+        "measuredSampleCount": 30,
+        "warmMinMs": 134.936667,
+        "warmMeanMs": 151.3271631333333,
+        "warmMedianMs": 152.133386,
+        "warmMaxMs": 159.20000000000002,
+        "peakProcessRssBytes": 116412416
+      },
+      "exception": {
+        "kind": "non-submitter-absolute-metric",
+        "approved": true,
+        "deviceSerial": "RFCX90C568W",
+        "expiry": "independent Validation report completion",
+        "notPerformanceApproval": true,
+        "notGoldenApproval": true,
+        "notSupportedStatus": true,
+        "reason": "No approved Legacy Native ORT or Web ONNX comparator was runnable meaningfully on the same authorized phone."
+      }
+    }
+  }
+}

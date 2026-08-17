@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "fixtures": [
+    {
+      "id": "single-target",
+      "kind": "golden",
+      "sourcePath": "/absolute/path/to/single-target/input.f32le",
+      "sha256": "7cde7a22823666ede34cae26a348a563dbd7e64df800406b433733baabee24fe",
+      "role": "image",
+      "shape": [1, 3, 640, 640],
+      "dtype": "f32"
+    }
+  ]
+}

@@ -40,6 +40,7 @@ native-coreml-adapter = [
 # Android LiteRT v2 CompiledModel adapter. The official binding is target-only
 # so ordinary host builds do not download or link the Android runtime SDK.
 litert-v2         = ["dep:google-ai-edge-litert"]
+android-litert-runner = ["litert-v2"]
 
 # Windows ML is delivered by the pinned Microsoft.WindowsAppSDK.ML runner in
 # tools/windows-ml-runner. The Rust adapter is intentionally std-only so it
@@ -95,6 +96,14 @@ google-ai-edge-litert = { version = "=0.1.3", optional = true }
 pollster = "0.4"
 wgpu = { version = "29", default-features = false, features = ["vulkan", "wgsl"] }
 
+[patch.crates-io]
+google-ai-edge-litert = { path = "tools/android-litert-runner/vendor/google-ai-edge-litert" }
+
 [[example]]
 name = "task1_native_benchmark"
 required-features = ["native"]
+
+[[bin]]
+name = "rimeflow-android-litert-runner"
+path = "src/bin/android_litert_runner.rs"
+required-features = ["android-litert-runner"]

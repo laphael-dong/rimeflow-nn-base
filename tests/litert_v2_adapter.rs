@@ -8,10 +8,11 @@ use rimeflow_onnx_base::backend::litert_v2::{
 };
 use rimeflow_onnx_base::manifest::{sha256_hex, ModelIdentity, Quantization, TensorGroups};
 use rimeflow_onnx_base::{
-    AdapterConformanceReport, AdapterSelection, Artifact, ArtifactFormat, ArtifactTarget,
-    BackendInitRequest, BackendKind, CapabilityStatus, DType, ExecutionPlan, InitializationStage,
-    Layout, ModelInput, ModelManifest, Platform, PlatformAdapterFactory, ResolvedBackend,
-    RuntimeBackend, TensorData, TensorSpec,
+    AdapterConformanceCheckKind, AdapterConformanceReport, AdapterConformanceStatus,
+    AdapterSelection, Artifact, ArtifactFormat, ArtifactTarget, BackendInitRequest, BackendKind,
+    CapabilityStatus, ConformanceEvidenceKind, DType, ExecutionPlan, InitializationStage, Layout,
+    ModelInput, ModelManifest, Platform, PlatformAdapterFactory, ResolvedBackend, RuntimeBackend,
+    TensorData, TensorSpec,
 };
 
 const ARTIFACT_BYTES: &[u8] = b"minimal-tflite-fixture";
@@ -80,6 +81,18 @@ fn nhwc_u8_role_mapping_quantizes_and_reuses_one_compiled_model() {
         backend.diagnostics().io_plan.inputs[0].runtime_name,
         "serving_default_image:0"
     );
+    assert_eq!(
+        backend.diagnostics().io_plan.inputs[0]
+            .signature_binding_name
+            .as_deref(),
+        Some("args_0")
+    );
+    assert_eq!(
+        backend.diagnostics().io_plan.outputs[0]
+            .signature_binding_name
+            .as_deref(),
+        Some("output_0")
+    );
     assert_eq!(backend.diagnostics().io_plan.inputs[0].layout, Layout::Nhwc);
     assert_eq!(
         backend.diagnostics().runtime_version,
@@ -115,6 +128,7 @@ fn i8_quantization_uses_manifest_scale_zero_point_and_clamps() {
     let binding = LiteRtTensorBinding {
         role: "image".to_owned(),
         runtime_name: "image".to_owned(),
+        signature_binding_name: None,
         runtime_index: 0,
         shape: vec![1, 1, 1, 5],
         layout: Layout::Nhwc,
@@ -147,6 +161,7 @@ fn artifact_io_and_smoke_failures_keep_structured_stages() {
         FakeCompiledModel {
             inputs: vec![LiteRtTensorDescriptor {
                 name: "wrong_runtime_name".to_owned(),
+                signature_binding_name: Some("args_0".to_owned()),
                 index: 0,
                 shape: vec![1, 1, 2, 3],
                 dtype: DType::U8,
@@ -184,6 +199,25 @@ fn artifact_io_and_smoke_failures_keep_structured_stages() {
     };
     assert_eq!(smoke_error.stage, InitializationStage::SmokeInference);
     assert_eq!(smoke_error.code.as_ref(), "native_smoke_failed");
+}
+
+#[test]
+fn production_binding_resolves_signature_inputs_and_outputs_by_index() {
+    let model_source =
+        include_str!("../tools/android-litert-runner/vendor/google-ai-edge-litert/src/model.rs");
+    let compiled_model_source = include_str!(
+        "../tools/android-litert-runner/vendor/google-ai-edge-litert/src/compiled_model.rs"
+    );
+    let android_adapter_source = include_str!("../src/backend/litert_v2/android.rs");
+
+    assert!(model_source.contains("LiteRtGetSignatureInputTensorByIndex"));
+    assert!(model_source.contains("LiteRtGetSignatureOutputTensorByIndex"));
+    assert!(compiled_model_source.contains("signature.input_tensor(i)?"));
+    assert!(compiled_model_source.contains("signature.output_tensor(i)?"));
+    assert!(!compiled_model_source.contains("subgraph.input_tensor_by_name"));
+    assert!(!compiled_model_source.contains("subgraph.output_tensor_by_name"));
+    assert!(!android_adapter_source.contains("input_tensor_by_name"));
+    assert!(!android_adapter_source.contains("output_tensor_by_name"));
 }
 
 #[test]
@@ -264,20 +298,28 @@ fn litert_capability_maps_artifact_runtime_device_and_smoke_fallbacks() {
 }
 
 #[test]
-fn build_only_conformance_report_is_honest_about_missing_android_runner() {
+fn device_conformance_report_preserves_the_performance_blocker() {
     let report = AdapterConformanceReport::parse_and_validate(include_str!(
         "../reports/os6-base-litert-v2-conformance.json"
     ))
     .expect("checked-in conformance report");
     assert_eq!(report.case.adapter, BackendKind::LiteRtV2);
+    assert_eq!(report.runner.kind, ConformanceEvidenceKind::RealTarget);
+    assert_eq!(report.runner.runner_id.as_deref(), Some("RFCX90C568W"));
     assert!(matches!(
         report.selection,
-        AdapterSelection::UseWebFallback { ref failure }
-            if failure.stage == InitializationStage::RuntimeLoad
+        AdapterSelection::Ready { ref selected }
+            if selected.backend_kind == BackendKind::LiteRtV2
     ));
-    assert_ne!(
-        report.overall_status(),
-        rimeflow_onnx_base::AdapterConformanceStatus::Passed
+    assert_eq!(report.overall_status(), AdapterConformanceStatus::Blocked);
+    assert_eq!(
+        report
+            .checks
+            .iter()
+            .find(|check| check.kind == AdapterConformanceCheckKind::Performance)
+            .expect("performance check")
+            .status,
+        AdapterConformanceStatus::Blocked
     );
 }
 
@@ -291,6 +333,7 @@ fn fake_runtime(
     FakeCompiledModel {
         inputs: vec![LiteRtTensorDescriptor {
             name: "serving_default_image:0".to_owned(),
+            signature_binding_name: Some("args_0".to_owned()),
             index: 0,
             shape: vec![1, 1, 2, 3],
             dtype: input_dtype,
@@ -307,6 +350,7 @@ fn fake_runtime(
 fn output_descriptor() -> LiteRtTensorDescriptor {
     LiteRtTensorDescriptor {
         name: "StatefulPartitionedCall:0".to_owned(),
+        signature_binding_name: Some("output_0".to_owned()),
         index: 0,
         shape: vec![1, 1, 1, 2],
         dtype: DType::F32,

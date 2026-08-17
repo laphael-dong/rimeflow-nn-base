@@ -20,6 +20,8 @@ pub const LITERT_RUST_BINDING_VERSION: &str = "0.1.3";
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct LiteRtTensorDescriptor {
     pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub signature_binding_name: Option<String>,
     pub index: usize,
     pub shape: Vec<usize>,
     pub dtype: DType,
@@ -30,6 +32,8 @@ pub struct LiteRtTensorDescriptor {
 pub struct LiteRtTensorBinding {
     pub role: String,
     pub runtime_name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub signature_binding_name: Option<String>,
     pub runtime_index: usize,
     pub shape: Vec<usize>,
     pub layout: Layout,
@@ -469,6 +473,7 @@ fn map_bindings(
             Ok(LiteRtTensorBinding {
                 role: role.clone(),
                 runtime_name: descriptor.name.clone(),
+                signature_binding_name: descriptor.signature_binding_name.clone(),
                 runtime_index: descriptor.index,
                 shape,
                 layout: spec.layout,

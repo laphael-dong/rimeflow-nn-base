@@ -516,13 +516,13 @@
     },
     {
       "path": "evidence/platform/platform-matrix.json",
-      "bytes": 26058,
-      "sha256": "f187d7b0a6828002ad37d476bce98d85c92a445fccb070980ba390e9c1c9be99"
+      "bytes": 26488,
+      "sha256": "793e91a089c798303f24a3f864e5e0a570d04619099cdc7e1987c5757948fc46"
     },
     {
       "path": "evidence/platform/runner-inventory.json",
-      "bytes": 7886,
-      "sha256": "74efa7db7ebcf5806984c4b2ff731e43d5e664860eb84deef41955f7f47e5524"
+      "bytes": 9098,
+      "sha256": "bb7f88596e1292b9232871e85befa0bc008185d73e63af43d616546b62bca361"
     },
     {
       "path": "evidence/reports/local-environment.json",

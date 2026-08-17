@@ -20,6 +20,23 @@ import { validatePerformanceCapture } from './performance_validation.mjs';
 const defaultRoot = resolve(import.meta.dirname, '../..');
 const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const sameJson = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+const REQUIRED_RUNNER_TARGETS = ['macos-arm64', 'macos-x86_64', 'ios-arm64-device', 'android-arm64-device', 'windows-x86_64', 'windows-arm64', 'linux-x86_64-cpu', 'linux-x86_64-accelerated', 'linux-arm64', 'harmonyos-arm64-device'];
+
+export function validateRunnerInventory(runnerInventory) {
+  if (!sameJson(runnerInventory.runners.map((runner) => runner.target), REQUIRED_RUNNER_TARGETS)) throw new Error('runner set drift');
+  for (const runner of runnerInventory.runners) {
+    if (!['blocked', 'build-verified'].includes(runner.state) || !runner.requiredOwnerRole || !runner.requiredCiJob || !runner.unblockCondition) throw new Error(`runner semantics: ${runner.target}`);
+    if (runner.state !== 'blocked') continue;
+    if (runner.target !== 'android-arm64-device') {
+      if (runner.runnerId !== null || runner.owner !== null || runner.ciAvailability !== false) throw new Error(`blocked runner identity: ${runner.target}`);
+      continue;
+    }
+    const observed = runner.observedEvidence;
+    if (runner.runnerId !== 'RFCX90C568W' || !runner.owner || runner.deviceModel !== 'Samsung SM-S9210' || runner.ciAvailability !== false ||
+        observed?.performanceOutcome !== 'exception-recorded-no-comparative-pass' || observed.performancePassed !== false ||
+        observed.supported !== false || observed.finalPlatformClose !== false) throw new Error('blocked Android runner evidence boundary');
+  }
+}
 
 export async function validateEvidence({
   root = defaultRoot,
@@ -47,12 +64,7 @@ export async function validateEvidence({
   validatePlatformMatrix(matrix, conversion.sha256);
   if (!sameJson(matrix.platforms.map((platform) => platform.id), PLATFORM_IDS)) throw new Error('platform set drift');
   const runnerInventory = await readJson(root, 'evidence/platform/runner-inventory.json');
-  const requiredRunnerTargets = ['macos-arm64', 'macos-x86_64', 'ios-arm64-device', 'android-arm64-device', 'windows-x86_64', 'windows-arm64', 'linux-x86_64-cpu', 'linux-x86_64-accelerated', 'linux-arm64', 'harmonyos-arm64-device'];
-  if (!sameJson(runnerInventory.runners.map((runner) => runner.target), requiredRunnerTargets)) throw new Error('runner set drift');
-  for (const runner of runnerInventory.runners) {
-    if (!['blocked', 'build-verified'].includes(runner.state) || !runner.requiredOwnerRole || !runner.requiredCiJob || !runner.unblockCondition) throw new Error(`runner semantics: ${runner.target}`);
-    if (runner.state === 'blocked' && (runner.runnerId !== null || runner.owner !== null || runner.ciAvailability !== false)) throw new Error(`blocked runner identity: ${runner.target}`);
-  }
+  validateRunnerInventory(runnerInventory);
 
   const environment = await readJson(root, 'evidence/reports/local-environment.json');
   if (environment.schemaVersion !== 2 || environment.classification !== 'historical-measurement-environment' || environment.host.os !== 'linux' || environment.host.arch !== 'x64') throw new Error('environment identity');

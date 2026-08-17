@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rimeflow.dev/schemas/android-litert-runner-bundle.schema.json",
+  "title": "Rimeflow Android LiteRT Runner Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "bundleId", "target", "minimumApi", "cpuOnly", "runner", "runtimeLibraries", "provenance", "modelManifest", "artifact", "fixtures", "gates"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "bundleId": { "type": "string", "pattern": "^sha256-[0-9a-f]{64}$" },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "arch"],
+      "properties": { "os": { "const": "android" }, "arch": { "const": "arm64" } }
+    },
+    "minimumApi": { "type": "integer", "minimum": 26 },
+    "cpuOnly": { "const": true },
+    "runner": { "$ref": "#/$defs/file" },
+    "runtimeLibraries": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/file" } },
+    "provenance": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/file" } },
+    "modelManifest": { "$ref": "#/$defs/file" },
+    "artifact": { "$ref": "#/$defs/file" },
+    "fixtures": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "input", "role", "shape", "dtype"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["golden", "fault-never-promote"] },
+          "input": { "$ref": "#/$defs/file" },
+          "role": { "type": "string", "minLength": 1 },
+          "shape": { "const": [1, 3, 640, 640] },
+          "dtype": { "const": "f32" }
+        }
+      }
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["initializationDeadlineMs", "goldenRuns", "performanceWarmupRuns", "performanceSampleRuns", "collectPeakRss", "collectPackageLoad"],
+      "properties": {
+        "initializationDeadlineMs": { "const": 30000 },
+        "goldenRuns": { "const": 2 },
+        "performanceWarmupRuns": { "const": 5 },
+        "performanceSampleRuns": { "type": "integer", "minimum": 1 },
+        "collectPeakRss": { "const": true },
+        "collectPackageLoad": { "const": true }
+      }
+    }
+  },
+  "$defs": {
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "bytes"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "bytes": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}
