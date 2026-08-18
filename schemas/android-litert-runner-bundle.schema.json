@@ -12,12 +12,12 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["os", "arch"],
-      "properties": { "os": { "const": "android" }, "arch": { "const": "arm64" } }
+      "properties": { "os": { "const": "android" }, "arch": { "enum": ["arm64", "x86_64"] } }
     },
     "minimumApi": { "type": "integer", "minimum": 26 },
     "cpuOnly": { "const": true },
     "runner": { "$ref": "#/$defs/file" },
-    "runtimeLibraries": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/file" } },
+    "runtimeLibraries": { "type": "array", "minItems": 1, "maxItems": 1, "items": { "$ref": "#/$defs/file" } },
     "provenance": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/file" } },
     "modelManifest": { "$ref": "#/$defs/file" },
     "artifact": { "$ref": "#/$defs/file" },

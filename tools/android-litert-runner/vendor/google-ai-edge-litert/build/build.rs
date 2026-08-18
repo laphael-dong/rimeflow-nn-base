@@ -20,6 +20,10 @@ use std::io::{self, copy};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+mod android_target;
+
+use android_target::AndroidTarget;
+
 // Constansts that are used by the build script.
 
 // The environment variable that contains the output directory where it's possible to write or modify files.
@@ -292,6 +296,7 @@ impl LiteRTSdk {
 // https://ai.google.dev/edge/litert/next/cpp_sdk
 fn stage_and_build_cpp_sdk(
     target_platform: &TargetPlatform,
+    android_target: AndroidTarget,
     out_dir: &Path,
 ) -> Result<LiteRTSdk, Box<dyn std::error::Error>> {
     info!("Staging verified LiteRT C++ SDK...");
@@ -314,8 +319,8 @@ fn stage_and_build_cpp_sdk(
 
     let ndk = PathBuf::from(env::var(ANDROID_NDK_HOME_ENV)?);
     let llvm = ndk.join("toolchains/llvm/prebuilt/linux-x86_64");
-    let c_compiler = llvm.join("bin/aarch64-linux-android26-clang");
-    let cxx_compiler = llvm.join("bin/aarch64-linux-android26-clang++");
+    let c_compiler = llvm.join(format!("bin/{}-clang", android_target.compiler_target));
+    let cxx_compiler = llvm.join(format!("bin/{}-clang++", android_target.compiler_target));
     let toolchain = ndk.join("build/cmake/android.toolchain.cmake");
     for required in [&c_compiler, &cxx_compiler, &toolchain] {
         if !required.is_file() {
@@ -329,7 +334,7 @@ fn stage_and_build_cpp_sdk(
         .arg("-B")
         .arg(&build_dir)
         .arg(format!("-DCMAKE_TOOLCHAIN_FILE={}", toolchain.display()))
-        .arg("-DANDROID_ABI=arm64-v8a")
+        .arg(format!("-DANDROID_ABI={}", android_target.cmake_abi))
         .arg("-DANDROID_PLATFORM=android-26")
         .arg("-DANDROID_STL=c++_static")
         .arg(format!("-DCMAKE_C_COMPILER={}", c_compiler.display()))
@@ -398,11 +403,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let target_platform = TargetPlatform::from_cargo_env()?;
+    let cargo_arch = env::var(CARGO_CFG_TARGET_ARCH_ENV_VAR)?;
+    let android_target = AndroidTarget::from_cargo_arch(&cargo_arch)?;
+    info!(
+        "Android target cargo={} compiler={} cmake_abi={} bundle_arch={}",
+        android_target.cargo_target,
+        android_target.compiler_target,
+        android_target.cmake_abi,
+        android_target.bundle_arch
+    );
 
     check_tool_installed("cmake")?;
 
     let out_dir = PathBuf::from(env::var("OUT_DIR")?);
-    let litert_sdk = stage_and_build_cpp_sdk(&target_platform, &out_dir)?;
+    let litert_sdk = stage_and_build_cpp_sdk(&target_platform, android_target, &out_dir)?;
     info!("Runtime dir {}", litert_sdk.sdk_root_dir.display());
     info!("Build dir {}", litert_sdk.sdk_build_dir.display());
 
@@ -422,7 +436,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .clang_arg(format!("-I{}", litert_sdk.sdk_root_dir.display()))
         .clang_arg(format!("-I{}", litert_sdk.sdk_root_dir.join("litert").join("c").display()))
         .clang_arg(format!("-I{}", litert_sdk.sdk_build_dir.join("include").display()))
-        .clang_arg("--target=aarch64-linux-android26")
+        .clang_arg(format!("--target={}", android_target.compiler_target))
         .clang_arg(format!(
             "--sysroot={}",
             PathBuf::from(env::var(ANDROID_NDK_HOME_ENV)?)

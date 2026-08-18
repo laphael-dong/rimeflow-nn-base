@@ -106,19 +106,27 @@ impl AndroidBundleManifest {
                 self.schema_version
             ));
         }
-        if self.bundle_id.is_empty() || self.target != Platform::new("android", "arm64") {
-            return Err("bundle 必须具有非空 ID，且目标必须是 android/arm64".to_owned());
+        if self.bundle_id.is_empty()
+            || ![
+                Platform::new("android", "arm64"),
+                Platform::new("android", "x86_64"),
+            ]
+            .contains(&self.target)
+        {
+            return Err(
+                "bundle 必须具有非空 ID，且目标必须是 android/arm64 或 android/x86_64".to_owned(),
+            );
         }
         if self.minimum_api < 26 || !self.cpu_only {
             return Err("bundle 仅允许 Android API 26+ 的 CPU LiteRT".to_owned());
         }
-        if self.runtime_libraries.is_empty()
+        if self.runtime_libraries.len() != 1
             || !self
                 .runtime_libraries
                 .iter()
                 .any(|file| file.path.ends_with("/libLiteRt.so") || file.path == "lib/libLiteRt.so")
         {
-            return Err("bundle 必须明确包含 lib/libLiteRt.so".to_owned());
+            return Err("bundle 必须且只能明确包含一个 lib/libLiteRt.so".to_owned());
         }
         if self.fixtures.is_empty() {
             return Err("bundle 至少需要一个外部输入 fixture".to_owned());
@@ -160,6 +168,17 @@ impl AndroidBundleManifest {
             }
         }
         Ok(())
+    }
+
+    pub fn validate_target_arch(&self, compiled_arch: &str) -> Result<(), String> {
+        if self.target == Platform::new("android", compiled_arch) {
+            Ok(())
+        } else {
+            Err(format!(
+                "bundle target {}/{} 与 runner 编译架构 android/{compiled_arch} 不一致",
+                self.target.os, self.target.arch
+            ))
+        }
     }
 
     pub fn verify_all_files(&self, root: &Path) -> Result<Vec<PathBuf>, String> {
@@ -328,6 +347,15 @@ mod tests {
     #[test]
     fn accepts_frozen_android_cpu_contract() {
         manifest().validate().unwrap();
+        let mut x86 = manifest();
+        x86.target = Platform::new("android", "x86_64");
+        x86.validate().unwrap();
+        x86.validate_target_arch("x86_64").unwrap();
+        assert!(x86.validate_target_arch("arm64").is_err());
+
+        let mut mixed = manifest();
+        mixed.runtime_libraries.push(file("lib/arm64/libLiteRt.so"));
+        assert!(mixed.validate().is_err());
     }
 
     #[test]

@@ -1,12 +1,13 @@
 # Android LiteRT v2 原生 runner
 
-该目录提供可复现的 `arm64-v8a`、Android API 26+、CPU-only LiteRT 2.1.6 原生 runner。它直接调用 Base 的 `AndroidLiteRtV2Factory` 与 production `CompiledModel` 路径；交叉编译成功只表示 `build-verified`，不表示真机 conformance、Android supported 状态或 RimeCut 产品验收。
+该目录提供可复现的 Android API 26+、CPU-only LiteRT 2.1.6 原生 runner，单次构建严格选择 `arm64-v8a` 或 `x86_64` 一个 ABI。它直接调用 Base 的 `AndroidLiteRtV2Factory` 与 production `CompiledModel` 路径；交叉编译成功只表示 `build-verified`，不表示真机 conformance、Android supported 状态或 RimeCut 产品验收。
 
 ## 冻结依赖
 
 - Android NDK r27c：`27.2.12479018`，Linux zip SHA-256 `59c2f6dc96743b5daf5d1626684640b20a6bd2b1d85b13156b90333741bad5cc`，仅下载到仓库忽略的 `.android-litert/`。
 - LiteRT C++ SDK 2.1.6：SHA-256 `2cbde8fc18cd3d6ffbab6bcdecb92b1d49b198e50a7bdf46e01cd329c657aca8`。
 - Android arm64 `libLiteRt.so` 2.1.6：SHA-256 `35e34acfb76722868b0fe6bccab9d4432ac3f9fe95e7f29d2d6c030b66052369`。
+- Android x86_64 `libLiteRt.so` 2.1.6：SHA-256 `aa1530ba8b37b537d37139760716d183d2d7dc1f7781791ddf1d071c73eca535`。
 - Rust binding `google-ai-edge-litert` 0.1.3：官方 crate SHA-256 `fe78e8555c7cc89d78e92b06b976e049f793ef38d6962d5a0354794650bc23f8`；仓库内 vendor 副本修补可复现 build path，并让 `CompiledModel` 按 signature index 取得真实 tensor。修补后禁止 build script 联网，并强制 CMake、bindgen、Rust linker 使用 NDK r27c API 26 工具。
 - Rust/Cargo 固定为 `1.97.1`，依赖解析固定在仓库 `Cargo.lock`，registry/cache 写入忽略的 `.android-litert/cargo-home/`；CMake 验证版本为 `3.28.3`。
 
@@ -16,12 +17,21 @@
 
 ```bash
 tools/android-litert-runner/build_bundle.sh \
+  --arch x86_64 \
   --artifact /absolute/path/to/yolov8n-fp32.tflite \
   --conversion-manifest /absolute/path/to/litert-artifact-manifest.json \
   --conversion-manifest-sha256 f1f95bac2006cd02e364123ab9e7556cc331e6d20f49006c50fcebd15d0c4881 \
   --fixtures /absolute/path/to/fixtures.json \
   --out "$PWD/.android-litert/bundles"
 ```
+
+`--arch` 仅接受 `arm64`（默认，保持既有 producer 行为）或 `x86_64`。下游可在不下载、不编译的情况下读取同一锁定契约：
+
+```bash
+tools/android-litert-runner/build_bundle.sh --arch x86_64 --print-contract
+```
+
+输出包含 Cargo target、NDK compiler target、CMake ABI、bundle/provenance target，以及 LiteRT runtime URL 和 SHA-256。packager 会再次逐字段验证该 provenance，并检查 runner 与 runtime 的 ELF machine；ARM64 bytes、目标不一致或未批准架构都会被拒绝。
 
 构建器先校验下载 digest，再构建 runner，最后生成 `sha256-<content-id>/`。可单独执行自检：
 

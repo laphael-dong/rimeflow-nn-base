@@ -41,7 +41,10 @@ fn run(bundle_root: &Path, report_path: &Path) -> i32 {
     let manifest = match std::str::from_utf8(&manifest_bytes)
         .map_err(|error| error.to_string())
         .and_then(AndroidBundleManifest::parse_and_validate)
-    {
+        .and_then(|manifest| {
+            manifest.validate_target_arch(compiled_bundle_arch()?)?;
+            Ok(manifest)
+        }) {
         Ok(manifest) => manifest,
         Err(error) => {
             eprintln!("bundle_manifest_invalid: {error}");
@@ -75,6 +78,14 @@ fn run(bundle_root: &Path, report_path: &Path) -> i32 {
             eprintln!("runner_report_write_failed: {error}");
             2
         }
+    }
+}
+
+fn compiled_bundle_arch() -> Result<&'static str, String> {
+    match std::env::consts::ARCH {
+        "aarch64" => Ok("arm64"),
+        "x86_64" => Ok("x86_64"),
+        arch => Err(format!("runner 不支持编译架构 {arch}")),
     }
 }
 
