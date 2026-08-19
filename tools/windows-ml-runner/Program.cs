@@ -16,6 +16,7 @@ internal static class Program
     private const int PerformanceWarmupRuns = 5;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = true,
     };
