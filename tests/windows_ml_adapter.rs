@@ -94,6 +94,47 @@ fn machine_report_requires_official_windows_ml_identity_and_all_runtime_stages()
 }
 
 #[test]
+fn runner_report_contract_is_camel_case_for_success_and_failure() {
+    let source = include_str!("../tools/windows-ml-runner/Program.cs");
+    assert!(source.contains("PropertyNamingPolicy = JsonNamingPolicy.CamelCase"));
+    assert!(source.contains("PropertyNameCaseInsensitive = true"));
+    assert!(source.contains("JsonSerializer.Serialize(report, JsonOptions)"));
+
+    for (kind, report) in [
+        ("success", runtime_report("win-x64")),
+        (
+            "failure",
+            serde_json::json!({
+                "schemaVersion": 1,
+                "state": "failed",
+                "error": {
+                    "type": "System.ArgumentException",
+                    "message": "missing --request"
+                }
+            }),
+        ),
+    ] {
+        assert_camel_case_keys(&report, kind);
+        let object = report.as_object().expect("report object");
+        assert!(object.contains_key("schemaVersion"), "{kind} schemaVersion");
+        assert!(
+            !object.contains_key("SchemaVersion"),
+            "{kind} SchemaVersion"
+        );
+        WindowsMlMachineReport::parse(&report.to_string())
+            .unwrap_or_else(|error| panic!("{kind} report must parse: {error}"));
+
+        let mut pascal_case = report;
+        let object = pascal_case.as_object_mut().expect("report object");
+        let schema_version = object.remove("schemaVersion").expect("schemaVersion");
+        object.insert("SchemaVersion".to_owned(), schema_version);
+        let error = WindowsMlMachineReport::parse(&pascal_case.to_string())
+            .expect_err("PascalCase SchemaVersion is outside the report contract");
+        assert!(error.contains("missing field `schemaVersion`"), "{error}");
+    }
+}
+
+#[test]
 fn checked_in_runner_uses_only_pinned_official_windows_ml_packages() {
     let project = include_str!("../tools/windows-ml-runner/WindowsMlRunner.csproj");
     let source = include_str!("../tools/windows-ml-runner/Program.cs");
@@ -321,4 +362,30 @@ fn runtime_report(target: &str) -> serde_json::Value {
             }
         }
     })
+}
+
+fn assert_camel_case_keys(value: &serde_json::Value, context: &str) {
+    match value {
+        serde_json::Value::Object(object) => {
+            for (key, nested) in object {
+                assert!(
+                    key.chars()
+                        .next()
+                        .is_some_and(|first| first.is_ascii_lowercase()),
+                    "{context} report key must start lowercase: {key}"
+                );
+                assert!(
+                    !key.contains(['_', '-']),
+                    "{context} report key is not camelCase: {key}"
+                );
+                assert_camel_case_keys(nested, context);
+            }
+        }
+        serde_json::Value::Array(values) => {
+            for nested in values {
+                assert_camel_case_keys(nested, context);
+            }
+        }
+        _ => {}
+    }
 }
