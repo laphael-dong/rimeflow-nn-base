@@ -26,7 +26,7 @@ fn native_request(
 fn expected_native_ready() -> InitOutcome {
     InitOutcome::Ready {
         resolved: ResolvedBackend {
-            kind: BackendKind::LinuxOrt,
+            kind: BackendKind::OpenVino,
             target: linux_target(),
             artifact_id: "yolov8n-onnx-fp32",
         },

@@ -63,6 +63,12 @@ pub mod ort_bridge;
 pub mod build_helper;
 
 pub use backend::coreml_package_tree_sha256;
+#[cfg(all(
+    target_os = "linux",
+    target_arch = "x86_64",
+    feature = "openvino-runtime"
+))]
+pub use backend::{OpenVinoBackend, OpenVinoMetadata};
 
 pub use android_runner::{
     AndroidBundleManifest, AndroidRunnerFile, AndroidRunnerFixture, AndroidRunnerReport,
@@ -108,6 +114,6 @@ pub use manifest::{
 pub use preprocess::{LetterboxParams, PreprocessPipeline, PreprocessUniform};
 
 #[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
-pub use backend::legacy_ort::{LegacyOrtBackend, LegacyOrtMetadata, LinuxOrtBackend};
+pub use backend::legacy_ort::{LegacyOrtBackend, LegacyOrtMetadata};
 #[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
 pub use native_ort::{InferError as LegacyInferError, NativeOrtBackend, ResolvedEp};

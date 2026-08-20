@@ -56,7 +56,7 @@
             "core_ml",
             "lite_rt_v2",
             "windows_ml",
-            "linux_ort",
+            "open_vino",
             "mind_spore_lite",
             "web_onnx"
           ]

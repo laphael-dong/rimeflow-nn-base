@@ -122,44 +122,6 @@ impl LegacyOrtBackend {
     }
 }
 
-/// Linux ORT adapter with diagnostics distinct from the legacy compatibility path.
-pub struct LinuxOrtBackend {
-    inner: LegacyOrtBackend,
-}
-
-impl LinuxOrtBackend {
-    pub fn from_model_bytes(
-        model_bytes: &[u8],
-        dst_size: u32,
-        metadata: LegacyOrtMetadata,
-    ) -> Result<Self, InitFailure> {
-        LegacyOrtBackend::from_model_bytes_with_kind(
-            model_bytes,
-            dst_size,
-            metadata,
-            BackendKind::LinuxOrt,
-        )
-        .map(|inner| Self { inner })
-    }
-
-    pub fn resolved_backend(&self) -> &ResolvedBackend {
-        self.inner.resolved_backend()
-    }
-
-    pub fn infer_from_host_slice(
-        &mut self,
-        nchw: &[f32],
-    ) -> Result<RawModelOutput, InferenceError> {
-        self.inner.infer_from_host_slice(nchw)
-    }
-}
-
-impl RuntimeBackend for LinuxOrtBackend {
-    fn infer(&mut self, input: ModelInput) -> Result<RawModelOutput, InferenceError> {
-        self.inner.infer(input)
-    }
-}
-
 impl RuntimeBackend for LegacyOrtBackend {
     fn infer(&mut self, input: ModelInput) -> Result<RawModelOutput, InferenceError> {
         input.validate()?;

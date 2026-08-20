@@ -26,7 +26,7 @@
   },
   "artifacts": [
     {
-      "id": "linux-onnx-fp32",
+      "id": "linux-openvino-onnx-fp32",
       "format": "onnx",
       "targets": [
         {

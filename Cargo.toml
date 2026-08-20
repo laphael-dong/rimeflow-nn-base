@@ -25,6 +25,11 @@ native-nnapi      = ["native", "ort/nnapi"]
 native-qnn        = ["native", "ort/qnn"]
 native-openvino   = ["native", "ort/openvino"]
 
+# Direct Linux OpenVINO Runtime adapter. Runtime linking keeps ordinary builds
+# independent of a system OpenVINO installation and lets packaged applications
+# load the official runtime from their resource directory.
+openvino-runtime  = ["dep:openvino", "dep:openvino-sys"]
+
 # Direct Apple Core ML framework adapter. This is intentionally separate from
 # `native-coreml`, which is the legacy ONNX Runtime CoreML execution provider.
 native-coreml-adapter = [
@@ -79,6 +84,10 @@ web-sys = { version = "0.3", features = [
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 ort       = { version = "=2.0.0-rc.12", default-features = false, optional = true }
 thiserror = { version = "1", optional = true }
+
+[target.'cfg(all(target_os = "linux", target_arch = "x86_64"))'.dependencies]
+openvino = { version = "=0.11.0", features = ["runtime-linking"], optional = true }
+openvino-sys = { version = "=0.11.0", features = ["runtime-linking"], optional = true }
 
 [target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
 block2 = { version = "0.6.2", default-features = false, features = ["alloc"], optional = true }

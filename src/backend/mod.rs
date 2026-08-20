@@ -11,6 +11,13 @@ pub mod litert_v2;
 pub mod mindspore_lite;
 pub mod windows_ml;
 
+#[cfg(all(
+    target_os = "linux",
+    target_arch = "x86_64",
+    feature = "openvino-runtime"
+))]
+pub mod openvino;
+
 #[cfg(all(not(target_arch = "wasm32"), feature = "native"))]
 pub mod legacy_ort;
 
@@ -33,6 +40,12 @@ pub use mindspore_lite::{
     VerifiedMindSporeLiteArtifact, MINDSPORE_LITE_INFERENCE_TIMEOUT_MS,
     MINDSPORE_LITE_NATIVE_INITIALIZATION_TIMEOUT_MS, MINDSPORE_LITE_RUNTIME_VERSION,
 };
+#[cfg(all(
+    target_os = "linux",
+    target_arch = "x86_64",
+    feature = "openvino-runtime"
+))]
+pub use openvino::{OpenVinoBackend, OpenVinoMetadata};
 pub use windows_ml::{
     WindowsMlAdapterConfig, WindowsMlAdapterFactory, WindowsMlBackend, WindowsMlMachineReport,
     WindowsMlRoleBinding, WindowsMlRoleMap, WindowsMlRunnerCommand, WINDOWS_ML_PACKAGE_VERSION,
@@ -46,7 +59,7 @@ pub enum BackendKind {
     CoreMl,
     LiteRtV2,
     WindowsMl,
-    LinuxOrt,
+    OpenVino,
     MindSporeLite,
     WebOnnx,
 }

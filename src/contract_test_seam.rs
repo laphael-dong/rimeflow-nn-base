@@ -27,7 +27,7 @@ pub enum BackendKind {
     CoreMl,
     LiteRtV2,
     WindowsMl,
-    LinuxOrt,
+    OpenVino,
     MindSporeLite,
     WebOnnx,
 }
@@ -207,7 +207,7 @@ impl DeterministicRuntimeFake {
                     inference_fails: false,
                 },
                 resolved: runtime_resolved(
-                    RuntimeBackendKind::LinuxOrt,
+                    RuntimeBackendKind::OpenVino,
                     &target,
                     "yolov8n-onnx-fp32",
                 ),
@@ -276,7 +276,7 @@ impl DeterministicRuntimeFake {
                         inference_fails: true,
                     },
                     resolved: runtime_resolved(
-                        RuntimeBackendKind::LinuxOrt,
+                        RuntimeBackendKind::OpenVino,
                         &TargetPlatform {
                             os: "linux",
                             arch: "x86_64",
@@ -308,7 +308,7 @@ impl DeterministicRuntimeFake {
     ) -> Result<AdapterConformanceOutcome, ContractSeamError> {
         self.operations.push(ContractOperation::AdapterConformance);
         let format = match case.adapter {
-            BackendKind::LegacyOrt | BackendKind::LinuxOrt => "onnx",
+            BackendKind::LegacyOrt | BackendKind::OpenVino => "onnx",
             BackendKind::CoreMl => "coreml",
             BackendKind::LiteRtV2 => "tflite",
             BackendKind::WindowsMl => "windowsml",
@@ -392,7 +392,7 @@ fn runtime_backend_kind(kind: BackendKind) -> RuntimeBackendKind {
         BackendKind::CoreMl => RuntimeBackendKind::CoreMl,
         BackendKind::LiteRtV2 => RuntimeBackendKind::LiteRtV2,
         BackendKind::WindowsMl => RuntimeBackendKind::WindowsMl,
-        BackendKind::LinuxOrt => RuntimeBackendKind::LinuxOrt,
+        BackendKind::OpenVino => RuntimeBackendKind::OpenVino,
         BackendKind::MindSporeLite => RuntimeBackendKind::MindSporeLite,
         BackendKind::WebOnnx => RuntimeBackendKind::WebOnnx,
     }
@@ -488,7 +488,7 @@ fn map_backend_kind(kind: RuntimeBackendKind) -> BackendKind {
         RuntimeBackendKind::CoreMl => BackendKind::CoreMl,
         RuntimeBackendKind::LiteRtV2 => BackendKind::LiteRtV2,
         RuntimeBackendKind::WindowsMl => BackendKind::WindowsMl,
-        RuntimeBackendKind::LinuxOrt => BackendKind::LinuxOrt,
+        RuntimeBackendKind::OpenVino => BackendKind::OpenVino,
         RuntimeBackendKind::MindSporeLite => BackendKind::MindSporeLite,
         RuntimeBackendKind::WebOnnx => BackendKind::WebOnnx,
     }
