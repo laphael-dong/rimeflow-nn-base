@@ -1,4 +1,8 @@
-#![cfg(all(target_os = "linux", target_arch = "x86_64", feature = "native"))]
+#![cfg(all(
+    target_os = "linux",
+    target_arch = "x86_64",
+    feature = "openvino-runtime"
+))]
 
 use std::fs;
 use std::path::PathBuf;
@@ -10,20 +14,20 @@ use rimeflow_onnx_base::{
     AdapterConformanceCase, AdapterConformanceCheck, AdapterConformanceCheckKind,
     AdapterConformanceReport, AdapterConformanceStatus, AdapterSelection, BackendInitRequest,
     BackendInstance, BackendKind, ConformanceEvidenceKind, ConformanceRunner, DType, ExecutionPlan,
-    LegacyOrtMetadata, LinuxOrtBackend, ModelInput, ModelManifest, NativeAdapterCapability,
-    NativeOrtBackend, OneShotNativeAdapterFactory, Platform, PlatformAdapterFactory,
-    RuntimeLifecycle, SelectedNativeAdapter, TensorData, ADAPTER_CONFORMANCE_SCHEMA_VERSION,
+    ModelInput, ModelManifest, NativeAdapterCapability, OneShotNativeAdapterFactory,
+    OpenVinoBackend, OpenVinoMetadata, Platform, PlatformAdapterFactory, RuntimeLifecycle,
+    SelectedNativeAdapter, TensorData, ADAPTER_CONFORMANCE_SCHEMA_VERSION,
 };
 
 const MODEL_SHA256: &str = "9e7e3921595672c4b97e78f78bf5604d86ffc117773da49f142d1047109d07ad";
 const MODEL_BYTES: usize = 12_851_098;
-const MANIFEST_JSON: &str = include_str!("fixtures/conformance/linux-ort-manifest.json");
-const MANIFEST_SHA256: &str = "6f411aedec1550f3306459468dc3b4a0a4bc2558f5233f5f25404f1ac50e9c26";
+const MANIFEST_JSON: &str = include_str!("fixtures/conformance/linux-openvino-manifest.json");
+const MANIFEST_SHA256: &str = "602e0b1d63abc8750d2af8534d233f5de61ff9531a8c952ee792668160038a07";
 const OUTPUT_ELEMENTS: usize = 84 * 8400;
 
 #[test]
-#[ignore = "requires the locked Validation model via RIMEFLOW_YOLOV8N_MODEL"]
-fn real_linux_ort_adapter_conformance_executes_locked_model() {
+#[ignore = "requires the locked Validation model and an OpenVINO Runtime resource directory"]
+fn real_linux_openvino_adapter_conformance_executes_locked_model() {
     let model_path = PathBuf::from(
         std::env::var_os("RIMEFLOW_YOLOV8N_MODEL")
             .expect("RIMEFLOW_YOLOV8N_MODEL must name the locked model"),
@@ -36,29 +40,32 @@ fn real_linux_ort_adapter_conformance_executes_locked_model() {
     let manifest = ModelManifest::parse_and_validate(MANIFEST_JSON).expect("conformance manifest");
     let request = request();
     let mut capability = NativeAdapterCapability::ready(
-        BackendKind::LinuxOrt,
+        BackendKind::OpenVino,
         request.target.clone(),
         vec![rimeflow_onnx_base::ArtifactFormat::Onnx],
     );
-    capability.configured_provider = Some("CPU".to_owned());
-    capability.execution_plan = ExecutionPlan::Unknown;
-    capability.runtime_version = Some("ort-2.0.0-rc.12".to_owned());
+    capability.configured_provider = Some("OpenVINO Runtime".to_owned());
+    capability.accelerator = Some("CPU".to_owned());
+    capability.execution_plan = ExecutionPlan::Full;
     let selector = PlatformAdapterFactory::new(manifest, vec![capability]);
     let builder_model = Arc::clone(&model_bytes);
     let factory = OneShotNativeAdapterFactory::new(
         selector,
         move |request: &BackendInitRequest, _selected: &SelectedNativeAdapter| {
-            let backend = LinuxOrtBackend::from_model_bytes(
+            let runtime = std::env::var_os("RIMEFLOW_OPENVINO_RUNTIME")
+                .expect("RIMEFLOW_OPENVINO_RUNTIME must name libopenvino_c.so or its directory");
+            let backend = OpenVinoBackend::from_model_bytes_with_runtime(
                 &builder_model,
-                640,
-                LegacyOrtMetadata {
+                runtime,
+                OpenVinoMetadata {
                     platform: request.target.clone(),
                     model_version: request.model_version.clone(),
                     artifact_id: request.artifact_id.clone(),
                     artifact_sha256: request.artifact_sha256.clone(),
+                    input_role: "image".to_owned(),
+                    input_shape: vec![1, 3, 640, 640],
                     output_role: "detections".to_owned(),
                     output_shape: vec![1, 84, 8400],
-                    runtime_version: Some("ort-2.0.0-rc.12".to_owned()),
                 },
             )?;
             let resolved = backend.resolved_backend().clone();
@@ -70,7 +77,7 @@ fn real_linux_ort_adapter_conformance_executes_locked_model() {
     let initialization_started = Instant::now();
     let first = lifecycle
         .initialize_native(&request, &factory)
-        .expect("Linux ORT initialization");
+        .expect("Linux OpenVINO initialization");
     let second = lifecycle
         .initialize_native(&request, &factory)
         .expect("repeated initialization");
@@ -90,25 +97,31 @@ fn real_linux_ort_adapter_conformance_executes_locked_model() {
             dtype: DType::F32,
             bytes: bytemuck::cast_slice(&input).to_vec(),
         })
-        .expect("Linux ORT smoke inference");
+        .expect("Linux OpenVINO smoke inference");
     let inference_ms = inference_started.elapsed().as_millis();
     let TensorData::F32(adapter_values) = &output.tensors[0].data else {
-        panic!("Linux ORT output must be f32")
+        panic!("Linux OpenVINO output must be f32")
     };
     assert_eq!(adapter_values.len(), OUTPUT_ELEMENTS);
     assert!(adapter_values.iter().all(|value| value.is_finite()));
 
-    let mut native = NativeOrtBackend::from_model_bytes(&model_bytes, 640)
-        .expect("reference NativeOrtBackend initializes");
-    let reference = native
-        .infer_from_host_slice(&input)
-        .expect("reference Native ORT inference");
-    let max_difference = reference
+    let repeat = lifecycle
+        .infer(ModelInput::Tensor {
+            role: "image".to_owned(),
+            shape: vec![1, 3, 640, 640],
+            dtype: DType::F32,
+            bytes: bytemuck::cast_slice(&input).to_vec(),
+        })
+        .expect("repeat OpenVINO inference");
+    let TensorData::F32(repeat_values) = &repeat.tensors[0].data else {
+        panic!("repeat Linux OpenVINO output must be f32")
+    };
+    let max_difference = repeat_values
         .iter()
         .zip(adapter_values)
         .map(|(expected, actual)| (expected - actual).abs())
         .fold(0.0f32, f32::max);
-    assert!(max_difference <= 1e-6, "max difference {max_difference}");
+    assert_eq!(max_difference, 0.0, "OpenVINO repeat output changed");
 
     let error = lifecycle
         .infer(ModelInput::Tensor {
@@ -118,17 +131,21 @@ fn real_linux_ort_adapter_conformance_executes_locked_model() {
             bytes: 0.0f32.to_le_bytes().to_vec(),
         })
         .expect_err("post-readiness inference error is returned");
-    assert_eq!(error.code, "inference_failed");
+    assert_eq!(error.code, "input_contract_mismatch");
     assert_eq!(factory.build_attempt_count(), 1);
     assert_eq!(factory.selector().selection_evaluation_count(), 1);
     assert_eq!(lifecycle.published_instance_count(), 1);
     assert_eq!(lifecycle.web_fallback_count(), 0);
 
     let diagnostics = lifecycle.diagnostics().expect("ready diagnostics");
-    assert_eq!(diagnostics.backend_kind, BackendKind::LinuxOrt);
-    assert_eq!(diagnostics.configured_provider.as_deref(), Some("CPU"));
-    assert_eq!(diagnostics.accelerator, None);
-    assert_eq!(diagnostics.execution_plan, ExecutionPlan::Unknown);
+    assert_eq!(diagnostics.backend_kind, BackendKind::OpenVino);
+    assert_eq!(
+        diagnostics.configured_provider.as_deref(),
+        Some("OpenVINO Runtime")
+    );
+    assert_eq!(diagnostics.accelerator.as_deref(), Some("CPU"));
+    assert_eq!(diagnostics.execution_plan, ExecutionPlan::Full);
+    assert!(diagnostics.runtime_version.is_some());
 
     let selection = factory
         .selector()
@@ -139,11 +156,11 @@ fn real_linux_ort_adapter_conformance_executes_locked_model() {
     let report = AdapterConformanceReport {
         schema_version: ADAPTER_CONFORMANCE_SCHEMA_VERSION,
         case: AdapterConformanceCase {
-            id: "linux-x86_64-ort-cpu".to_owned(),
+            id: "linux-x86_64-openvino-cpu".to_owned(),
             model_id: request.model_id.clone(),
             model_version: request.model_version.clone(),
             target: request.target.clone(),
-            adapter: BackendKind::LinuxOrt,
+            adapter: BackendKind::OpenVino,
             artifact_id: request.artifact_id.clone(),
             artifact_sha256: request.artifact_sha256.clone(),
             manifest_sha256: MANIFEST_SHA256.to_owned(),
@@ -166,19 +183,23 @@ fn real_linux_ort_adapter_conformance_executes_locked_model() {
             ),
             passed(
                 AdapterConformanceCheckKind::SmokeInference,
-                format!("real ORT inference produced {OUTPUT_ELEMENTS} finite values"),
+                format!("direct OpenVINO inference produced {OUTPUT_ELEMENTS} finite values"),
             ),
-            passed(
-                AdapterConformanceCheckKind::GoldenOutput,
-                format!("Linux adapter matched NativeOrtBackend; max difference {max_difference}"),
-            ),
+            AdapterConformanceCheck {
+                kind: AdapterConformanceCheckKind::GoldenOutput,
+                status: AdapterConformanceStatus::BuildVerified,
+                detail: format!(
+                    "OpenVINO repeat inference was deterministic; model-level golden comparison remains owned by Validation; max difference {max_difference}"
+                ),
+                evidence_path: Some("tests/openvino_conformance.rs".to_owned()),
+            },
             passed(
                 AdapterConformanceCheckKind::FaultInjection,
                 "artifact/runtime/device/smoke failure stages are covered by the focused suite",
             ),
             passed(
                 AdapterConformanceCheckKind::Diagnostics,
-                "resolved backend reports LinuxOrt, CPU, no accelerator, unknown execution plan",
+                "resolved backend reports direct OpenVINO Runtime, CPU, and a full execution plan",
             ),
             AdapterConformanceCheck {
                 kind: AdapterConformanceCheckKind::Performance,
@@ -186,7 +207,7 @@ fn real_linux_ort_adapter_conformance_executes_locked_model() {
                 detail: format!(
                     "smoke timing captured without a formal threshold: init={initialization_ms}ms infer={inference_ms}ms"
                 ),
-                evidence_path: Some("tests/linux_ort_conformance.rs".to_owned()),
+                evidence_path: Some("tests/openvino_conformance.rs".to_owned()),
             },
             AdapterConformanceCheck {
                 kind: AdapterConformanceCheckKind::PackageLoad,
@@ -206,7 +227,7 @@ fn passed(kind: AdapterConformanceCheckKind, detail: impl Into<String>) -> Adapt
         kind,
         status: AdapterConformanceStatus::Passed,
         detail: detail.into(),
-        evidence_path: Some("tests/linux_ort_conformance.rs".to_owned()),
+        evidence_path: Some("tests/openvino_conformance.rs".to_owned()),
     }
 }
 
@@ -215,7 +236,7 @@ fn request() -> BackendInitRequest {
         target: Platform::new("linux", "x86_64"),
         model_id: "rimeflow-yolov8n".to_owned(),
         model_version: "yolov8n-onnx-20260707".to_owned(),
-        artifact_id: "linux-onnx-fp32".to_owned(),
+        artifact_id: "linux-openvino-onnx-fp32".to_owned(),
         artifact_sha256: MODEL_SHA256.to_owned(),
     }
 }

@@ -52,9 +52,9 @@ fn platform_factory_selects_from_manifest_and_capability_exactly_once() {
     assert!(matches!(
         first,
         AdapterSelection::Ready { ref selected }
-            if selected.backend_kind == BackendKind::LinuxOrt
+            if selected.backend_kind == BackendKind::OpenVino
                 && selected.platform == Platform::new("linux", "x86_64")
-                && selected.artifact_id == "linux-onnx-fp32"
+                && selected.artifact_id == "linux-openvino-onnx-fp32"
                 && selected.artifact_sha256 == MODEL_SHA256
     ));
 }
@@ -150,7 +150,7 @@ fn ready_runtime_returns_inference_errors_without_rebuild_or_switch() {
             .diagnostics()
             .expect("ready diagnostics")
             .backend_kind,
-        BackendKind::LinuxOrt
+        BackendKind::OpenVino
     );
 }
 
@@ -235,12 +235,12 @@ fn conformance_report_requires_complete_honest_check_statuses() {
 
 fn linux_case() -> AdapterConformanceCase {
     AdapterConformanceCase {
-        id: "linux-x86_64-ort".to_owned(),
+        id: "linux-x86_64-openvino".to_owned(),
         model_id: "rimeflow-yolov8n".to_owned(),
         model_version: "yolov8n-onnx-20260707".to_owned(),
         target: Platform::new("linux", "x86_64"),
-        adapter: BackendKind::LinuxOrt,
-        artifact_id: "linux-onnx-fp32".to_owned(),
+        adapter: BackendKind::OpenVino,
+        artifact_id: "linux-openvino-onnx-fp32".to_owned(),
         artifact_sha256: MODEL_SHA256.to_owned(),
         manifest_sha256: MANIFEST_SHA256.to_owned(),
         native_initialization_timeout_ms: 15_000,
@@ -252,14 +252,14 @@ fn request() -> BackendInitRequest {
         target: Platform::new("linux", "x86_64"),
         model_id: "rimeflow-yolov8n".to_owned(),
         model_version: "yolov8n-onnx-20260707".to_owned(),
-        artifact_id: "linux-onnx-fp32".to_owned(),
+        artifact_id: "linux-openvino-onnx-fp32".to_owned(),
         artifact_sha256: MODEL_SHA256.to_owned(),
     }
 }
 
 fn linux_capability() -> NativeAdapterCapability {
     let mut capability = NativeAdapterCapability::ready(
-        BackendKind::LinuxOrt,
+        BackendKind::OpenVino,
         Platform::new("linux", "x86_64"),
         vec![rimeflow_onnx_base::ArtifactFormat::Onnx],
     );
@@ -269,6 +269,8 @@ fn linux_capability() -> NativeAdapterCapability {
 }
 
 fn sample_manifest() -> ModelManifest {
-    ModelManifest::parse_and_validate(include_str!("fixtures/conformance/linux-ort-manifest.json"))
-        .expect("sample manifest")
+    ModelManifest::parse_and_validate(include_str!(
+        "fixtures/conformance/linux-openvino-manifest.json"
+    ))
+    .expect("sample manifest")
 }

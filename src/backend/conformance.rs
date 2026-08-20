@@ -658,7 +658,7 @@ fn backend_supports_format(kind: BackendKind, format: ArtifactFormat) -> bool {
     matches!(
         (kind, format),
         (
-            BackendKind::LegacyOrt | BackendKind::LinuxOrt,
+            BackendKind::LegacyOrt | BackendKind::OpenVino,
             ArtifactFormat::Onnx
         ) | (BackendKind::CoreMl, ArtifactFormat::Coreml)
             | (BackendKind::LiteRtV2, ArtifactFormat::Tflite)
